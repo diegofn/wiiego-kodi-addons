@@ -2,7 +2,7 @@ wiiego-xbmc-addons
 ==================
 
 Wiiego's XBMC Addons is a Multimedia Collection for XBMC to listen music and see videos.
-You can download my repo from: https://github.com/diegofn/wiiego-xbmc-addons/blob/master/repo/repository.eldorado/repository.wiiego-1.0.1.zip?raw=true
+You can download my repo from: https://github.com/diegofn/wiiego-xbmc-addons/raw/master/repo/repository.wiiego/repository.wiiego-1.0.1.zip 
 
 It include the following plugins
 
