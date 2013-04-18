@@ -11,7 +11,15 @@ plugin.audio.sonora
 
 - Terra's Sonora is a online service to listen more that 20 millons of songs and radios for free. With one free account you can create playlist, mark songs as favorites and download songs (premium service). With this plugin you can listen the sonora library without ads. Its only for educational porpouses.
 
+Version 1.0
+===========
+
+- First version of Sonora XBMC plugin
+- Wish: Ranking category
+- Wish: Search function
+
 Version 0.1
 ===========
 
 - First version of XBMC repository
+
