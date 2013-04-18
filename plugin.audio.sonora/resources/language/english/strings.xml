@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?> 
+<strings>	
+	<!-- Settings -->
+	<string id="1010">General</string>
+	<string id="1011">Username</string>
+	<string id="1012">Password</string>
+	<string id="1020">Downloads</string>
+	<string id="1021">Enable Downloads</string>
+	<string id="1022">Downloads path</string>
+	<string id="1030">Advanced</string>
+	<string id="1031">Enable Debug</string>
+
+	<!-- Labels-->
+	<string id="2001">My sonora</string>
+	<string id="2002">Favorite songs</string>
+	<string id="2003">Artists</string>
+	<string id="2004">Albums</string>
+	<string id="2005">My Playlists</string>
+
+	<string id="2006">Featured</string>
+	<string id="2007">Catalog</string>
+	<string id="2008">Ranking</string>
+	<string id="2009">Search</string>
+
+	<!-- Dialogs -->
+	<string id="3001">Refresh</string>
+	<string id="3002">Enter song/artist/album name</string>
+	<string id="3003">Sonora account required to perform this action</string>
+	<string id="3004">Visit sonora.terra.com for free sign up</string>
+	<string id="3005">Network error.</string>
+	<string id="3006">Sonora API error.</string>
+	<string id="3007">See xbmc.log for more information.</string>
+	
+	<!-- Download Dialogs -->
+
+</strings>

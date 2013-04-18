@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>	
+	<!-- Settings -->
+	<string id="1010">General</string>
+	<string id="1011">Usuário</string>
+	<string id="1012">Senha</string>
+	<string id="1020">Baixar</string>
+	<string id="1021">Permitir baixar</string>
+	<string id="1022">Baixar caminho</string>
+	<string id="1030">Avançado</string>
+	<string id="1031">Permitir Debug</string>
+
+	<!-- Labels-->
+	<string id="2001">Meu sonora</string>
+	<string id="2002">Canções favoritas</string>
+	<string id="2003">Artistas</string>
+	<string id="2004">Álbuns</string>
+	<string id="2005">Minha lista de reprodução</string>
+
+	<string id="2006">Destaque</string>
+	<string id="2007">Catálogo</string>
+	<string id="2008">Ranking</string>
+	<string id="2009">Pesquisa</string>
+	
+	<!-- Dialogs -->
+
+	<!-- Download Dialogs -->
+
+</strings>

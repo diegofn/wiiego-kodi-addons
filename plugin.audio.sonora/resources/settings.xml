@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<!-- General -->
+	<category label="1010">
+		<setting id="username" type="text" label="1011" default=""/>
+		<setting id="password" type="text" option="hidden" label="1012" enable="!eq(-1,)" default=""/>
+	</category>
+
+	<!-- Downloads -->
+	<category label="1020">
+		<setting id="enabledownloads" type="bool" label="1021" default="true"/>
+		<setting id="downloadpath" type="folder" label="1022" default=""/>
+	</category>
+
+	<!-- Advanced -->
+	<category label="1030">
+		<setting id="enabledebug" type="bool" label="1031" default="true"/>
+	</category>
+</settings>

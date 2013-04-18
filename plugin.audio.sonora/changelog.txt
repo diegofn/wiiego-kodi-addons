@@ -1,0 +1,3 @@
+[B] Version 1.0.1 [/B]
+Initial release.
+You can play songs from Sonora from Terra.
