@@ -50,7 +50,9 @@ class SonoraLogin():
         status = 500
 
         # Make the authentication
-        result, status = self.core.account_auth(username, userpassword)
+        if (len(username) > 0):
+            result, status = self.core.account_auth(username, userpassword)
+        
         return (result, status)
 
     
