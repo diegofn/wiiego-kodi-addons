@@ -69,8 +69,20 @@ class SonoraNavigation():
     def executeAction(self, params={}):
         self.common.log(params, 3)
         get = params.get
-        self.common.log("Done", 5)
 
+        action = get("action")
+
+        if (action == "play"):
+            id = get("id")
+            url =  self.core.get_download_link(id)
+            
+            player_type = self.xbmc.PLAYER_CORE_DVDPLAYER
+            xbmcPlayer = self.xbmc.Player(player_type)
+
+            # Play the file 
+            xbmcPlayer.play(url)
+
+        self.common.log("Done", 5)
 
     def list(self, params={}):
         self.common.log(repr(params), 1)
@@ -134,6 +146,8 @@ class SonoraNavigation():
                 listitem.setInfo('Music', {'Title': item('title'), 'Artist': item('artist'), 'Album': item('album'), 'Genre': item('genre'), 'Comment': '', 'Tracknumber': item('trackNumber')})
                 listitem.setProperty('IsPlayable', "true")
                 
+                # WISH. Play mp4 with the DVD Player
+                #url = "%s?action=play&id=%s" % (sys.argv[0], item('id'))
                 url = item('url')
                 ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=listitem, isFolder=False)
 

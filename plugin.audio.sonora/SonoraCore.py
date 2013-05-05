@@ -110,7 +110,10 @@ class SonoraCore():
 
         return (result, status)
 
-
+    # Get the Download Links for a song
+    def get_download_link(self, id):
+        return self.protocol + BASE_URL + '/Media/DownloadMusicByProfile?musicId=' + id + '&profileId=17'
+    
     # Creates a list from the favorite user songs.
     def browse_favorite_songs(self):
         ret_obj = {"status": 500, "content": "", "error": 0}
@@ -132,7 +135,8 @@ class SonoraCore():
                     'artist': usermusic['usermusic']['artist']['name'],
                     'album': usermusic['usermusic']['cd']['title'],
                     'trackNumber' : usermusic['usermusic']['trackNumber'],
-                    'url': self.protocol + BASE_URL + '/Media/DownloadMusicByProfile?musicId=' + str(usermusic['usermusic']['id']) + '&profileId=17',
+                    #'id': str(usermusic['usermusic']['id']),
+                    'url': self.get_download_link(str(usermusic['usermusic']['id'])),
                     'action': 'play'
                 })
         return usermusics
@@ -183,7 +187,7 @@ class SonoraCore():
                                 'artist': music1['music']['artist']['name'],
                                 'album': music1['music']['cd']['title'],
                                 'trackNumber' : music1['music']['trackNumber'],
-                                'url': self.protocol + BASE_URL + '/Media/DownloadMusicByProfile?musicId=' + str(music1['music']['id']) + '&profileId=17',
+                                'url': self.get_download_link(str(usermusic['usermusic']['id'])),
                                 'action': 'play'
                             })
         return musics
@@ -231,7 +235,7 @@ class SonoraCore():
                                 'artist': music1['music']['artist']['name'],
                                 'album': music1['music']['cd']['title'],
                                 'trackNumber' : music1['music']['trackNumber'],
-                                'url': self.protocol + BASE_URL + '/Media/DownloadMusicByProfile?musicId=' + str(music1['music']['id']) + '&profileId=17',
+                                'url': self.get_download_link(str(usermusic['usermusic']['id'])),
                                 'action': 'play'
                             })
         return musics

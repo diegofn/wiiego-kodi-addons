@@ -1,3 +1,11 @@
 [B] Version 1.0.1 [/B]
-Initial release.
-You can play songs from Sonora from Terra.
+- Initial release.
+- You can play songs from Sonora from Terra.
+
+[B] Version 1.0.2 [/B]
+- It play only in DVD Player please create $XBMCHome/userdata/advancedsettings.xml 
+<advancedsettings>
+	<audio>
+		<defaultplayer>dvdplayer</defaultplayer>
+	</audio>
+</advancedsettings>
