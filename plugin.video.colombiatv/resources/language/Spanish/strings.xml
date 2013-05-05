@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<strings>	
+	<!-- Settings -->
+	<string id="1030">Avanzadas</string>
+	<string id="1031">Habilitar Debug</string>
+
+	<!-- Menus -->
+	<string id="3001">Actualizar</string>
+
+</strings>

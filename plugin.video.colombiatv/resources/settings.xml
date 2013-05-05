@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<!-- Advanced -->
+	<category label="1030">
+		<setting id="enabledebug" type="bool" label="1031" default="true"/>
+	</category>
+</settings>
