@@ -9,3 +9,7 @@
 		<defaultplayer>dvdplayer</defaultplayer>
 	</audio>
 </advancedsettings>
+
+[B] Version 1.0.3 [/B]
+- Critical update, Sonora doesn't work
+~                      

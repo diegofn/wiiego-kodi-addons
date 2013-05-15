@@ -187,7 +187,7 @@ class SonoraCore():
                                 'artist': music1['music']['artist']['name'],
                                 'album': music1['music']['cd']['title'],
                                 'trackNumber' : music1['music']['trackNumber'],
-                                'url': self.get_download_link(str(usermusic['usermusic']['id'])),
+                                'url': self.get_download_link(str(music1['music']['id'])),
                                 'action': 'play'
                             })
         return musics
@@ -235,7 +235,7 @@ class SonoraCore():
                                 'artist': music1['music']['artist']['name'],
                                 'album': music1['music']['cd']['title'],
                                 'trackNumber' : music1['music']['trackNumber'],
-                                'url': self.get_download_link(str(usermusic['usermusic']['id'])),
+                                'url': self.get_download_link(str(music1['music']['id'])),
                                 'action': 'play'
                             })
         return musics
