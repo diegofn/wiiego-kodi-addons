@@ -21,6 +21,7 @@
 	<string id="2007">Catalog</string>
 	<string id="2008">Ranking</string>
 	<string id="2009">Search</string>
+	<string id="2010">Musics</string>
 
 	<!-- Dialogs -->
 	<string id="3001">Refresh</string>
@@ -30,6 +31,7 @@
 	<string id="3005">Network error.</string>
 	<string id="3006">Sonora API error.</string>
 	<string id="3007">See xbmc.log for more information.</string>
+	<string id="3008">All</string>
 	
 	<!-- Download Dialogs -->
 

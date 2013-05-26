@@ -46,6 +46,7 @@ class SonoraCore():
         self.settings = sys.modules["__main__"].settings
         self.plugin = sys.modules["__main__"].plugin
         self.enabledebug = sys.modules["__main__"].enabledebug
+        self.language = sys.modules["__main__"].language
         urllib2.install_opener(sys.modules["__main__"].opener)
 
         self.global_params = []
@@ -135,6 +136,7 @@ class SonoraCore():
                     'artist': usermusic['usermusic']['artist']['name'],
                     'album': usermusic['usermusic']['cd']['title'],
                     'trackNumber' : usermusic['usermusic']['trackNumber'],
+                    'rating' : usermusic['usermusic']['rating'],
                     #'id': str(usermusic['usermusic']['id']),
                     'url': self.get_download_link(str(usermusic['usermusic']['id'])),
                     'action': 'play'
@@ -187,6 +189,7 @@ class SonoraCore():
                                 'artist': music1['music']['artist']['name'],
                                 'album': music1['music']['cd']['title'],
                                 'trackNumber' : music1['music']['trackNumber'],
+                                'rating' : music1['music']['rating'],
                                 'url': self.get_download_link(str(music1['music']['id'])),
                                 'action': 'play'
                             })
@@ -235,6 +238,7 @@ class SonoraCore():
                                 'artist': music1['music']['artist']['name'],
                                 'album': music1['music']['cd']['title'],
                                 'trackNumber' : music1['music']['trackNumber'],
+                                'rating' : music1['music']['rating'],
                                 'url': self.get_download_link(str(music1['music']['id'])),
                                 'action': 'play'
                             })
@@ -281,9 +285,196 @@ class SonoraCore():
                 # Add the main category
                 elif (str(genre['genre']['id']) == str(id) and str(id) != "0"):
                     genres.append({'id': genre['genre']['id'], 
-                        'title': genre['genre']['title'] + " (All)",
+                        'title': genre['genre']['title'] + "(" + self.language(3008) + ")",
                         'image': genre['genre']['image'], 
                         'thumbnail': genre['genre']['image'],
                         'path': "/root/catalog/%s" % (genre['genre']['id'])
                         })
             return genres
+
+    # Creates a list from Ranking artist
+    def browse_ranking(self, genreID):
+        params = [{'param': 'offset', 'value': 0}, {'param': 'limit', 'value': 50}, {'param': 'GenreID', 'value': genreID}]
+        has_child = False
+        result = self.__call_sonora__('Ranking/Artists.json', params)
+        if (result['artists'] == ''):   
+            raise Sonora.SonoraError(1, 'Sonora Fetch Failed' . result['messageText'])
+        else:
+            # Append all music
+            artists = []
+            for artist in result['artists']:
+                for key in artist:
+                    if (key != "count"): 
+                        artists.append({'id': key['artist']['id'], 
+                            'title': key['artist']['title'],
+                            'image': key['artist']['image'], 
+                            'thumbnail': key['artist']['image'],
+                            'path': "/root/artist/%s" % (key['artist']['id'])
+                        })
+                        
+        return artists
+
+    # Creates a list from the artist CDs.
+    def browse_artist(self, id):
+        ret_obj = {"status": 500, "content": "", "error": 0}
+        params = [{'param': 'ArtistId', 'value': id}, {'param': 'offset', 'value': 0}, {'param': 'limit', 'value': 50}]
+        
+        result = self.__call_sonora__('Artists/Cds.json', params)
+        if (result['cds'] == ''):    
+            ret_obj["content"] = 'Sonora Fetch Failed' . result['messageText']
+            raise ret_obj
+
+        else:
+            # Append all music
+            cds = []
+            for cd in result['cds']:
+                for key in cd:
+                    if (key != "count"): 
+                        for cd1 in key:
+                            cds.append({'id': key['cd']['id'], 
+                                'title': key['cd']['title'],
+                                'image': key['cd']['imageHigher'], 
+                                'thumbnail': key['cd']['imageHigher'],
+                                'path': "/root/album/%s" % (key['cd']['id'])
+                            })
+        return cds
+
+
+    # Creates a list from the albums songs.
+    def browse_album(self, id):
+        ret_obj = {"status": 500, "content": "", "error": 0}
+        params = [{'param': 'CdId', 'value': id}]
+        
+        result = self.__call_sonora__('Cds/Musics.json', params)
+        if (result['musics'] == ''):    
+            ret_obj["content"] = 'Sonora Fetch Failed' . result['messageText']
+            raise ret_obj
+
+        else:
+            # Append all music
+            musics = []
+            for music in result['musics']:
+                musics.append({'id': music['music']['id'], 
+                    'title': music['music']['title'], 
+                    'genre': music['music']['genre'],
+                    'image': music['music']['cd']['imageHigher'],
+                    'artist': music['music']['artist']['name'],
+                    'album': music['music']['cd']['title'],
+                    'trackNumber' : music['music']['trackNumber'],
+                    'rating' : music['music']['rating'],
+                    'url': self.get_download_link(str(music['music']['id'])),
+                    'action': 'play'
+                })
+        return musics
+
+    # Search a query in music, album and artist
+    def search(self, query):
+        artist = self.search_artist(query)
+        albums = self.search_album(query)
+        musics = self.search_music(query)
+
+        results = []
+        results.append({'id': "1", 
+                        'title': self.language(2003) + " (" + str(len(artist)) + ")",
+                        'image': "search", 
+                        'thumbnail': "search",
+                        'path': "/root/search/artists/%s" % (query)
+        
+                    })
+        
+        results.append({'id': "2", 
+                        'title': self.language(2004) + " (" + str(len(albums)) + ")",
+                        'image': "search", 
+                        'thumbnail': "search",
+                        'path': "/root/search/albums/%s" % (query)
+        
+                    })
+
+        results.append({'id': "3", 
+                        'title': self.language(2010) + " (" + str(len(musics)) + ")",
+                        'image': "search", 
+                        'thumbnail': "search",
+                        'path': "/root/search/musics/%s" % (query)
+        
+                    })
+
+        return results
+
+    # Search a artist based in query
+    def search_artist(self, query):
+        ret_obj = {"status": 500, "content": "", "error": 0}
+        params = [{'param': 'TextSearch', 'value': query}, {'param': 'offset', 'value': 0}, {'param': 'limit', 'value': 20}]
+        
+        result = self.__call_sonora__('Search/Artists.json', params)
+        if (result['artists'] == ''):    
+            ret_obj["content"] = 'Sonora Fetch Failed' . result['messageText']
+            raise ret_obj
+
+        else:
+            # Append all music
+            artists = []
+            for artist in result['artists']:
+                for key in artist:
+                    if (key != "count"): 
+                        artists.append({'id': key['artist']['id'], 
+                            'title': key['artist']['title'],
+                            'image': key['artist']['image'], 
+                            'thumbnail': key['artist']['image'],
+                            'path': "/root/artist/%s" % (key['artist']['id'])
+                        })
+        return artists
+
+    # Search an album based in query
+    def search_album(self, query):
+        ret_obj = {"status": 500, "content": "", "error": 0}
+        params = [{'param': 'TextSearch', 'value': query}, {'param': 'offset', 'value': 0}, {'param': 'limit', 'value': 40}]
+        
+        result = self.__call_sonora__('Search/Cds.json', params)
+        if (result['cds'] == ''):    
+            ret_obj["content"] = 'Sonora Fetch Failed' . result['messageText']
+            raise ret_obj
+
+        else:
+            # Append all music
+            cds = []
+            for cd in result['cds']:
+                for key in cd:
+                    if (key != "count"): 
+                        for cd1 in key:
+                            cds.append({'id': key['cd']['id'], 
+                                'title': key['cd']['title'],
+                                'image': key['cd']['imageHigher'], 
+                                'thumbnail': key['cd']['imageHigher'],
+                                'path': "/root/album/%s" % (key['cd']['id'])
+                            })
+        return cds
+
+    # Search a music based in query
+    def search_music(self, query):
+        ret_obj = {"status": 500, "content": "", "error": 0}
+        params = [{'param': 'TextSearch', 'value': query}, {'param': 'offset', 'value': 0}, {'param': 'limit', 'value': 60}]
+        
+        result = self.__call_sonora__('Search/Musics.json', params)
+        if (result['musics'] == ''):    
+            ret_obj["content"] = 'Sonora Fetch Failed' . result['messageText']
+            raise ret_obj
+
+        else:
+            # Append all music
+            musics = []
+            for music in result['musics']:
+                for key in music:
+                    if (key != "count"): 
+                        for music1 in key:
+                            musics.append({'id': music1['music']['id'], 
+                                'title': music1['music']['title'], 
+                                'genre': music1['music']['genre'],
+                                'image': music1['music']['cd']['imageHigher'],
+                                'artist': music1['music']['artist']['name'],
+                                'album': music1['music']['cd']['title'],
+                                'trackNumber' : music1['music']['trackNumber'],
+                                'rating' : music1['music']['rating'],
+                                'url': self.get_download_link(str(music1['music']['id'])),
+                                'action': 'play'
+                            })
+        return musics

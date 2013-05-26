@@ -99,7 +99,7 @@ class SonoraNavigation():
             if not match:
                 results = self.core.browse_featured_category()
             else:
-                results = self.core.browse_music_list(match.group(1), 50)
+                results = self.core.browse_music_list(match.group(1), mediaType=50)
 
             for result in results:
                 self.addListItem(params, result)
@@ -118,16 +118,58 @@ class SonoraNavigation():
             match = re.match('.*catalog/(.*)/(.*)', path)
             if not match:
                 matchGroup = re.match('.*catalog/(.*)', path)
-                results = self.core.browse_music_list(matchGroup.group(1), 56)
+                results = self.core.browse_music_list(matchGroup.group(1), mediaType=56)
             else:
                 results = self.core.browse_catalog(match.group(1), match.group(2))
 
             for result in results:
                 self.addListItem(params, result)
 
+        elif (path.find("ranking") > -1):
+            results = self.core.browse_ranking(genreID=-1)
+            for result in results:
+                self.addListItem(params, result)
+
+        elif (path.find("search") > -1):
+            match_music = re.match('.*search/musics/(.*)', path)
+            match_artist = re.match('.*search/artists/(.*)', path)
+            match_album = re.match('.*search/albums/(.*)', path)
+
+            if match_music:
+                results = self.core.search_music(match_music.group(1))
+           
+            elif match_artist:
+                results = self.core.search_artist(match_artist.group(1))  
+            
+            elif match_album:
+                results = self.core.search_album(match_album.group(1))  
+                
+            else:
+                query = self.common.getUserInput(self.language(3002), '')    
+                if len(query) > 0:
+                    results = self.core.search(query)
+
+            for result in results:
+                self.addListItem(params, result)
+
+        elif (path.find("artist") > -1): 
+            match = re.match('.*artist/(.*)', path)
+            if match:
+                results = self.core.browse_artist(match.group(1))
+
+            for result in results:
+                self.addListItem(params, result)
+
+        elif (path.find("album") > -1):
+            match = re.match('.*album/(.*)', path)
+            if match:
+                results = self.core.browse_album(match.group(1))
+
+            for result in results:
+                self.addListItem(params, result)
+
         else:
             print (get("path"))
-            
 
     def addListItem(self, params={}, item_params={}):
         item = item_params.get
@@ -143,7 +185,7 @@ class SonoraNavigation():
                 listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
                 listitem.addContextMenuItems(items=contextmenu, replaceItems=True)
                 listitem.setProperty("fanart_image", fanart)
-                listitem.setInfo('Music', {'Title': item('title'), 'Artist': item('artist'), 'Album': item('album'), 'Genre': item('genre'), 'Comment': '', 'Tracknumber': item('trackNumber')})
+                listitem.setInfo('Music', {'Title': item('title'), 'Artist': item('artist'), 'Album': item('album'), 'Genre': item('genre'), 'Comment': '', 'Tracknumber': item('trackNumber'), 'Rating': item('rating')})
                 listitem.setProperty('IsPlayable', "true")
                 
                 # WISH. Play mp4 with the DVD Player

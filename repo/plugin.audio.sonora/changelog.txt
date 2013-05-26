@@ -12,4 +12,9 @@
 
 [B] Version 1.0.3 [/B]
 - Critical update, Sonora doesn't work
-~                      
+
+[B] Version 1.0.4 [/B]
+- Added the Ranking category
+- Added the rating in music
+- Added the Search category
+- Fix the language in SonoraCore

@@ -21,8 +21,17 @@
 	<string id="2007">Catalogo</string>
 	<string id="2008">Ranking</string>
 	<string id="2009">Búsqueda</string>
+	<string id="2010">Canciones</string>
 
 	<!-- Dialogs -->
+	<string id="3001">Actualizar</string>
+	<string id="3002">Ingrese el nombre de la canción/artista/album</string>
+	<string id="3003">Una Cuenta Sonora es requerida para esta acción</string>
+	<string id="3004">Visite sonora.terra.com y obtenga una cuenta gratuita</string>
+	<string id="3005">Error de red</string>
+	<string id="3006">Sonora API error.</string>
+	<string id="3007">See xbmc.log for more information.</string>
+	<string id="3008">Todos</string>
 
 	<!-- Download Dialogs -->
 
