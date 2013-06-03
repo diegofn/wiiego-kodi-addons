@@ -19,9 +19,13 @@ Features
 - Search 
 
 Wish
-- Add one favorite song
 - Create playlists
 - Add songs to playlist
+- Favorite Artists
+- Favorite albums
+- Downloads
+- Pager
+- Ranking by genre
 
 plugin.video.colombiatv
 ===================

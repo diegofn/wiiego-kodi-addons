@@ -81,6 +81,13 @@ class SonoraNavigation():
 
             # Play the file 
             xbmcPlayer.play(url)
+        elif (action == "like"):
+            musicid = get("musicid")
+            response = self.core.like_music(musicid)
+
+        elif (action == "dislike"):
+            musicid = get("musicid")
+            response = self.core.dislike_music(musicid)
 
         self.common.log("Done", 5)
 
@@ -178,7 +185,12 @@ class SonoraNavigation():
             # Add a Play Element
             if (item("action") == "play"):
                 # Add a Music Element
-                contextmenu = [(self.language(3001), "XBMC.RunPlugin(%s?path=refresh)" % (sys.argv[0], ))]
+                contextmenu = []
+                if (item('userRate') == 0):
+                    contextmenu.append ( (self.language(3009), "XBMC.RunPlugin(%s?action=like&musicid=%s)" % ( sys.argv[0], item('id'))) )
+                else:
+                    contextmenu.append ( (self.language(3010), "XBMC.RunPlugin(%s?action=dislike&musicid=%s)" % ( sys.argv[0], item('id'))) )
+                
                 image = item('image')
                 fanart = os.path.join(self.settings.getAddonInfo("path"), "fanart.jpg")
 

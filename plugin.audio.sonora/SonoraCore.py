@@ -137,6 +137,7 @@ class SonoraCore():
                     'album': usermusic['usermusic']['cd']['title'],
                     'trackNumber' : usermusic['usermusic']['trackNumber'],
                     'rating' : usermusic['usermusic']['rating'],
+                    'userRate' : usermusic['usermusic']['userRate'],
                     #'id': str(usermusic['usermusic']['id']),
                     'url': self.get_download_link(str(usermusic['usermusic']['id'])),
                     'action': 'play'
@@ -190,6 +191,7 @@ class SonoraCore():
                                 'album': music1['music']['cd']['title'],
                                 'trackNumber' : music1['music']['trackNumber'],
                                 'rating' : music1['music']['rating'],
+                                'userRate' : music1['music']['userRate'],
                                 'url': self.get_download_link(str(music1['music']['id'])),
                                 'action': 'play'
                             })
@@ -239,6 +241,7 @@ class SonoraCore():
                                 'album': music1['music']['cd']['title'],
                                 'trackNumber' : music1['music']['trackNumber'],
                                 'rating' : music1['music']['rating'],
+                                'userRate' : music1['music']['userRate'],
                                 'url': self.get_download_link(str(music1['music']['id'])),
                                 'action': 'play'
                             })
@@ -362,6 +365,7 @@ class SonoraCore():
                     'album': music['music']['cd']['title'],
                     'trackNumber' : music['music']['trackNumber'],
                     'rating' : music['music']['rating'],
+                    'userRate' : music['music']['userRate'],
                     'url': self.get_download_link(str(music['music']['id'])),
                     'action': 'play'
                 })
@@ -403,7 +407,7 @@ class SonoraCore():
     # Search a artist based in query
     def search_artist(self, query):
         ret_obj = {"status": 500, "content": "", "error": 0}
-        params = [{'param': 'TextSearch', 'value': query}, {'param': 'offset', 'value': 0}, {'param': 'limit', 'value': 20}]
+        params = [{'param': 'TextSearch', 'value': query}, {'param': 'offset', 'value': 0}, {'param': 'limit', 'value': 50}]
         
         result = self.__call_sonora__('Search/Artists.json', params)
         if (result['artists'] == ''):    
@@ -427,7 +431,7 @@ class SonoraCore():
     # Search an album based in query
     def search_album(self, query):
         ret_obj = {"status": 500, "content": "", "error": 0}
-        params = [{'param': 'TextSearch', 'value': query}, {'param': 'offset', 'value': 0}, {'param': 'limit', 'value': 40}]
+        params = [{'param': 'TextSearch', 'value': query}, {'param': 'offset', 'value': 0}, {'param': 'limit', 'value': 50}]
         
         result = self.__call_sonora__('Search/Cds.json', params)
         if (result['cds'] == ''):    
@@ -452,7 +456,7 @@ class SonoraCore():
     # Search a music based in query
     def search_music(self, query):
         ret_obj = {"status": 500, "content": "", "error": 0}
-        params = [{'param': 'TextSearch', 'value': query}, {'param': 'offset', 'value': 0}, {'param': 'limit', 'value': 60}]
+        params = [{'param': 'TextSearch', 'value': query}, {'param': 'offset', 'value': 0}, {'param': 'limit', 'value': 50}]
         
         result = self.__call_sonora__('Search/Musics.json', params)
         if (result['musics'] == ''):    
@@ -474,7 +478,38 @@ class SonoraCore():
                                 'album': music1['music']['cd']['title'],
                                 'trackNumber' : music1['music']['trackNumber'],
                                 'rating' : music1['music']['rating'],
+                                'userRate' : music1['music']['userRate'],
                                 'url': self.get_download_link(str(music1['music']['id'])),
                                 'action': 'play'
                             })
         return musics
+
+
+    # Like a song in the favorites playlist
+    def like_music(self, musicid):
+        ret_obj = {"status": 500, "content": "", "error": 0}
+        params = [{'param': 'musicid', 'value': musicid}]
+        
+        result = self.__call_sonora__('User/Like.json', params)
+        if (result['response'] == ''):    
+            ret_obj["content"] = 'Sonora Fetch Failed' . result['messageText']
+            raise ret_obj
+        else:
+            ret_obj = {"status": 200, "content": "", "error": 0}
+            
+        return ret_obj
+
+
+    # Dislike a song in the favorites playlist
+    def dislike_music(self, musicid):
+        ret_obj = {"status": 500, "content": "", "error": 0}
+        params = [{'param': 'musicid', 'value': musicid}]
+        
+        result = self.__call_sonora__('User/dislike.json', params)
+        if (result['response'] == ''):    
+            ret_obj["content"] = 'Sonora Fetch Failed' . result['messageText']
+            raise ret_obj
+        else:
+            ret_obj = {"status": 200, "content": "", "error": 0}
+
+        return ret_obj

@@ -18,3 +18,6 @@
 - Added the rating in music
 - Added the Search category
 - Fix the language in SonoraCore
+
+[B] Version 1.0.5 [/B]
+- Added the Like and Unlike contextual menu
