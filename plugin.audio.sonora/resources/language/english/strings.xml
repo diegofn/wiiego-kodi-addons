@@ -32,6 +32,8 @@
 	<string id="3006">Sonora API error.</string>
 	<string id="3007">See xbmc.log for more information.</string>
 	<string id="3008">All</string>
+	<string id="3009">Like</string>
+	<string id="3010">Dislike</string>
 	
 	<!-- Download Dialogs -->
 
