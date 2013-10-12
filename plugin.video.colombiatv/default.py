@@ -24,7 +24,7 @@ import os, urllib, urllib2, cookielib
 import re
 
 # Set global values.
-version = "1.0.1"
+version = "1.0.2"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
