@@ -43,8 +43,8 @@ class ColombiaTVNavigation():
         #     title,                    channelId,                  channelGroup,           image                    
         self.categories = (
             {'title':"Canal UNE",       'channelId':"205017",      'channelGroup':"8"      , 'image':"1026"},
-            {'title':"UNE Manizales",   'channelId':"226978",      'channelGroup':"24"     , 'image':"1484"},
-            {'title':"UNE Manizales",   'channelId':"215944",      'channelGroup':"23"     , 'image':"26616"},
+            {'title':"UNE Manizales",   'channelId':"207643",      'channelGroup':"24"     , 'image':"1484"},
+            {'title':"Une Costa Caribe",'channelId':"215944",      'channelGroup':"33"     , 'image':"26616"},
             {'title':"TV5",             'channelId':"206412",      'channelGroup':"11"     , 'image':"26610"},
             {'title':"Canal U",         'channelId':"206416",      'channelGroup':"15"     , 'image':"1025"},
             {'title':"Telemedellin",    'channelId':"206414",      'channelGroup':"13"     , 'image':"1029"},
