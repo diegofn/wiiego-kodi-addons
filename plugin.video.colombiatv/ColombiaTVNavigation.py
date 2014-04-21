@@ -44,7 +44,8 @@ class ColombiaTVNavigation():
         self.categories = (
             {'title':"Canal UNE",       'channelId':"205017",      'channelGroup':"8"      , 'image':"1026"},
             {'title':"UNE Manizales",   'channelId':"207643",      'channelGroup':"24"     , 'image':"1484"},
-            {'title':"Une Costa Caribe",'channelId':"215944",      'channelGroup':"33"     , 'image':"26616"},
+            {'title':"UNE Costa Caribe",'channelId':"215944",      'channelGroup':"33"     , 'image':"26616"},
+            {'title':"UNE Armenia",     'channelId':"207646",      'channelGroup':"27"     , 'image':"26617"},
             {'title':"TV5",             'channelId':"206412",      'channelGroup':"11"     , 'image':"26610"},
             {'title':"Canal U",         'channelId':"206416",      'channelGroup':"15"     , 'image':"1025"},
             {'title':"Telemedellin",    'channelId':"206414",      'channelGroup':"13"     , 'image':"1029"},
@@ -56,16 +57,16 @@ class ColombiaTVNavigation():
             {'title':"Trendy",          'channelId':"205019",      'channelGroup':"10"     , 'image':"26603"},
             {'title':"Humor",           'channelId':"206413",      'channelGroup':"12"     , 'image':"26604"},
             {'title':"Telecafe",        'channelId':"206417",      'channelGroup':"16"     , 'image':"1180"},
-            {'title':"Nova",            'channelId':"206418",      'channelGroup':"17"     , 'image':"26606"},
-            {'title':"Supermusica",     'channelId':"206419",      'channelGroup':"18"     , 'image':"26607"},
-            {'title':"Click",           'channelId':"206577",      'channelGroup':"19"     , 'image':"26608"},
-            {'title':"Life Design",     'channelId':"207384",      'channelGroup':"22"     , 'image':"26609"},
-            {'title':"VMAS",            'channelId':"207642",      'channelGroup':"23"     , 'image':"26611"},
-            {'title':"Mi Musica HD",    'channelId':"206731",      'channelGroup':"20"     , 'image':"26612"},
-            {'title':"El Tiempo",       'channelId':"207648",      'channelGroup':"29"     , 'image':"26613"},
+            {'title':"Hogar TV",        'channelId':"206418",      'channelGroup':"17"     , 'image':"26606"},
+            {'title':"Sonrie TV",       'channelId':"206419",      'channelGroup':"18"     , 'image':"26607"},
+            {'title':"Click",           'channelId':"206577",      'channelGroup':"19"     , 'image':"987654"},
+            {'title':"Life Design",     'channelId':"207384",      'channelGroup':"22"     , 'image':"2169"},
+            {'title':"VMAS",            'channelId':"207642",      'channelGroup':"23"     , 'image':"812"},
+            {'title':"Mi Musica HD",    'channelId':"206731",      'channelGroup':"20"     , 'image':"2214"},
+            {'title':"El Tiempo",       'channelId':"207648",      'channelGroup':"29"     , 'image':"1625"},
             {'title':"Yes",             'channelId':"205010",      'channelGroup':"1"     , 'image':"26614"},
-            {'title':"UNEPREMIUM",      'channelId':"205017",      'channelGroup':"8"     , 'image':"9999"},
-            {'title':"Televentas MIO",  'channelId':"205011",      'channelGroup':"2"     , 'image':"26615"}
+            {'title':"Televentas MIO",  'channelId':"205011",      'channelGroup':"2"     , 'image':"26615"},
+            {'title':"BBC World News",  'channelId':"205014",      'channelGroup':"5"     , 'image':"80"}
             )
 
     def listMenu(self, params={}):

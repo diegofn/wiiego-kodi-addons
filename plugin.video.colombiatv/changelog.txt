@@ -5,3 +5,7 @@
 [B] Version 1.0.2 [/B]
 - Added more channels
 
+[B] Version 1.0.3 [/B]
+- Added more channels
+- Update channels images
+
