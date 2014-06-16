@@ -9,3 +9,6 @@
 - Added more channels
 - Update channels images
 
+[B] Version 1.0.4 [/B]
+- Added FIFA World Cup 2014 Streaming
+
