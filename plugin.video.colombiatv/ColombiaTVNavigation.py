@@ -42,6 +42,7 @@ class ColombiaTVNavigation():
         # Main Menu Structure
         #     title,                    channelId,                  channelGroup,           image                    
         self.categories = (
+            {'title':"FIFA World Cup",  'channelId':"207384",      'channelGroup':"22"     , 'image':"26627"},
             {'title':"Canal UNE",       'channelId':"205017",      'channelGroup':"8"      , 'image':"1026"},
             {'title':"UNE Manizales",   'channelId':"207643",      'channelGroup':"24"     , 'image':"1484"},
             {'title':"UNE Costa Caribe",'channelId':"215944",      'channelGroup':"33"     , 'image':"26616"},
