@@ -2,7 +2,7 @@
 # *
 # * ColombiaTV: ColombiaTV add-on for XBMC.
 # *
-# * Copyright (C) 2013 Wiiego
+# * Copyright (C) 2013-2014 Wiiego
 # * 
 # * This program is free software: you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -41,8 +41,9 @@ import xml.dom.minidom as minidom
 #http://tvi.une.net.co/wsLiveChannelsLoad/live_channels.php?token=07b95eb4ba4fe65ba0c68fb304bc1769
 #http://uneapple-i.akamaihd.net/hls/live/205013/grupoune_st4@205013/master.m3u8
 #http://tvi.une.net.co/upload/images/logos/110x70/1025.png
-BASE_URL='uneapple-i.akamaihd.net'
-BASE_IMAGE_URL='tvi.une.net.co/upload/images/logos/110x70/'
+BASE_URL='dl.dropboxusercontent.com'
+CHANNEL_URL='/u/30021391/XBMC/'
+
 
 class ColombiaTVCore():
     # Define the global variables for ColombiaTV
@@ -52,23 +53,17 @@ class ColombiaTVCore():
         self.enabledebug = sys.modules["__main__"].enabledebug
         urllib2.install_opener(sys.modules["__main__"].opener)
 
-        self.global_params = []
-        self.global_params.append({'param': 'instancePlaylist', 'value': 'master.m3u8'})
-        self.protocol = "http://"
-
+        self.url = "https://" + BASE_URL + CHANNEL_URL + 'channels.json'
 
     # Return the URL from TV Channel
-    def get_channel_url(self, channelId, channelGroup):
-        url = '%s%s/hls/live/%s/grupoune_st%s@%s/st%s_index.m3u8' %(self.protocol, BASE_URL, channelId, channelGroup, channelId, channelGroup)
-        if self.enabledebug == True:
-            print '[ColombiaTV] URL: %s' % url 
-        return url
+    def get_channel_list(self):
+        req = urllib2.Request(self.url)
+        f = urllib2.urlopen(req)
+        result = simplejson.load(f)
+        f.close()
 
-    # Return the Image URL
-    def get_channel_image(self, imageId):
-        url = '%s%s%s.png' %(self.protocol, BASE_IMAGE_URL, imageId)
         if self.enabledebug == True:
-            print '[ColombiaTV] URL: %s' % url 
-        return url
+            print result['ColombiaTV']
+        return result['ColombiaTV']
 
-    
+        

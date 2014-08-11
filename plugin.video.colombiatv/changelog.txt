@@ -12,3 +12,6 @@
 [B] Version 1.0.4 [/B]
 - Added FIFA World Cup 2014 Streaming
 
+[B] Version 1.0.5 [/B]
+- Added links outside tvune.
+- Added Caracol HD, RCN HD and WinSports Online.

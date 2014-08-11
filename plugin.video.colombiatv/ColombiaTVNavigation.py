@@ -2,7 +2,7 @@
 # *
 # * ColombiaTV: ColombiaTV add-on for XBMC.
 # *
-# * Copyright (C) 2013 Wiiego
+# * Copyright (C) 2013-2014 Wiiego
 # *
 # * This program is free software: you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -39,43 +39,16 @@ class ColombiaTVNavigation():
 
         self.pluginsettings = sys.modules["__main__"].pluginsettings
                 
-        # Main Menu Structure
-        #     title,                    channelId,                  channelGroup,           image                    
-        self.categories = (
-            {'title':"FIFA World Cup",  'channelId':"207384",      'channelGroup':"22"     , 'image':"26627"},
-            {'title':"Canal UNE",       'channelId':"205017",      'channelGroup':"8"      , 'image':"1026"},
-            {'title':"UNE Manizales",   'channelId':"207643",      'channelGroup':"24"     , 'image':"1484"},
-            {'title':"UNE Costa Caribe",'channelId':"215944",      'channelGroup':"33"     , 'image':"26616"},
-            {'title':"UNE Armenia",     'channelId':"207646",      'channelGroup':"27"     , 'image':"26617"},
-            {'title':"TV5",             'channelId':"206412",      'channelGroup':"11"     , 'image':"26610"},
-            {'title':"Canal U",         'channelId':"206416",      'channelGroup':"15"     , 'image':"1025"},
-            {'title':"Telemedellin",    'channelId':"206414",      'channelGroup':"13"     , 'image':"1029"},
-            {'title':"Teleantioquia",   'channelId':"205013",      'channelGroup':"4"      , 'image':"1007"},
-            {'title':"TV Agro",         'channelId':"205015",      'channelGroup':"6"      , 'image':"1002"},
-            {'title':"Cosmovision",     'channelId':"206415",      'channelGroup':"14"     , 'image':"809"},
-            {'title':"Cable Noticias",  'channelId':"205016",      'channelGroup':"7"      , 'image':"1003"},
-            {'title':"Televida",        'channelId':"205018",      'channelGroup':"9"      , 'image':"750"},
-            {'title':"Trendy",          'channelId':"205019",      'channelGroup':"10"     , 'image':"26603"},
-            {'title':"Humor",           'channelId':"206413",      'channelGroup':"12"     , 'image':"26604"},
-            {'title':"Telecafe",        'channelId':"206417",      'channelGroup':"16"     , 'image':"1180"},
-            {'title':"Hogar TV",        'channelId':"206418",      'channelGroup':"17"     , 'image':"26606"},
-            {'title':"Sonrie TV",       'channelId':"206419",      'channelGroup':"18"     , 'image':"26607"},
-            {'title':"Click",           'channelId':"206577",      'channelGroup':"19"     , 'image':"987654"},
-            {'title':"Life Design",     'channelId':"207384",      'channelGroup':"22"     , 'image':"2169"},
-            {'title':"VMAS",            'channelId':"207642",      'channelGroup':"23"     , 'image':"812"},
-            {'title':"Mi Musica HD",    'channelId':"206731",      'channelGroup':"20"     , 'image':"2214"},
-            {'title':"El Tiempo",       'channelId':"207648",      'channelGroup':"29"     , 'image':"1625"},
-            {'title':"Yes",             'channelId':"205010",      'channelGroup':"1"     , 'image':"26614"},
-            {'title':"Televentas MIO",  'channelId':"205011",      'channelGroup':"2"     , 'image':"26615"},
-            {'title':"BBC World News",  'channelId':"205014",      'channelGroup':"5"     , 'image':"80"}
-            )
 
     def listMenu(self, params={}):
         self.common.log(repr(params), 1)
         get = params.get
 
-        for category in self.categories:
-            self.addListItem(params, category)
+        # Parse channels from json
+        elements = self.core.get_channel_list()
+
+        for element in elements:
+            self.addListItem(params, element)
     
         self.xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True)
         self.common.log("Done", 5)
@@ -86,7 +59,7 @@ class ColombiaTVNavigation():
 
         # Add TV Channel
         contextmenu = [(self.language(3001), "XBMC.RunPlugin(%s?path=refresh)" % (sys.argv[0], ))]
-        image = self.core.get_channel_image(item('image'))
+        image = item('image')
         fanart = os.path.join(self.settings.getAddonInfo("path"), "fanart.jpg")
 
         listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
@@ -95,7 +68,6 @@ class ColombiaTVNavigation():
         listitem.setInfo('Video', {'Title': item('title')})
         listitem.setProperty('IsPlayable', "true")
                 
-        url = self.core.get_channel_url(item('channelId'), item('channelGroup'))
-        ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=listitem, isFolder=False)
+        ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False)
 
         self.common.log("Done", 5)

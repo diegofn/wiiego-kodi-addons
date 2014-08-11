@@ -2,7 +2,7 @@
 # *
 # * ColombiaTV: ColombiaTV add-on for XBMC.
 # *
-# * Copyright (C) 2013 Wiiego
+# * Copyright (C) 2013-2014 Wiiego
 # *
 # * This program is free software: you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import os, urllib, urllib2, cookielib
 import re
 
 # Set global values.
-version = "1.0.3"
+version = "1.0.5"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
