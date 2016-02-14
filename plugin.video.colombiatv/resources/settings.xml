@@ -2,6 +2,6 @@
 <settings>
 	<!-- Advanced -->
 	<category label="1030">
-		<setting id="enabledebug" type="bool" label="1031" default="true"/>
+		<setting id="enabledebug" type="bool" label="1031" default="false"/>
 	</category>
 </settings>

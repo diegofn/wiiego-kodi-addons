@@ -1,13 +1,26 @@
 wiiego-xbmc-addons
 ==================
 
-Wiiego's XBMC Addons is a Multimedia Collection for XBMC to listen music and see videos.
-You can download my repo from: https://github.com/diegofn/wiiego-xbmc-addons/raw/master/repo/repository.wiiego/repository.wiiego-1.0.1.zip 
+Wiiego's Kodi Addons is a Multimedia Collection for Kodi to listen music and see videos.
+You can download my repo from: https://github.com/diegofn/wiiego-xbmc-addons/raw/master/repo/repository.wiiego/repository.wiiego-1.0.2.zip 
 
 It include the following plugins
 
-plugin.audio.sonora
-===================
+plugin.video.colombiatv
+=======================
+
+- ColombiaTV is a Kodi Addon to watch Colombian TV Channels for free. Its only for educational porpouses. If the Kodi repository does not work you can download the latest version from: https://github.com/diegofn/wiiego-xbmc-addons/raw/master/repo/plugin.video.colombiatv/plugin.video.colombiatv-1.0.6.zip 
+
+Features
+- Dynamic channels list
+- Site plugins
+
+Wish
+- Integration with mi(dot)tv to TV show name.
+- Liga Aguila integration same as rojadirecta.
+
+plugin.audio.sonora (unavailable)
+=================================
 
 Terra's Sonora is a online service to listen more that 20 millons of songs and radios for free. With one free account you can create playlist, mark songs as favorites and download songs (premium service). With this plugin you can listen the sonora library without ads. Its only for educational porpouses.
 
@@ -28,11 +41,6 @@ Wish
 - Downloads
 - Pager
 - Ranking by genre
-
-plugin.video.colombiatv
-===================
-
-- ColombiaTV is a Addon to watch Colombian TV Channels for free. Its only for educational porpouses.
 
 Version 1.0
 ===========

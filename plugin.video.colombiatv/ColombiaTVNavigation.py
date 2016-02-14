@@ -2,7 +2,7 @@
 # *
 # * ColombiaTV: ColombiaTV add-on for XBMC.
 # *
-# * Copyright (C) 2013-2014 Wiiego
+# * Copyright (C) 2013-2016 Wiiego
 # *
 # * This program is free software: you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -45,14 +45,14 @@ class ColombiaTVNavigation():
         get = params.get
 
         # Parse channels from json
-        elements = self.core.get_channel_list()
+        elements = self.core.getChannelList()
 
         for element in elements:
             self.addListItem(params, element)
     
         self.xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True)
-        self.common.log("Done", 5)
-
+        print ("Done")
+        
 
     def addListItem(self, params={}, item_params={}):
         item = item_params.get
@@ -62,12 +62,24 @@ class ColombiaTVNavigation():
         image = item('image')
         fanart = os.path.join(self.settings.getAddonInfo("path"), "fanart.jpg")
 
-        listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
-        listitem.addContextMenuItems(items=contextmenu, replaceItems=True)
-        listitem.setProperty("fanart_image", fanart)
-        listitem.setInfo('Video', {'Title': item('title')})
-        listitem.setProperty('IsPlayable', "true")
+        #
+        # Code. Dont add the 0 channeld (update item) if the user got the latest version
+        #
+        if item('id') != '0':
+            listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
+            listitem.addContextMenuItems(items=contextmenu, replaceItems=True)
+            listitem.setProperty("fanart_image", fanart)
+            listitem.setInfo('Video', {'Title': item('title')})
+            listitem.setProperty('IsPlayable', "true")
+            ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False)
+        else:
+            print ("Check for new version")
+            if re.search(self.common.version, item('title')):
+                print ("You have the latest version: " + self.common.version)
+            else:
+                listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
+                listitem.setProperty("fanart_image", fanart)
+                listitem.setInfo('Video', {'Title': item('title')})
+                listitem.setProperty('IsPlayable', "false")
+                ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False)
                 
-        ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False)
-
-        self.common.log("Done", 5)

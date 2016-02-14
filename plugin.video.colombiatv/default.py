@@ -2,7 +2,7 @@
 # *
 # * ColombiaTV: ColombiaTV add-on for XBMC.
 # *
-# * Copyright (C) 2013-2014 Wiiego
+# * Copyright (C) 2013-2016 Wiiego
 # *
 # * This program is free software: you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import os, urllib, urllib2, cookielib
 import re
 
 # Set global values.
-version = "1.0.5"
+version = "1.0.6"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
@@ -32,8 +32,6 @@ author = 'Wiiego'
 settings = xbmcaddon.Addon(id='plugin.video.colombiatv')
 language = settings.getLocalizedString
 enabledebug = settings.getSetting('enabledebug') == "true"
-
-# WISH. Initialise caches.
 
 # Enable HTTP Cookies.
 cookie = cookielib.LWPCookieJar()
@@ -47,6 +45,7 @@ if (__name__ == "__main__" ):
    
     import CommonFunctions as common
     common.plugin = plugin
+    common.version = version
     import ColombiaTVPluginSettings
     pluginsettings = ColombiaTVPluginSettings.ColombiaTVPluginSettings()
     import ColombiaTVCore
@@ -54,5 +53,19 @@ if (__name__ == "__main__" ):
     import ColombiaTVNavigation
     navigation = ColombiaTVNavigation.ColombiaTVNavigation()
 
-    navigation.listMenu()
+    # Parse the parameters
+    paramters = {}
+    try:
+        paramters = dict( arg.split( "=" ) for arg in ((sys.argv[2][1:]).split( "&" )) )
+        for key in paramters:
+           paramters[key] = core.demunge(paramters[key])
+    except:
+        paramters = {}
 
+    p = paramters.get
+    mode = p('mode', None)
+    if mode ==  None:
+        navigation.listMenu()
+
+    elif mode == 'brightcove':  
+        core.getBrightcove( p('channelid') )

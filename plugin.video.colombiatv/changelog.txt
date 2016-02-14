@@ -15,3 +15,6 @@
 [B] Version 1.0.5 [/B]
 - Added links outside tvune.
 - Added Caracol HD, RCN HD and WinSports Online.
+
+[B] Version 1.0.6 [/B]
+- Added Website parsers

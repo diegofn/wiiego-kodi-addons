@@ -1,2 +1,5 @@
+[B]Version 1.0.2[/B]
+- Move to another filesystem
+
 [B]Version 1.0.1[/B]
 - Initial version
