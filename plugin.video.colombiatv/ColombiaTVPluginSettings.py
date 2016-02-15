@@ -27,5 +27,5 @@ class ColombiaTVPluginSettings():
         self.enabledebug = sys.modules["__main__"].enabledebug
 
     def isEnableDebug(self):
-        return self.settings.getSetting("enabledebug") == "true"
+        return self.settings.getSetting("enabledebug") == "false"
 

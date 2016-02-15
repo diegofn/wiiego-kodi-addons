@@ -81,7 +81,7 @@ class ColombiaTVCore():
             pass
         return munge
 
-    def getBrightcoveRequest(self, url):
+    def getRequest(self, url):
         print ("getRequest URL:" + str(url))
 
         USER_AGENT = 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5'
@@ -108,7 +108,7 @@ class ColombiaTVCore():
         print ("VideoContent id: " + video_content_id)
 
         url = "https://secure.brightcove.com/services/viewer/htmlFederated?&width=859&height=482&flashID=myExperience-myExperience-1&bgcolor=%23FFFFFF&playerID=3950496857001&playerKey=AQ~~%2CAAADexCiUfE~%2CJftGHB2I9gVI2XEYYJLrw_JktV22Q9KB&isVid=true&isUI=true&dynamicStreaming=true&%40videoPlayer=" + video_content_id + "&secureConnections=true&secureHTMLConnections=true"
-        html = self.getBrightcoveRequest(url)
+        html = self.getRequest(url)
 
         a = re.compile('experienceJSON = (.+?)\};').search(html).group(1)
         a = a+'}'
@@ -138,3 +138,38 @@ class ColombiaTVCore():
         except:
             pass
         
+    def getFog (self, refer_url, video_content_id):
+        try:
+            print ("URL: " + refer_url + " --> " + urllib.unquote(refer_url))
+            print ("VideoContent id: " + video_content_id)
+
+            html = self.getRequest(urllib.unquote(refer_url)) 
+
+            # Get the wmsAuthSign
+            wmsAuthCode = ""
+            m = re.compile('(\w+)\.join\(\"\"\) \+ document\.getElementById\(\"(\w+)\"\)\.innerHTML').search(html)
+            first = m.group(1)
+            last = m.group(2)
+            
+            # first part
+            m = re.compile (first + ' = \[\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\"\]').search(html)
+            if m:
+                for e in m.groups():
+                    wmsAuthCode = wmsAuthCode + e 
+            else:
+                print ("First parse error")
+
+            # last part
+            m = re.compile ('id\=' + last + '>(\S{48})<\/span>').search(html)
+            if m:
+                wmsAuthCode = wmsAuthCode + m.group(1)
+            else:
+                print ("Last parse error")
+
+
+            # Parse the final URL
+            u = "http://62.210.75.76:8081/hlslive/" + video_content_id + "/playlist.m3u8?wmsAuthSign=" + wmsAuthCode
+            print ("Final URL: " + u);
+            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+        except:
+            pass
