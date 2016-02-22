@@ -39,7 +39,7 @@
 
 <addon id="plugin.video.colombiatv"
        name="ColombiaTV"
-       version="1.0.7"
+       version="1.0.8"
        provider-name="Wiiego">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />

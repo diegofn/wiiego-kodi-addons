@@ -21,3 +21,6 @@
 
 [B] Version 1.0.7 [/B]
 - Added fog website parser
+
+[B] Version 1.0.8 [/B]
+- Added p2pcast.tech support

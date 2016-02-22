@@ -2,14 +2,14 @@ wiiego-xbmc-addons
 ==================
 
 Wiiego's Kodi Addons is a Multimedia Collection for Kodi to listen music and see videos.
-You can download my repo from: https://github.com/diegofn/wiiego-xbmc-addons/raw/master/repo/repository.wiiego/repository.wiiego-1.0.2.zip 
+You can download my repo from: https://github.com/diegofn/wiiego-xbmc-addons/raw/master/repo/repository.wiiego/repository.wiiego-1.0.1.zip 
 
 It include the following plugins
 
 plugin.video.colombiatv
 =======================
 
-- ColombiaTV is a Kodi Addon to watch Colombian TV Channels for free. Its only for educational porpouses. If the Kodi repository does not work you can download the latest version from: https://github.com/diegofn/wiiego-xbmc-addons/raw/master/repo/plugin.video.colombiatv/plugin.video.colombiatv-1.0.6.zip 
+- ColombiaTV is a Kodi Addon to watch Colombian TV Channels for free. Its only for educational porpouses. If the Kodi repository does not work you can download the latest version from: https://github.com/diegofn/wiiego-xbmc-addons/raw/master/repo/plugin.video.colombiatv/plugin.video.colombiatv-1.0.8.zip 
 
 Features
 - Dynamic channels list
@@ -17,7 +17,7 @@ Features
 
 Wish
 - Integration with mi(dot)tv to TV show name.
-- Liga Aguila integration same as rojadirecta.
+- Liga Aguila integration events
 
 plugin.audio.sonora (unavailable)
 =================================

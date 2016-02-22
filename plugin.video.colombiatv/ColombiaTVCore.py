@@ -31,6 +31,7 @@ import re
 import cgi
 import gzip
 import json
+import base64
 from StringIO import StringIO
 
 import ConfigParser
@@ -59,7 +60,7 @@ class ColombiaTVCore():
         self.enabledebug = sys.modules["__main__"].enabledebug
         urllib2.install_opener(sys.modules["__main__"].opener)
 
-        self.url = "https://" + BASE_URL + CHANNEL_URL + 'channels.json'
+        self.url = "https://" + BASE_URL + CHANNEL_URL + 'channelsdev.json'
 
     # Return the URL from TV Channel
     def getChannelList(self):
@@ -72,8 +73,9 @@ class ColombiaTVCore():
             print (result['ColombiaTV'])
         return result['ColombiaTV']
 
-
-    # Brightcove Plugin
+    #
+    # Brightcove support
+    #
     def demunge(self, munge):
         try:
             munge = urllib.unquote_plus(munge).decode(UTF8)
@@ -104,10 +106,10 @@ class ColombiaTVCore():
         link1 = str(link1).replace('\n','')
         return(link1)
 
-    def getBrightcove (self, video_content_id):
-        print ("VideoContent id: " + video_content_id)
+    def getBrightcove (self, videoContentId):
+        print ("VideoContent id: " + videoContentId)
 
-        url = "https://secure.brightcove.com/services/viewer/htmlFederated?&width=859&height=482&flashID=myExperience-myExperience-1&bgcolor=%23FFFFFF&playerID=3950496857001&playerKey=AQ~~%2CAAADexCiUfE~%2CJftGHB2I9gVI2XEYYJLrw_JktV22Q9KB&isVid=true&isUI=true&dynamicStreaming=true&%40videoPlayer=" + video_content_id + "&secureConnections=true&secureHTMLConnections=true"
+        url = "https://secure.brightcove.com/services/viewer/htmlFederated?&width=859&height=482&flashID=myExperience-myExperience-1&bgcolor=%23FFFFFF&playerID=3950496857001&playerKey=AQ~~%2CAAADexCiUfE~%2CJftGHB2I9gVI2XEYYJLrw_JktV22Q9KB&isVid=true&isUI=true&dynamicStreaming=true&%40videoPlayer=" + videoContentId + "&secureConnections=true&secureHTMLConnections=true"
         html = self.getRequest(url)
 
         a = re.compile('experienceJSON = (.+?)\};').search(html).group(1)
@@ -137,13 +139,16 @@ class ColombiaTVCore():
         
         except:
             pass
-        
-    def getFog (self, refer_url, video_content_id):
+    
+    #
+    # Fog support
+    #    
+    def getFog (self, referUrl, videoContentId):
         try:
-            print ("URL: " + refer_url + " --> " + urllib.unquote(refer_url))
-            print ("VideoContent id: " + video_content_id)
+            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
+            print ("VideoContent id: " + videoContentId)
 
-            html = self.getRequest(urllib.unquote(refer_url)) 
+            html = self.getRequest(urllib.unquote(referUrl)) 
 
             # Get the wmsAuthSign
             wmsAuthCode = ""
@@ -168,7 +173,61 @@ class ColombiaTVCore():
 
 
             # Parse the final URL
-            u = "http://62.210.75.76:8081/hlslive/" + video_content_id + "/playlist.m3u8?wmsAuthSign=" + wmsAuthCode
+            u = "http://62.210.75.76:8081/hlslive/" + videoContentId + "/playlist.m3u8?wmsAuthSign=" + wmsAuthCode
+            print ("Final URL: " + u);
+            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+        except:
+            pass
+
+    #
+    # p2pcast support
+    #    
+    def getRequestP2pcast (self, url, referUrl, userAgent, xRequestedWith=""):
+        UTF8 = 'utf-8'
+        headers = {'User-Agent':userAgent, 'Referer':referUrl, 'X-Requested-With': xRequestedWith, 'Accept':"text/html", 'Accept-Encoding':'gzip,deflate,sdch', 'Accept-Language':'en-US,en;q=0.8', 'Cookie':'hide_ce=true'} 
+        req = urllib2.Request(url.encode(UTF8), None, headers)
+
+        try:
+            response = urllib2.urlopen(req)
+            if response.info().getheader('Content-Encoding') == 'gzip':
+                print ("Content Encoding == gzip")
+                buf = StringIO( response.read() )
+                f = gzip.GzipFile(fileobj=buf)
+                link1 = f.read()
+            else:
+                link1=response.read()
+        except:
+            link1 = ""
+        
+        link1 = str(link1).replace('\n','')
+        return(link1)
+
+
+    def getP2pcast (self, videoContentId):
+        #
+        # Global variables
+        #
+        USER_AGENT = "Mozilla/5.0 (X11 Linux i686 rv:41.0) Gecko/20100101 Firefox/41.0 Iceweasel/41.0.2"
+
+        try:
+            # Get the decodeURL
+            print ("VideoContent id: " + videoContentId)
+            html = self.getRequestP2pcast("http://p2pcast.tech/stream.php?id=" + videoContentId, "http://p2pcast.tech/stream.php?id=" + videoContentId + "&osr=0&p2p=0&stretching=uniform", USER_AGENT)
+            m = re.compile('murl = "(.*?)"').search(html)
+            decodedURL = base64.b64decode(m.group(1))
+            print ("decodedURL: " + decodedURL)
+                        
+            # Get the token
+            html = self.getRequestP2pcast("http://p2pcast.tech/getTok.php", "http://p2pcast.tech/stream.php?id=" + videoContentId, USER_AGENT, "XMLHttpRequest")
+            m = re.compile('"token":"(.*?)"').search(html)
+            token = m.group(1)
+            print ("token: " + token)
+
+            # Get the URL Enconded Link
+            urlEncodedLink = urllib.quote_plus(decodedURL + token + "|Referer=http://cdn.p2pcast.tech/jwplayer.flash.swf&User-Agent=" + USER_AGENT)
+
+            # Parse the final URL
+            u = "plugin://plugin.video.f4mTester/?streamtype=HLS&amp;url=" + urlEncodedLink
             print ("Final URL: " + u);
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
         except:

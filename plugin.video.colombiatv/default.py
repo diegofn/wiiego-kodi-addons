@@ -24,7 +24,7 @@ import os, urllib, urllib2, cookielib
 import re
 
 # Set global values.
-version = "1.0.7"
+version = "1.0.8"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
@@ -71,3 +71,5 @@ if (__name__ == "__main__" ):
         core.getBrightcove( p('channelid') )
     elif mode == 'fog':  
         core.getFog( p ('url'), p('channelid') )
+    elif mode == 'p2pcast':  
+        core.getP2pcast( p('channelid') )
