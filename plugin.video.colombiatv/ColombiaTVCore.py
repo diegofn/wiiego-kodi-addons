@@ -33,6 +33,7 @@ import gzip
 import json
 import base64
 from StringIO import StringIO
+import jsUnwiser
 
 import ConfigParser
 import xml.dom.minidom as minidom
@@ -232,3 +233,43 @@ class ColombiaTVCore():
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
         except:
             pass
+
+    #
+    # CastOn.tv support
+    #
+    def getCastOn (self, videoContentId):
+        #
+        # Global variables
+        #
+        USER_AGENT = "Mozilla/5.0 (X11 Linux i686 rv:41.0) Gecko/20100101 Firefox/41.0 Iceweasel/41.0.2"
+
+        try:
+            # Get the unWiser content
+            print ("VideoContent id: " + videoContentId)
+            html = self.getRequestP2pcast("http://www.caston.tv/player.php?id=" + videoContentId, "http://www.caston.tv/player.php?id=" + videoContentId + "&width=680&height=390", USER_AGENT)
+            m = re.compile('unescape\(\'(.*)\'\)\);').search(html)
+            unWiser = jsUnwiser.JsUnwiser()
+            unWiserContent = unWiser.unwiseAll(urllib.unquote(m.group(1)))
+                        
+            # Get the decodedURL
+            m = re.compile('file:"(.*?)"').search(unWiserContent)
+            decodedURL = m.group(1)
+            print ("decodedURL: " + decodedURL)
+
+            # Get the token
+            html = self.getRequestP2pcast("http://www.caston.tv/ss.php", "http://www.caston.tv/player.php?id=" + videoContentId + "&width=680&height=390", USER_AGENT, "XMLHttpRequest")
+            print (html)
+            m = re.compile('"(.*?)"').search(html)
+            token = m.group(1)
+            print ("token: " + token)
+
+            # Get the URL Enconded Link
+            urlEncodedLink = urllib.quote_plus(decodedURL + token + "|Referer=http://www.caston.tv/player.php?id=" + videoContentId + "&width=680&height=390&User-Agent=" + USER_AGENT)
+
+            # Parse the final URL
+            u = "plugin://plugin.video.f4mTester/?streamtype=HLS&amp;url=" + urlEncodedLink
+            print ("Final URL: " + u);
+            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+        except:
+            pass
+

@@ -24,3 +24,6 @@
 
 [B] Version 1.0.8 [/B]
 - Added p2pcast.tech support
+
+[B] Version 1.0.9 [/B]
+- Added CastOn.tv support
