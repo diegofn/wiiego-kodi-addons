@@ -50,7 +50,6 @@ import xml.dom.minidom as minidom
 BASE_URL='dl.dropboxusercontent.com'
 CHANNEL_URL='/u/30021391/XBMC/'
 
-
 class ColombiaTVCore():
     # Define the global variables for ColombiaTV
     def __init__(self, instanceId=10, platformId=4, version=10):
@@ -258,7 +257,6 @@ class ColombiaTVCore():
 
             # Get the token
             html = self.getRequestP2pcast("http://www.caston.tv/ss.php", "http://www.caston.tv/player.php?id=" + videoContentId + "&width=680&height=390", USER_AGENT, "XMLHttpRequest")
-            print (html)
             m = re.compile('"(.*?)"').search(html)
             token = m.group(1)
             print ("token: " + token)
@@ -273,3 +271,32 @@ class ColombiaTVCore():
         except:
             pass
 
+    #
+    # mips.tv support
+    #
+    def getMips (self, videoContentId):
+        #
+        # Global variables
+        #
+        USER_AGENT = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8C148 Safari/6533.18.5"
+
+        try:
+            # Get the stream IP Address
+            print ("VideoContent id: " + videoContentId)
+            html = self.getRequest("http://cdn.mipspublisher.com:1935/loadbalancer")
+            m = re.compile('redirect=(.*)').search(html)
+            ipAddress = m.group(1)
+            print ("ipAddress: " + ipAddress)
+                                    
+            # Get the m3u8 URL
+            html = self.getRequestP2pcast("http://www.mips.tv/membedplayer/" + videoContentId + "/1/500/400", "http://www.mips.tv", USER_AGENT)
+            m = re.compile('ea \+ \"(.*?)\"').search(html)
+            m3u8Address = m.group(1)
+            print ("m3u8Address: " + m3u8Address)
+
+            # Parse the final URL
+            u = "http://" + ipAddress + m3u8Address
+            print ("Final URL: " + u);
+            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+        except:
+            pass

@@ -27,3 +27,6 @@
 
 [B] Version 1.0.9 [/B]
 - Added caston.tv support
+
+[B] Version 1.1.0 [/B]
+- Added mipsplayer support
