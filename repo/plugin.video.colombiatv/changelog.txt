@@ -30,3 +30,7 @@
 
 [B] Version 1.1.0 [/B]
 - Added mipsplayer support
+
+[B] Version 1.2.0 [/B]
+- Unify mips, streamify and liveflash support
+- Modify fog support

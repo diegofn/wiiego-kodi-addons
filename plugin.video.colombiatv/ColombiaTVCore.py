@@ -60,7 +60,7 @@ class ColombiaTVCore():
         self.enabledebug = sys.modules["__main__"].enabledebug
         urllib2.install_opener(sys.modules["__main__"].opener)
 
-        self.url = "https://" + BASE_URL + CHANNEL_URL + 'channels.json'
+        self.url = "https://" + BASE_URL + CHANNEL_URL + 'channelsdev.json'
 
     # Return the URL from TV Channel
     def getChannelList(self):
@@ -173,7 +173,7 @@ class ColombiaTVCore():
 
 
             # Parse the final URL
-            u = "http://62.210.75.76:8081/hlslive/" + videoContentId + "/playlist.m3u8?wmsAuthSign=" + wmsAuthCode
+            u = "http://62.210.75.76:8081/hss/" + videoContentId + "/playlist.m3u8?wmsAuthSign=" + wmsAuthCode
             print ("Final URL: " + u);
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
         except:
@@ -274,22 +274,37 @@ class ColombiaTVCore():
     #
     # mips.tv support
     #
-    def getMips (self, videoContentId):
+    def getPublisher (self, host, videoContentId):
         #
         # Global variables
         #
+        CHANNEL_URL = ""
+        STREAM_IP = ""
         USER_AGENT = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8C148 Safari/6533.18.5"
+
+        if host == "mips":
+            STREAM_IP = "http://cdn.mipspublisher.com:1935/loadbalancer"
+            CHANNEL_URL = "http://www.mips.tv/membedplayer/" + videoContentId + "/1/500/400"
+            REFERER = "http://www.mips.tv"
+        elif host == "streamify":
+            STREAM_IP = "http://www.streamifypublisher.com:1935/loadbalancer?22097*"
+            CHANNEL_URL = "http://www.streamifyplayer.com/membedplayer/" + videoContentId + "/1/620/380"
+            REFERER = "http://www.streamifyplayer.com"
+        elif host == "liveflash":
+            STREAM_IP = "http://www.liveflashpublisher.com:1935/loadbalancer?24694"
+            CHANNEL_URL = "http://www.liveflashplayer.net/membedplayer/" + videoContentId + "/1/620/380"
+            REFERER = "http://www.liveflashplayer.net"
 
         try:
             # Get the stream IP Address
             print ("VideoContent id: " + videoContentId)
-            html = self.getRequest("http://cdn.mipspublisher.com:1935/loadbalancer")
+            html = self.getRequest(STREAM_IP)
             m = re.compile('redirect=(.*)').search(html)
             ipAddress = m.group(1)
             print ("ipAddress: " + ipAddress)
                                     
             # Get the m3u8 URL
-            html = self.getRequestP2pcast("http://www.mips.tv/membedplayer/" + videoContentId + "/1/500/400", "http://www.mips.tv", USER_AGENT)
+            html = self.getRequestP2pcast(CHANNEL_URL, REFERER, USER_AGENT)
             m = re.compile('ea \+ \"(.*?)\"').search(html)
             m3u8Address = m.group(1)
             print ("m3u8Address: " + m3u8Address)
