@@ -26,11 +26,14 @@
 - Added p2pcast.tech support
 
 [B] Version 1.0.9 [/B]
-- Added CastOn.tv support
+- Added caston.tv support
 
 [B] Version 1.1.0 [/B]
 - Added mipsplayer support
 
 [B] Version 1.2.0 [/B]
 - Unify mips, streamify and liveflash support
+- Modify fog support
+
+[B] Version 1.3.0 [/B]
 - Modify fog support

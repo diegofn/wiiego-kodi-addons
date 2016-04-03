@@ -34,3 +34,6 @@
 [B] Version 1.2.0 [/B]
 - Unify mips, streamify and liveflash support
 - Modify fog support
+
+[B] Version 1.3.0 [/B]
+- Modify fog support

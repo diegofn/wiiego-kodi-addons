@@ -155,25 +155,33 @@ class ColombiaTVCore():
             m = re.compile('(\w+)\.join\(\"\"\) \+ document\.getElementById\(\"(\w+)\"\)\.innerHTML').search(html)
             first = m.group(1)
             last = m.group(2)
-            
+
             # first part
-            m = re.compile (first + ' = \[\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\",\"(\w+)\"\]').search(html)
+            print (html)
+            m = re.compile (first + ' = \[\"(.*?)\"\]').search(html)
             if m:
-                for e in m.groups():
-                    wmsAuthCode = wmsAuthCode + e 
+                wmsAuthCode = m.group(1).replace('\",\"', '')
             else:
                 print ("First parse error")
 
             # last part
-            m = re.compile ('id\=' + last + '>(\S{48})<\/span>').search(html)
+            m = re.compile ('id\=' + last + '>(.*?)<\/span>').search(html)
             if m:
                 wmsAuthCode = wmsAuthCode + m.group(1)
             else:
                 print ("Last parse error")
+            
+            print "wmsAuthCode: " + wmsAuthCode
 
+            # Get the URL Path
+            m = re.compile ('{return\(\[\"h(.*?)\"\].join').search(html)
+            if m:
+                streamPath = "h" + ( m.group(1).replace('\",\"', '').replace('\\/', '/') )
+            else:
+                print ("Last parse error")
 
             # Parse the final URL
-            u = "http://62.210.75.76:8081/hss/" + videoContentId + "/playlist.m3u8?wmsAuthSign=" + wmsAuthCode
+            u = streamPath + wmsAuthCode
             print ("Final URL: " + u);
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
         except:
