@@ -24,7 +24,7 @@ import os, urllib, urllib2, cookielib
 import re
 
 # Set global values.
-version = "1.3.0"
+version = "1.3.1"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
@@ -75,5 +75,7 @@ if (__name__ == "__main__" ):
         core.getP2pcast( p('channelid') )
     elif mode == 'caston':  
         core.getCastOn( p('channelid') )
+    elif mode == 'lw':  
+        core.getLw( p('channelid') )
     elif mode == 'publisher':  
         core.getPublisher( p('host'), p('channelid') )

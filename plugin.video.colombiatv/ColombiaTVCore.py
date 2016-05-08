@@ -60,7 +60,7 @@ class ColombiaTVCore():
         self.enabledebug = sys.modules["__main__"].enabledebug
         urllib2.install_opener(sys.modules["__main__"].opener)
 
-        self.url = "https://" + BASE_URL + CHANNEL_URL + 'channels.json'
+        self.url = "https://" + BASE_URL + CHANNEL_URL + 'channelsdev.json'
 
     # Return the URL from TV Channel
     def getChannelList(self):
@@ -264,13 +264,15 @@ class ColombiaTVCore():
             print ("decodedURL: " + decodedURL)
 
             # Get the token
-            html = self.getRequestP2pcast("http://www.caston.tv/ss.php", "http://www.caston.tv/player.php?id=" + videoContentId + "&width=680&height=390", USER_AGENT, "XMLHttpRequest")
-            m = re.compile('"(.*?)"').search(html)
+            html = self.getRequestP2pcast("http://www.caston.tv/sssss.php", "http://www.caston.tv/player.php?id=" + videoContentId + "&width=680&height=390", USER_AGENT, "XMLHttpRequest")
+            m = re.compile('"(.*?)".*",(.*?)]').search(html)
             token = m.group(1)
+            element = m.group(2)
             print ("token: " + token)
+            print ("element: " + element)
 
             # Get the URL Enconded Link
-            urlEncodedLink = urllib.quote_plus(decodedURL + token + "|Referer=http://www.caston.tv/player.php?id=" + videoContentId + "&width=680&height=390&User-Agent=" + USER_AGENT)
+            urlEncodedLink = urllib.quote_plus(decodedURL + token + "&e=" + element + "|Referer=http://www.caston.tv/player.php?id=" + videoContentId + "&width=680&height=390&User-Agent=" + USER_AGENT)
 
             # Parse the final URL
             u = "plugin://plugin.video.f4mTester/?streamtype=HLS&amp;url=" + urlEncodedLink
@@ -280,7 +282,7 @@ class ColombiaTVCore():
             pass
 
     #
-    # mips.tv support
+    # mips.tv and similar sites support
     #
     def getPublisher (self, host, videoContentId):
         #
@@ -302,6 +304,11 @@ class ColombiaTVCore():
             STREAM_IP = "http://www.liveflashpublisher.com:1935/loadbalancer?24694"
             CHANNEL_URL = "http://www.liveflashplayer.net/membedplayer/" + videoContentId + "/1/620/380"
             REFERER = "http://www.liveflashplayer.net"
+        elif host == "janjua":
+            STREAM_IP = "http://www.janjuapublisher.com:1935/loadbalancer?58743"
+            CHANNEL_URL = "http://www.janjuaplayer.com/membedplayer/" + videoContentId + "/1/620/380"
+            REFERER = "http://www.janjuaplayer.com"
+
 
         try:
             # Get the stream IP Address
@@ -319,6 +326,30 @@ class ColombiaTVCore():
 
             # Parse the final URL
             u = "http://" + ipAddress + m3u8Address
+            print ("Final URL: " + u);
+            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+        except:
+            pass
+
+    #
+    # lw.ml support
+    #
+    def getLw (self, videoContentId):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2727.0 Safari/537.36"
+
+        try:
+            # Get the stream IP Address
+            print ("VideoContent id: " + videoContentId)
+            html = self.getRequest("http://embed.latino-webtv.com/" + videoContentId + ".html")
+            print (html)
+
+            # Find and decode the URL
+            m = re.compile('SRC=".*url=(.*?)"').search(html)
+            streamUrl = base64.b64decode(m.group(1))
+            print ("streamUrl: " + streamUrl)
+                                    
+            # Parse the final URL
+            u = streamUrl + "|Referer=http://latino-webtv.com/embed/reproducir.php?name=" + videoContentId + "&en=b64&url=" + m.group(1) + " &User-Agent=" + USER_AGENT
             print ("Final URL: " + u);
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
         except:
