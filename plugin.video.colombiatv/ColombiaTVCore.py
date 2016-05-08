@@ -60,7 +60,7 @@ class ColombiaTVCore():
         self.enabledebug = sys.modules["__main__"].enabledebug
         urllib2.install_opener(sys.modules["__main__"].opener)
 
-        self.url = "https://" + BASE_URL + CHANNEL_URL + 'channelsdev.json'
+        self.url = "https://" + BASE_URL + CHANNEL_URL + 'channels.json'
 
     # Return the URL from TV Channel
     def getChannelList(self):
