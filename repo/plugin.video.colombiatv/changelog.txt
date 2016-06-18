@@ -42,3 +42,7 @@
 - Update caston support
 - Added janjua support
 - Added lw.ml support
+
+[B] Version 1.3.2 [/B]
+- Added pxstream.tv support
+- Added zony.tv support

@@ -24,7 +24,7 @@ import os, urllib, urllib2, cookielib
 import re
 
 # Set global values.
-version = "1.3.1"
+version = "1.3.2"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
@@ -79,3 +79,6 @@ if (__name__ == "__main__" ):
         core.getLw( p('channelid') )
     elif mode == 'publisher':  
         core.getPublisher( p('host'), p('channelid') )
+    elif mode == 'pxstream':  
+        core.getPxstream( p ('url'), p('channelid') )
+

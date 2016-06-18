@@ -308,7 +308,10 @@ class ColombiaTVCore():
             STREAM_IP = "http://www.janjuapublisher.com:1935/loadbalancer?58743"
             CHANNEL_URL = "http://www.janjuaplayer.com/membedplayer/" + videoContentId + "/1/620/380"
             REFERER = "http://www.janjuaplayer.com"
-
+        elif host == "zony":
+            STREAM_IP = "http://cdn.pubzony.com:1935/loadbalancer"
+            CHANNEL_URL = "http://www.zony.tv/membedplayer/" + videoContentId + "/1/620/380"
+            REFERER = "http://www.zony.tv"
 
         try:
             # Get the stream IP Address
@@ -341,7 +344,6 @@ class ColombiaTVCore():
             # Get the stream IP Address
             print ("VideoContent id: " + videoContentId)
             html = self.getRequest("http://embed.latino-webtv.com/" + videoContentId + ".html")
-            print (html)
 
             # Find and decode the URL
             m = re.compile('SRC=".*url=(.*?)"').search(html)
@@ -350,6 +352,30 @@ class ColombiaTVCore():
                                     
             # Parse the final URL
             u = streamUrl + "|Referer=http://latino-webtv.com/embed/reproducir.php?name=" + videoContentId + "&en=b64&url=" + m.group(1) + " &User-Agent=" + USER_AGENT
+            print ("Final URL: " + u);
+            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+        except:
+            pass
+
+    #
+    # pxstream.tv support
+    #
+    def getPxstream (self, referUrl, videoContentId):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2727.0 Safari/537.36"
+
+        try:
+            # Get the stream IP Address
+            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
+            print ("VideoContent id: " + videoContentId)
+            html = self.getRequestP2pcast("http://pxstream.tv/embedrouter.php?file=" + videoContentId + "&width=680&height=380&jwplayer=flash", urllib.unquote(referUrl), USER_AGENT)
+                        
+            # Find and decode the URL
+            m = re.compile('file: "(.*?)"').search(html)
+            streamUrl = m.group(1)
+            print ("streamUrl: " + streamUrl)
+                                    
+            # Parse the final URL
+            u = streamUrl 
             print ("Final URL: " + u);
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
         except:
