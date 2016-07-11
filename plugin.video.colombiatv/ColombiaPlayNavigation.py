@@ -24,7 +24,7 @@ import urllib
 import os
 import re
 
-class ColombiaTVNavigation():
+class ColombiaPlayNavigation():
     def __init__(self):
         self.xbmc = sys.modules["__main__"].xbmc
         self.xbmcgui = sys.modules["__main__"].xbmcgui
@@ -40,16 +40,16 @@ class ColombiaTVNavigation():
         self.pluginsettings = sys.modules["__main__"].pluginsettings
                 
 
-    def listMenu(self):
+    def listMenu(self, show):
+
         # Parse channels from json
-        elements = self.core.getChannelList()
+        elements = self.core.getShowList(show)
 
         for element in elements:
             self.addListItem(element)
     
         self.xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True)
         print ("Done")
-        
 
     def addListItem(self, item_params={}):
         item = item_params.get
@@ -60,30 +60,17 @@ class ColombiaTVNavigation():
         fanart = os.path.join(self.settings.getAddonInfo("path"), "fanart.jpg")
 
         #
-        # Dont add the 0 channeld (update item) if the user got the latest version
-        # ColombiaPlay is the 100 id 
+        # The id 0 is the main show thread (full chapters list) 
         #
-        if item('id') == '0':
-            print ("Check for new version")
-            if re.search(self.common.version, item('title')):
-                print ("You have the latest version: " + self.common.version)
-            else:
-                listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
-                listitem.setProperty("fanart_image", fanart)
-                listitem.setInfo('Video', {'Title': item('title')})
-                listitem.setProperty('IsPlayable', "false")
-                ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False)
-
-        elif item('id') == '100':
-            print ("ColombiaPlay Main Menu")
-            listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
-            listitem.setProperty("fanart_image", fanart)
-            ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=True)
-
-        else:
+        if item('id') != '0':
             listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
             listitem.addContextMenuItems(items=contextmenu, replaceItems=True)
             listitem.setProperty("fanart_image", fanart)
             listitem.setInfo('Video', {'Title': item('title')})
             listitem.setProperty('IsPlayable', "true")
-            ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False) 
+            ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False)
+        else:
+            listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
+            listitem.setProperty("fanart_image", fanart)
+            ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=True)
+                

@@ -23,9 +23,6 @@ import re
 
 class JsUnwiser():
 
-    def hola(self):
-        return "hola Diego"
-
     def unwiseAll (self, data):
         try:
             in_data=data

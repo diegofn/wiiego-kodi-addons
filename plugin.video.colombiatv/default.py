@@ -24,7 +24,7 @@ import os, urllib, urllib2, cookielib
 import re
 
 # Set global values.
-version = "1.3.2"
+version = "1.3.3"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
@@ -52,6 +52,8 @@ if (__name__ == "__main__" ):
     core = ColombiaTVCore.ColombiaTVCore()
     import ColombiaTVNavigation
     navigation = ColombiaTVNavigation.ColombiaTVNavigation()
+    import ColombiaPlayNavigation
+    navigationPlay = ColombiaPlayNavigation.ColombiaPlayNavigation()
 
     # Parse the parameters
     paramters = {}
@@ -64,9 +66,12 @@ if (__name__ == "__main__" ):
 
     p = paramters.get
     mode = p('mode', None)
+    
     if mode ==  None:
         navigation.listMenu()
 
+    elif mode == 'colombiaplay': 
+        navigationPlay.listMenu( p('show') )
     elif mode == 'brightcove':  
         core.getBrightcove( p('channelid') )
     elif mode == 'fog':  
@@ -81,4 +86,5 @@ if (__name__ == "__main__" ):
         core.getPublisher( p('host'), p('channelid') )
     elif mode == 'pxstream':  
         core.getPxstream( p ('url'), p('channelid') )
-
+    elif mode == 'hqq':  
+        core.getHqq( p ('vid') )

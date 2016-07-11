@@ -34,6 +34,7 @@ import json
 import base64
 from StringIO import StringIO
 import jsUnwiser
+import hqqresolver
 
 import ConfigParser
 import xml.dom.minidom as minidom
@@ -72,6 +73,18 @@ class ColombiaTVCore():
         if self.enabledebug == True:
             print (result['ColombiaTV'])
         return result['ColombiaTV']
+
+    # Return the Show List 
+    def getShowList(self, show):
+        show_url = "https://" + BASE_URL + base64.b64decode(urllib.unquote(show))
+        request = urllib2.Request(show_url)
+        requesturl = urllib2.urlopen(request)
+        result = simplejson.load(requesturl)
+        requesturl.close()
+
+        if self.enabledebug == True:
+            print (result['ColombiaPlay'])
+        return result['ColombiaPlay']
 
     #
     # Brightcove support
@@ -376,6 +389,22 @@ class ColombiaTVCore():
                                     
             # Parse the final URL
             u = streamUrl 
+            print ("Final URL: " + u);
+            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+        except:
+            pass
+
+    #
+    # HQQ Support
+    #
+    def getHqq (self, vid):
+        try:
+            # Get the stream URL
+            print ("VideoContent id: " + vid)
+            hqqvidresolver = hqqresolver.hqqResolver()
+                                    
+            # Parse the final URL
+            u = hqqvidresolver.resolve(vid)
             print ("Final URL: " + u);
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
         except:
