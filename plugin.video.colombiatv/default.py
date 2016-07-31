@@ -24,7 +24,7 @@ import os, urllib, urllib2, cookielib
 import re
 
 # Set global values.
-version = "1.3.3"
+version = "1.3.4"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
@@ -88,3 +88,6 @@ if (__name__ == "__main__" ):
         core.getPxstream( p ('url'), p('channelid') )
     elif mode == 'hqq':  
         core.getHqq( p ('vid') )
+    elif mode == 'ssh101random':  
+        core.ssh101random( p ('url') )
+        

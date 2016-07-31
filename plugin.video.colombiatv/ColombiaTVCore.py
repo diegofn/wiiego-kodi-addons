@@ -356,15 +356,14 @@ class ColombiaTVCore():
         try:
             # Get the stream IP Address
             print ("VideoContent id: " + videoContentId)
-            html = self.getRequest("http://embed.latino-webtv.com/" + videoContentId + ".html")
+            html = self.getRequest("http://latino-webtv.com/embed/canales.php?ch=" + videoContentId + "&sd=si")
 
             # Find and decode the URL
-            m = re.compile('SRC=".*url=(.*?)"').search(html)
-            streamUrl = base64.b64decode(m.group(1))
-            print ("streamUrl: " + streamUrl)
+            m = re.compile('file: "(.*?)",').search(html)
+            streamUrl = m.group(1)
                                     
             # Parse the final URL
-            u = streamUrl + "|Referer=http://latino-webtv.com/embed/reproducir.php?name=" + videoContentId + "&en=b64&url=" + m.group(1) + " &User-Agent=" + USER_AGENT
+            u = streamUrl + "|Referer=http://latino-webtv.com/embed/canales.php?ch=" + videoContentId + "&sd=si" + "&User-Agent=" + USER_AGENT
             print ("Final URL: " + u);
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
         except:
@@ -405,6 +404,29 @@ class ColombiaTVCore():
                                     
             # Parse the final URL
             u = hqqvidresolver.resolve(vid)
+            print ("Final URL: " + u);
+            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+        except:
+            pass
+
+    #
+    # SSH101 random support
+    #
+    def ssh101random (self, referUrl):
+        try:
+            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
+
+            html = self.getRequest(urllib.unquote(referUrl)) 
+
+            # Get the URL Path
+            m = re.compile ("'file': '(.*?)',").search(html)
+            if m:
+                streamPath = m.group(1)
+            else:
+                print ("Last parse error")
+
+            # Parse the final URL
+            u = streamPath
             print ("Final URL: " + u);
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
         except:
