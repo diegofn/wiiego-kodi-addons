@@ -21,10 +21,11 @@
 
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
 import os, urllib, urllib2, cookielib
+import ssl
 import re
 
 # Set global values.
-version = "1.3.4"
+version = "1.3.5"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
@@ -67,27 +68,19 @@ if (__name__ == "__main__" ):
     p = paramters.get
     mode = p('mode', None)
     
+    #
+    # Addon service:
+    # * List available streams
+    # * List on demand shows
+    # * Play channel streams 
+    #
     if mode ==  None:
         navigation.listMenu()
-
+      
     elif mode == 'colombiaplay': 
         navigationPlay.listMenu( p('show') )
-    elif mode == 'brightcove':  
-        core.getBrightcove( p('channelid') )
-    elif mode == 'fog':  
-        core.getFog( p ('url'), p('channelid') )
-    elif mode == 'p2pcast':  
-        core.getP2pcast( p('channelid') )
-    elif mode == 'caston':  
-        core.getCastOn( p('channelid') )
-    elif mode == 'lw':  
-        core.getLw( p('channelid') )
-    elif mode == 'publisher':  
-        core.getPublisher( p('host'), p('channelid') )
-    elif mode == 'pxstream':  
-        core.getPxstream( p ('url'), p('channelid') )
-    elif mode == 'hqq':  
-        core.getHqq( p ('vid') )
-    elif mode == 'ssh101random':  
-        core.ssh101random( p ('url') )
-        
+    else:
+        navigation.playStream( mode, p )
+    
+
+

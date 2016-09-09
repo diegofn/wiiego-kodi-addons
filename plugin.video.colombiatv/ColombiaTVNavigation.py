@@ -49,7 +49,36 @@ class ColombiaTVNavigation():
     
         self.xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True)
         print ("Done")
-        
+    
+
+    def playStream(self, mode, params={}):
+        # Find the URL to play
+        stream_url = None
+
+        if mode == 'brightcove':  
+            stream_url = self.core.getBrightcove( params('channelid') )
+        elif mode == 'fog':  
+            stream_url = self.core.getFog( params ('url'), params('channelid') )
+        elif mode == 'p2pcast':  
+            stream_url = self.core.getP2pcast( params('channelid') )
+        elif mode == 'caston':  
+            stream_url = self.core.getCastOn( params('channelid') )
+        elif mode == 'lw':  
+            stream_url = self.core.getLw( params('channelid') )
+        elif mode == 'publisher':  
+            stream_url = self.core.getPublisher( params('host'), params('channelid') )
+        elif mode == 'pxstream':  
+            stream_url = self.core.getPxstream( params('url'), params('channelid') )
+        elif mode == 'hqq':  
+            stream_url = self.core.getHqq( params('vid') )
+        elif mode == 'ssh101random':  
+            stream_url = self.core.getSSH101random( params('url') )
+        elif mode == 'nowlive':  
+            stream_url = self.core.getNowLive( params('url'), params('channelid') )
+
+        if (stream_url):
+            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=stream_url))  
+
 
     def addListItem(self, item_params={}):
         item = item_params.get
@@ -81,9 +110,9 @@ class ColombiaTVNavigation():
             ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=True)
 
         else:
-            listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
+            listitem = self.xbmcgui.ListItem(label=item('title'), label2='TV Show', iconImage=image, thumbnailImage=image)
             listitem.addContextMenuItems(items=contextmenu, replaceItems=True)
             listitem.setProperty("fanart_image", fanart)
-            listitem.setInfo('Video', {'Title': item('title')})
+            listitem.setInfo('Video', {'Title': item('title'), 'MediaType': 'tvshow', 'Plot': '[B]' + item('title') + '[/B] Plot'})
             listitem.setProperty('IsPlayable', "true")
             ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False) 

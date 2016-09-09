@@ -35,6 +35,8 @@ import base64
 from StringIO import StringIO
 import jsUnwiser
 import hqqresolver
+import ssl
+import xbmc
 
 import ConfigParser
 import xml.dom.minidom as minidom
@@ -45,9 +47,6 @@ import xml.dom.minidom as minidom
 # 500 = uncaught error
 
 # Base URL for all querys. 
-#http://tvi.une.net.co/wsLiveChannelsLoad/live_channels.php?token=07b95eb4ba4fe65ba0c68fb304bc1769
-#http://uneapple-i.akamaihd.net/hls/live/205013/grupoune_st4@205013/master.m3u8
-#http://tvi.une.net.co/upload/images/logos/110x70/1025.png
 BASE_URL='dl.dropboxusercontent.com'
 CHANNEL_URL='/u/30021391/XBMC/'
 
@@ -56,17 +55,23 @@ class ColombiaTVCore():
     def __init__(self, instanceId=10, platformId=4, version=10):
         self.settings = sys.modules["__main__"].settings
         self.plugin = sys.modules["__main__"].plugin
-        self.xbmcgui = sys.modules["__main__"].xbmcgui
-        self.xbmcplugin = sys.modules["__main__"].xbmcplugin
         self.enabledebug = sys.modules["__main__"].enabledebug
         urllib2.install_opener(sys.modules["__main__"].opener)
 
-        self.url = "https://" + BASE_URL + CHANNEL_URL + 'channels.json'
+        # SSL context since Kodi Krypton version
+        try:
+           import ssl
+           ssl._create_default_https_context = ssl._create_unverified_context
+        except:
+           pass
+
+        self.url = "https://" + BASE_URL + CHANNEL_URL + 'channelsdev.json'
 
     # Return the URL from TV Channel
     def getChannelList(self):
         request = urllib2.Request(self.url)
         requesturl = urllib2.urlopen(request)
+
         result = simplejson.load(requesturl)
         requesturl.close()
 
@@ -79,6 +84,7 @@ class ColombiaTVCore():
         show_url = "https://" + BASE_URL + base64.b64decode(urllib.unquote(show))
         request = urllib2.Request(show_url)
         requesturl = urllib2.urlopen(request)
+
         result = simplejson.load(requesturl)
         requesturl.close()
 
@@ -102,10 +108,11 @@ class ColombiaTVCore():
         USER_AGENT = 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_2 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8H7 Safari/6533.18.5'
         UTF8          = 'utf-8'
         headers = {'User-Agent':USER_AGENT, 'Accept':"text/html", 'Accept-Encoding':'gzip,deflate,sdch', 'Accept-Language':'en-US,en;q=0.8', 'Cookie':'hide_ce=true'} 
-        req = urllib2.Request(url.encode(UTF8), None, headers)
+        request = urllib2.Request(url.encode(UTF8), None, headers)
 
         try:
-            response = urllib2.urlopen(req)
+            response = urllib2.urlopen(request)
+                
             if response.info().getheader('Content-Encoding') == 'gzip':
                 print ("Content Encoding == gzip")
                 buf = StringIO( response.read() )
@@ -113,7 +120,7 @@ class ColombiaTVCore():
                 link1 = f.read()
             else:
                 link1=response.read()
-        except:
+        except Exception as e:
             link1 = ""
 
         link1 = str(link1).replace('\n','')
@@ -124,6 +131,7 @@ class ColombiaTVCore():
 
         url = "https://secure.brightcove.com/services/viewer/htmlFederated?&width=859&height=482&flashID=myExperience-myExperience-1&bgcolor=%23FFFFFF&playerID=3950496857001&playerKey=AQ~~%2CAAADexCiUfE~%2CJftGHB2I9gVI2XEYYJLrw_JktV22Q9KB&isVid=true&isUI=true&dynamicStreaming=true&%40videoPlayer=" + videoContentId + "&secureConnections=true&secureHTMLConnections=true"
         html = self.getRequest(url)
+        print (html)
 
         a = re.compile('experienceJSON = (.+?)\};').search(html).group(1)
         a = a+'}'
@@ -144,11 +152,11 @@ class ColombiaTVCore():
             if rate == 0:
                 try:
                     u = a['data']['programmedContent']['videoPlayer']['mediaDTO']['FLVFullLengthURL']
-                    print ("Final URL: " + u);
+                    print ("Final URL: " + u)
                 except:
                     u = ''
 
-            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))
+            return u
         
         except:
             pass
@@ -195,8 +203,8 @@ class ColombiaTVCore():
 
             # Parse the final URL
             u = streamPath + wmsAuthCode
-            print ("Final URL: " + u);
-            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+            print ("Final URL: " + u)
+            return u
         except:
             pass
 
@@ -206,10 +214,11 @@ class ColombiaTVCore():
     def getRequestP2pcast (self, url, referUrl, userAgent, xRequestedWith=""):
         UTF8 = 'utf-8'
         headers = {'User-Agent':userAgent, 'Referer':referUrl, 'X-Requested-With': xRequestedWith, 'Accept':"text/html", 'Accept-Encoding':'gzip,deflate,sdch', 'Accept-Language':'en-US,en;q=0.8', 'Cookie':'hide_ce=true'} 
-        req = urllib2.Request(url.encode(UTF8), None, headers)
+        request = urllib2.Request(url.encode(UTF8), None, headers)
 
         try:
-            response = urllib2.urlopen(req)
+            response = urllib2.urlopen(request)
+            
             if response.info().getheader('Content-Encoding') == 'gzip':
                 print ("Content Encoding == gzip")
                 buf = StringIO( response.read() )
@@ -223,7 +232,9 @@ class ColombiaTVCore():
         link1 = str(link1).replace('\n','')
         return(link1)
 
-
+    #  
+    # NowLive support
+    #
     def getP2pcast (self, videoContentId):
         #
         # Global variables
@@ -249,8 +260,39 @@ class ColombiaTVCore():
 
             # Parse the final URL
             u = "plugin://plugin.video.f4mTester/?streamtype=HLS&amp;url=" + urlEncodedLink
-            print ("Final URL: " + u);
-            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+            print ("Final URL: " + u)
+            return u
+        except:
+            pass
+
+    #
+    # NowLive support
+    #
+    def getNowLive (self, referUrl, videoContentId):
+        #
+        # Global variables
+        #
+        USER_AGENT = "Mozilla/5.0 (X11 Linux i686 rv:41.0) Gecko/20100101 Firefox/41.0 Iceweasel/41.0.2"
+
+        try:
+            # Get the decodeURL
+            print ("VideoContent id: " + videoContentId)
+            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
+            html = self.getRequestP2pcast("http://nowlive.pw/stream.php?id=" + videoContentId + "&width=680&height=380&stretching=uniform&p=1", urllib.unquote(referUrl), USER_AGENT)
+            m = re.compile('curl = "(.*?)"').search(html)
+            decodedURL = base64.b64decode(m.group(1))
+            print ("decodedURL: " + decodedURL)
+                        
+            # Get the token
+            html = self.getRequestP2pcast("http://nowlive.pw/getToken.php", "http://nowlive.pw/stream.php?id=" + videoContentId, USER_AGENT, "XMLHttpRequest")
+            m = re.compile('"token":"(.*?)"').search(html)
+            token = m.group(1)
+            print ("token: " + token)
+
+            # Parse the final URL
+            u = decodedURL + token + "|Referer=http://nowlive.pw/stream.php?id=" + videoContentId + "&width=680&height=380&stretching=uniform&p=1&User-Agent=" + USER_AGENT
+            print ("Final URL: " + u)
+            return u
         except:
             pass
 
@@ -289,8 +331,8 @@ class ColombiaTVCore():
 
             # Parse the final URL
             u = "plugin://plugin.video.f4mTester/?streamtype=HLS&amp;url=" + urlEncodedLink
-            print ("Final URL: " + u);
-            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+            print ("Final URL: " + u)
+            return u
         except:
             pass
 
@@ -342,8 +384,8 @@ class ColombiaTVCore():
 
             # Parse the final URL
             u = "http://" + ipAddress + m3u8Address
-            print ("Final URL: " + u);
-            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+            print ("Final URL: " + u)
+            return u
         except:
             pass
 
@@ -364,8 +406,8 @@ class ColombiaTVCore():
                                     
             # Parse the final URL
             u = streamUrl + "|Referer=http://latino-webtv.com/embed/canales.php?ch=" + videoContentId + "&sd=si" + "&User-Agent=" + USER_AGENT
-            print ("Final URL: " + u);
-            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+            print ("Final URL: " + u)
+            return u
         except:
             pass
 
@@ -388,8 +430,8 @@ class ColombiaTVCore():
                                     
             # Parse the final URL
             u = streamUrl 
-            print ("Final URL: " + u);
-            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+            print ("Final URL: " + u)
+            return u
         except:
             pass
 
@@ -404,18 +446,17 @@ class ColombiaTVCore():
                                     
             # Parse the final URL
             u = hqqvidresolver.resolve(vid)
-            print ("Final URL: " + u);
-            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+            print ("Final URL: " + u)
+            return u
         except:
             pass
 
     #
     # SSH101 random support
     #
-    def ssh101random (self, referUrl):
+    def getSSH101random (self, referUrl):
         try:
             print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-
             html = self.getRequest(urllib.unquote(referUrl)) 
 
             # Get the URL Path
@@ -427,7 +468,7 @@ class ColombiaTVCore():
 
             # Parse the final URL
             u = streamPath
-            print ("Final URL: " + u);
-            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=u))  
+            print ("Final URL: " + u)
+            return u
         except:
             pass
