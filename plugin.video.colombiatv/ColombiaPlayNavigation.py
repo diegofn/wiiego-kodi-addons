@@ -1,6 +1,6 @@
 #/*
 # *
-# * ColombiaTV: ColombiaTV add-on for XBMC.
+# * ColombiaTV: ColombiaTV add-on for Kodi.
 # *
 # * Copyright (C) 2013-2016 Wiiego
 # *

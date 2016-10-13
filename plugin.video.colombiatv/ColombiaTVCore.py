@@ -1,6 +1,6 @@
 #/*
 # *
-# * ColombiaTV: ColombiaTV add-on for XBMC.
+# * ColombiaTV: ColombiaTV add-on for Kodi.
 # *
 # * Copyright (C) 2013-2016 Wiiego
 # * 
@@ -47,8 +47,8 @@ import xml.dom.minidom as minidom
 # 500 = uncaught error
 
 # Base URL for all querys. 
-BASE_URL='dl.dropboxusercontent.com'
-CHANNEL_URL='/u/30021391/XBMC/'
+DROPBOX_BASE_URL='dl.dropboxusercontent.com'
+GITHUB_BASE_URL='gist.githubusercontent.com'
 
 class ColombiaTVCore():
     # Define the global variables for ColombiaTV
@@ -65,23 +65,39 @@ class ColombiaTVCore():
         except:
            pass
 
-        self.url = "https://" + BASE_URL + CHANNEL_URL + 'channelsdev.json'
+        CHANNEL_URL = base64.b64decode("L3UvMzAwMjEzOTEvWEJNQy9jaGFubmVscy5qc29u")
+        self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL
+
+        CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3LzhhMDQ5OTEzOWIzMTI5ZmE0MGZkOTliY2VkZTA4NzAwYzE3NWI5YzYv")
+        self.urlbackup = "https://" + GITHUB_BASE_URL + CHANNEL_URL_BACKUP + "channels.json"
 
     # Return the URL from TV Channel
     def getChannelList(self):
-        request = urllib2.Request(self.url)
-        requesturl = urllib2.urlopen(request)
+        try:
+            request = urllib2.Request(self.url)
+            requesturl = urllib2.urlopen(request)
 
-        result = simplejson.load(requesturl)
-        requesturl.close()
+            result = simplejson.load(requesturl)
+            requesturl.close()
 
-        if self.enabledebug == True:
-            print (result['ColombiaTV'])
-        return result['ColombiaTV']
+            if self.enabledebug == True:
+                print (result['ColombiaTV'])
+            return result['ColombiaTV']
+        except:
+            request = urllib2.Request(self.urlbackup)
+            requesturl = urllib2.urlopen(request)
+
+            result = simplejson.load(requesturl)
+            requesturl.close()
+
+            if self.enabledebug == True:
+                print (result['ColombiaTV'])
+            return result['ColombiaTV']
+        
 
     # Return the Show List 
     def getShowList(self, show):
-        show_url = "https://" + BASE_URL + base64.b64decode(urllib.unquote(show))
+        show_url = "https://" + DROPBOX_BASE_URL + base64.b64decode(urllib.unquote(show))
         request = urllib2.Request(show_url)
         requesturl = urllib2.urlopen(request)
 
@@ -126,13 +142,13 @@ class ColombiaTVCore():
         link1 = str(link1).replace('\n','')
         return(link1)
 
-    def getBrightcove (self, videoContentId):
+    def getBrightcove (self, videoContentId, referUrl):
         print ("VideoContent id: " + videoContentId)
 
-        url = "https://secure.brightcove.com/services/viewer/htmlFederated?&width=859&height=482&flashID=myExperience-myExperience-1&bgcolor=%23FFFFFF&playerID=3950496857001&playerKey=AQ~~%2CAAADexCiUfE~%2CJftGHB2I9gVI2XEYYJLrw_JktV22Q9KB&isVid=true&isUI=true&dynamicStreaming=true&%40videoPlayer=" + videoContentId + "&secureConnections=true&secureHTMLConnections=true"
-        html = self.getRequest(url)
-        print (html)
-
+        USER_AGENT = "Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1 (KHTML, like Gecko) CriOS/53.0.2785.86 Mobile/13G34 Safari/601.1.46"
+        url = "http://c.brightcove.com/services/viewer/htmlFederated?&width=640&height=360&flashID=myExperience4042799614001&identifierClassName=BrightcoveExperienceID_9889&bgcolor=%23FFFFFF&wmode=transparent&playerID=4109933993001&playerKey=AQ~~%2CAAADexCiPmk~%2Chd5maXWwxzDmaeRpSVEvmO9M4jcJ6Ow3&isVid=true&isUI=true&dynamicStreaming=true&%40videoPlayer=" + videoContentId + "&includeAPI=true&templateLoadHandler=BCL.onTemplateLoad&templateReadyHandler=BCL.onTemplateReady&autoStart=&debuggerID=&startTime=1474130689252&refURL=not%20available"
+        html = self.getRequestP2pcast(url, referUrl, USER_AGENT)
+        
         a = re.compile('experienceJSON = (.+?)\};').search(html).group(1)
         a = a+'}'
         a = json.loads(a)

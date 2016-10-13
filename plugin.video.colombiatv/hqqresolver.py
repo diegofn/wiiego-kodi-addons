@@ -140,7 +140,7 @@ class hqqResolver():
 
     def resolve(self, vid):
         headers = {'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                   'Content-Type': 'text/html; charset=utf-8'}
+                   'Content-Type': 'text/html; charset=utf-8', 'Referer': 'http://hqq.tv/', 'X-Requested-With':'XMLHttpRequest'}
         player_url = "http://hqq.tv/player/embed_player.php?vid=%s&autoplay=no" % vid
         data = self.request(player_url, headers)
         b64enc = re.search('base64([^\"]+)', data, re.DOTALL)

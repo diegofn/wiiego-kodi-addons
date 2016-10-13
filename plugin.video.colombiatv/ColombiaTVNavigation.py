@@ -1,6 +1,6 @@
 #/*
 # *
-# * ColombiaTV: ColombiaTV add-on for XBMC.
+# * ColombiaTV: ColombiaTV add-on for Kodi.
 # *
 # * Copyright (C) 2013-2016 Wiiego
 # *
@@ -56,7 +56,7 @@ class ColombiaTVNavigation():
         stream_url = None
 
         if mode == 'brightcove':  
-            stream_url = self.core.getBrightcove( params('channelid') )
+            stream_url = self.core.getBrightcove( params('channelid'), params('url') )
         elif mode == 'fog':  
             stream_url = self.core.getFog( params ('url'), params('channelid') )
         elif mode == 'p2pcast':  

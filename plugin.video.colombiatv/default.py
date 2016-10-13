@@ -1,6 +1,6 @@
 #/*
 # *
-# * ColombiaTV: ColombiaTV add-on for XBMC.
+# * ColombiaTV: ColombiaTV add-on for Kodi.
 # *
 # * Copyright (C) 2013-2016 Wiiego
 # *
@@ -25,7 +25,7 @@ import ssl
 import re
 
 # Set global values.
-version = "1.3.5"
+version = "1.3.6"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
