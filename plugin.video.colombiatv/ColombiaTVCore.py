@@ -2,13 +2,13 @@
 # *
 # * ColombiaTV: ColombiaTV add-on for Kodi.
 # *
-# * Copyright (C) 2013-2016 Wiiego
-# * 
+# * Copyleft 2013-2017 Wiiego
+# *
 # * This program is free software: you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
 # * the Free Software Foundation, either version 3 of the License, or
 # * (at your option) any later version.
-# * 
+# *
 # * This program is distributed in the hope that it will be useful,
 # * but WITHOUT ANY WARRANTY; without even the implied warranty of
 # * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -17,6 +17,8 @@
 # * You should have received a copy of the GNU General Public License
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # *
+# */
+# *  based on https://gitorious.org/iptv-pl-dla-openpli/ urlresolver
 # */
 
 import sys
@@ -409,11 +411,11 @@ class ColombiaTVCore():
     # lw.ml support
     #
     def getLw (self, videoContentId):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2727.0 Safari/537.36"
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2969.0 Safari/537.36"
 
         try:
             # Get the stream IP Address
-            print ("VideoContent id: " + videoContentId)
+            print ("VideoContent id: " + videoContentId)            
             html = self.getRequest("http://latino-webtv.com/embed/canales.php?ch=" + videoContentId + "&sd=si")
 
             # Find and decode the URL
@@ -468,17 +470,18 @@ class ColombiaTVCore():
             pass
 
     #
-    # SSH101 random support
+    # eb support
     #
-    def getSSH101random (self, referUrl):
+    def getEb (self, channelId, referUrl):
         try:
-            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-            html = self.getRequest(urllib.unquote(referUrl)) 
-
+            USER_AGENT = "THEKING"
+            print "URL: " + base64.b64decode(urllib.unquote(referUrl))
+            html = self.getRequestP2pcast(base64.b64decode(urllib.unquote(referUrl)), "", USER_AGENT) 
+            
             # Get the URL Path
-            m = re.compile ("'file': '(.*?)',").search(html)
+            m = re.compile ("([^:]*)\/" + channelId + "\/(.*?)<\/link>").search(html)
             if m:
-                streamPath = m.group(1)
+                streamPath = "http:" + m.group(1) + "/" + channelId + "/" + m.group(2)
             else:
                 print ("Last parse error")
 
@@ -488,3 +491,47 @@ class ColombiaTVCore():
             return u
         except:
             pass
+
+    #
+    # Random support
+    #
+    def getRandom (self, host, referUrl):
+        if host == "ssh101":
+            try:
+                USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
+                print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
+                html = self.getRequestP2pcast(urllib.unquote(referUrl), "", USER_AGENT) 
+
+                # Get the URL Path
+                m = re.compile ("'file': '(.*?)',").search(html)
+                if m:
+                    streamPath = m.group(1)
+                else:
+                    print ("Last parse error")
+
+                # Parse the final URL
+                u = streamPath
+                print ("Final URL: " + u)
+                return u
+            except:
+                pass
+
+        elif host == "janjua":
+            try:
+                print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
+                html = self.getRequest(urllib.unquote(referUrl)) 
+
+                # Get the URL Path
+                m = re.compile ("channel='(.*?)',").search(html)
+                if m:
+                    streamPath = m.group(1)
+                else:
+                    print ("Last parse error")
+
+                # Parse the final URL
+                u = "plugin://plugin.video.colombiatv/?mode=publisher&host=janjua&channelid=" + streamPath
+                print ("Final URL: " + u)
+                return u
+            except:
+                pass
+        

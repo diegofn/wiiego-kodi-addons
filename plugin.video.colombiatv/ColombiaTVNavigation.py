@@ -2,7 +2,7 @@
 # *
 # * ColombiaTV: ColombiaTV add-on for Kodi.
 # *
-# * Copyright (C) 2013-2016 Wiiego
+# * Copyleft 2013-2017 Wiiego
 # *
 # * This program is free software: you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,8 @@
 # * You should have received a copy of the GNU General Public License
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # *
+# */
+# *  based on https://gitorious.org/iptv-pl-dla-openpli/ urlresolver
 # */
 
 import sys
@@ -71,8 +73,10 @@ class ColombiaTVNavigation():
             stream_url = self.core.getPxstream( params('url'), params('channelid') )
         elif mode == 'hqq':  
             stream_url = self.core.getHqq( params('vid') )
-        elif mode == 'ssh101random':  
-            stream_url = self.core.getSSH101random( params('url') )
+        elif mode == 'eb':  
+            stream_url = self.core.getEb( params('channelid'), params('url') )
+        elif mode == 'random':  
+            stream_url = self.core.getRandom( params('host'), params('url') )
         elif mode == 'nowlive':  
             stream_url = self.core.getNowLive( params('url'), params('channelid') )
 
