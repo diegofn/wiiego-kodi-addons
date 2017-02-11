@@ -1,3 +1,9 @@
+[B] Version 1.3.8 [/B]
+- Update hqq support
+- Update random search
+- Added 247bay.tv
+- Add widestream.io support
+
 [B] Version 1.3.7 [/B]
 - Update hqq support
 - Update copyleft notice

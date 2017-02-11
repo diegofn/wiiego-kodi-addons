@@ -315,6 +315,65 @@ class ColombiaTVCore():
             pass
 
     #
+    # Widestream support
+    #
+    def getWideStream (self, referUrl, videoContentId):
+        #
+        # Global variables
+        #
+        USER_AGENT = "Mozilla/5.0 (X11 Linux i686 rv:41.0) Gecko/20100101 Firefox/41.0 Iceweasel/41.0.2"
+
+        try:
+            # Get the decodeURL
+            print ("VideoContent id: " + videoContentId)
+            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
+            html = self.getRequestP2pcast("http://widestream.io/embed-" + videoContentId, urllib.unquote(referUrl), USER_AGENT)
+            m = re.compile('(http[^"]+\.m3u8[^"]*)').search(html)
+
+            # Parse the final URL
+            u = m.group(1) + '|Referer=' + referUrl + '&User-Agent=' + USER_AGENT + '&X-Requested-With=ShockwaveFlash/22.0.0.209&Host=cdn.widestream.io:8081'
+            print ("Final URL: " + u)
+            return u
+        except:
+            pass
+
+    #
+    # Widestream support
+    #
+    def get247bay (self, referUrl, videoContentId):
+        #
+        # Global variables
+        #
+        USER_AGENT = "Mozilla/5.0 (X11 Linux i686 rv:41.0) Gecko/20100101 Firefox/41.0 Iceweasel/41.0.2"
+
+        try:
+            # Get the decodeURL
+            print ("VideoContent id: " + videoContentId)
+            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
+            html = self.getRequestP2pcast("http://www.247bay.tv/embedplayer/" + videoContentId + "/2/600/420", urllib.unquote(referUrl), USER_AGENT)
+            
+            # Get swf id channel pk variables
+            m = re.compile(".*SWFObject\(\"([^\"]+\.swf)\".*?[\"']id=(\d+)&s=([^&'\"]+).*?&pk=([^&'\"]+).*").search(html)
+
+            swf = m.group(1)
+            id = m.group(2)
+            channel = m.group(3)
+            pk = m.group(4)
+
+            # Get Ip address
+            html = self.getRequest("http://www.publish247.xyz:1935/loadbalancer?" + id)
+            m = re.compile('redirect=(.*)').search(html)
+            ipAddress = "rtmp://" + m.group(1) + "/stream"
+            print ("ipAddress: " + ipAddress)
+
+            # Parse the final URL
+            u = ipAddress + " playPath=" + channel + "?id=" + id + "&pk=" + pk + " swfVfy=1 timeout=25 conn=S:OK live=true swfUrl=http://www.247bay.tv" + swf + " flashver=WIN\2020,0,0,216 pageUrl=http://www.247bay.tv/embedplayer/" + videoContentId + "/2/600/420"
+            print ("Final URL: " + u)
+            return u
+        except:
+            pass
+
+    #
     # CastOn.tv support
     #
     def getCastOn (self, videoContentId):
@@ -518,8 +577,9 @@ class ColombiaTVCore():
 
         elif host == "janjua":
             try:
+                USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
                 print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-                html = self.getRequest(urllib.unquote(referUrl)) 
+                html = self.getRequestP2pcast(urllib.unquote(referUrl), "", USER_AGENT) 
 
                 # Get the URL Path
                 m = re.compile ("channel='(.*?)',").search(html)

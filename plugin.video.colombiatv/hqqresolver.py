@@ -42,21 +42,6 @@ class hqqResolver():
         print('len(data) %s' % len(data))
         return data
 
-    def post(self, url, data, headers={}):
-        postdata = urllib.urlencode(data)
-        req = urllib2.Request(url, postdata, headers)
-        try:
-            response = urllib2.urlopen(req)
-            data = response.read()
-            response.close()
-        except urllib2.HTTPError, error:
-            data=error.read()
-        print('len(data) %s' % len(data))
-        return data
-        
-    def supports(self, url):
-        return self._regex(url) is not None
-
     def _decode2(self, file_url):
         def K12K(a, typ='b'):
             codec_a = ["G", "L", "M", "N", "Z", "o", "I", "t", "V", "y", "x", "p", "R", "m", "z", "u",
@@ -158,24 +143,33 @@ class hqqResolver():
         data = self._decode_data(data)
         code_crypt = data.split(';; ')
         data = self._decode_data(code_crypt[1])
-
+        
         if data:
             jsonInfo = self.request("http://hqq.tv/player/ip.php?type=json", headers)
             jsonIp = json.loads(jsonInfo)['ip']
 
-            at = re.search(r'at = "(\w+)";', data, re.DOTALL)
+            at = re.search(r'var at = "(\w+)";', data, re.DOTALL)
+            http_referer = re.search('var http_referer *= *"([^"]+)";', data, re.DOTALL)
+
             if jsonIp and at:
-                get_data = {'iss': jsonIp, 'vid': vid, 'at': at.group(1), 'autoplayed': 'yes', 'referer': 'on',
-                            'http_referer': '', 'pass': '', 'embed_from' : '', 'need_captcha' : '0' }
+                get_data = {'iss': jsonIp, 'vid': vid, 'at': at.group(1), 'autoplayed': 'on', 'referer': 'on',
+                            'http_referer': http_referer.group(1), 'pass': '', 'embed_from' : '', 'need_captcha' : '0' }
 
                 data = urllib.unquote(self.request("http://hqq.tv/sec/player/embed_player.php?" +
                                                    urllib.urlencode(get_data), headers))
 
+                at = re.search(r'var\s*at\s*=\s*"([^"]*?)"', data)
                 l = re.search(r'link_1: ([a-zA-Z]+), server_1: ([a-zA-Z]+)', data)
+
+                data = self._decode_data(data)
+                data = self._decode_data(data)
+                code_crypt = data.split(';; ')
+                data = self._decode_data(code_crypt[1])
+                
                 vid_server = re.search(r'var ' + l.group(2) + ' = "([^"]+)"', data).group(1)
                 vid_link = re.search(r'var ' + l.group(1) + ' = "([^"]+)"', data).group(1)
 
-                if vid_server and vid_link:
+                if vid_server and vid_link and at:
                     get_data = {'server_1': vid_server, 'link_1': vid_link, 'at': at.group(1), 'adb': '0/',
                                 'b': '1', 'vid': vid }
                     headers['x-requested-with'] = 'XMLHttpRequest'
