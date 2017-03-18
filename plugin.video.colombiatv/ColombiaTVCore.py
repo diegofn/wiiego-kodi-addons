@@ -49,7 +49,7 @@ import xml.dom.minidom as minidom
 # 500 = uncaught error
 
 # Base URL for all querys. 
-DROPBOX_BASE_URL='dl.dropboxusercontent.com'
+DROPBOX_BASE_URL='www.dropbox.com'
 GITHUB_BASE_URL='gist.githubusercontent.com'
 
 class ColombiaTVCore():
@@ -67,10 +67,10 @@ class ColombiaTVCore():
         except:
            pass
 
-        CHANNEL_URL = base64.b64decode("L3UvMzAwMjEzOTEvWEJNQy9jaGFubmVscy5qc29u")
+        CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==")
         self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL
 
-        CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3LzhhMDQ5OTEzOWIzMTI5ZmE0MGZkOTliY2VkZTA4NzAwYzE3NWI5YzYv")
+        CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3Lw==")
         self.urlbackup = "https://" + GITHUB_BASE_URL + CHANNEL_URL_BACKUP + "channels.json"
 
     # Return the URL from TV Channel
@@ -338,42 +338,6 @@ class ColombiaTVCore():
             pass
 
     #
-    # Widestream support
-    #
-    def get247bay (self, referUrl, videoContentId):
-        #
-        # Global variables
-        #
-        USER_AGENT = "Mozilla/5.0 (X11 Linux i686 rv:41.0) Gecko/20100101 Firefox/41.0 Iceweasel/41.0.2"
-
-        try:
-            # Get the decodeURL
-            print ("VideoContent id: " + videoContentId)
-            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-            html = self.getRequestP2pcast("http://www.247bay.tv/embedplayer/" + videoContentId + "/2/600/420", urllib.unquote(referUrl), USER_AGENT)
-            
-            # Get swf id channel pk variables
-            m = re.compile(".*SWFObject\(\"([^\"]+\.swf)\".*?[\"']id=(\d+)&s=([^&'\"]+).*?&pk=([^&'\"]+).*").search(html)
-
-            swf = m.group(1)
-            id = m.group(2)
-            channel = m.group(3)
-            pk = m.group(4)
-
-            # Get Ip address
-            html = self.getRequest("http://www.publish247.xyz:1935/loadbalancer?" + id)
-            m = re.compile('redirect=(.*)').search(html)
-            ipAddress = "rtmp://" + m.group(1) + "/stream"
-            print ("ipAddress: " + ipAddress)
-
-            # Parse the final URL
-            u = ipAddress + " playPath=" + channel + "?id=" + id + "&pk=" + pk + " swfVfy=1 timeout=25 conn=S:OK live=true swfUrl=http://www.247bay.tv" + swf + " flashver=WIN\2020,0,0,216 pageUrl=http://www.247bay.tv/embedplayer/" + videoContentId + "/2/600/420"
-            print ("Final URL: " + u)
-            return u
-        except:
-            pass
-
-    #
     # CastOn.tv support
     #
     def getCastOn (self, videoContentId):
@@ -444,6 +408,10 @@ class ColombiaTVCore():
             STREAM_IP = "http://cdn.pubzony.com:1935/loadbalancer"
             CHANNEL_URL = "http://www.zony.tv/membedplayer/" + videoContentId + "/1/620/380"
             REFERER = "http://www.zony.tv"
+        elif host == "247bay":
+            STREAM_IP = "http://www.publish247.xyz:1935/loadbalancer"
+            CHANNEL_URL = "http://www.247bay.tv/membedplayer/" + videoContentId + "/2/750/420"
+            REFERER = "http://www.247bay.tv"
 
         try:
             # Get the stream IP Address
@@ -470,19 +438,42 @@ class ColombiaTVCore():
     # lw.ml support
     #
     def getLw (self, videoContentId):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2969.0 Safari/537.36"
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3023.0 Safari/537.36"
 
         try:
             # Get the stream IP Address
             print ("VideoContent id: " + videoContentId)            
-            html = self.getRequest("http://latino-webtv.com/embed/canales.php?ch=" + videoContentId + "&sd=si")
+            html = self.getRequestP2pcast("http://wp.latino-webtv.com/embed/app.php?ch=" + videoContentId + "&sd=si", "http://embed.latino-webtv.com/", USER_AGENT)
 
             # Find and decode the URL
-            m = re.compile('file: "(.*?)",').search(html)
+            m = re.compile('urltoken = "(.*?)"').search(html)
             streamUrl = m.group(1)
-                                    
+            
+            # Get final url
+            streamUrl = self.getRequestP2pcast("http://wp.latino-webtv.com/embed/" + streamUrl, "http://wp.latino-webtv.com/embed/app.php?ch=" + videoContentId + "&sd=si", USER_AGENT, "XMLHttpRequest")
+                                                
             # Parse the final URL
-            u = streamUrl + "|Referer=http://latino-webtv.com/embed/canales.php?ch=" + videoContentId + "&sd=si" + "&User-Agent=" + USER_AGENT
+            u = streamUrl + "|Referer=http%3a%2f%2fwp.latino-webtv.com%2fembed%2fapp.php%3fch%3d" + videoContentId +"%26sd%3dsi" + "&User-Agent=" + USER_AGENT + "&X-Requested-With=ShockwaveFlash/25.0.0.119"
+            print ("Final URL: " + u)
+            return u
+        except:
+            pass
+
+    #
+    # RCN HD App support
+    #
+    def getRCNApp (self):
+        USER_AGENT = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8C148 Safari/6533.18.5"
+
+        try:
+            # Get the token
+            html = self.getRequestP2pcast("http://app.canalrcn.tech/js/indexAndroid5mas.js", "http://app.canalrcn.tech", USER_AGENT)
+            m = re.compile("wifi.*stream\/(.*)\?autoplay").search(html)
+            token = m.group(1)
+            streamUrl = "http://mdstrm.com/live-stream-playlist/" + token + ".m3u8?&dnt=true&ref=http%3A%2F%2Fapp.canalrcn.tech%2Fandroid5mas%2Fwifi"
+                                                
+            # Parse the final URL
+            u = streamUrl
             print ("Final URL: " + u)
             return u
         except:
@@ -536,6 +527,7 @@ class ColombiaTVCore():
             USER_AGENT = "THEKING"
             print "URL: " + base64.b64decode(urllib.unquote(referUrl))
             html = self.getRequestP2pcast(base64.b64decode(urllib.unquote(referUrl)), "", USER_AGENT) 
+            print html
             
             # Get the URL Path
             m = re.compile ("([^:]*)\/" + channelId + "\/(.*?)<\/link>").search(html)

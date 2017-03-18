@@ -75,14 +75,14 @@ class ColombiaTVNavigation():
             stream_url = self.core.getNowLive( params('url'), params('channelid') )
         elif mode == 'widestream':  
             stream_url = self.core.getWideStream( params('url'), params('channelid') )
-        elif mode == '247bay':  
-            stream_url = self.core.get247bay( params('url'), params('channelid') )
         elif mode == 'hqq':  
             stream_url = self.core.getHqq( params('vid') )
         elif mode == 'eb':  
             stream_url = self.core.getEb( params('channelid'), params('url') )
         elif mode == 'random':  
             stream_url = self.core.getRandom( params('host'), params('url') )
+        elif mode == 'rcnapp':  
+            stream_url = self.core.getRCNApp( )
         
         if (stream_url):
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=stream_url))  

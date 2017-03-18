@@ -1,3 +1,7 @@
+[B] Version 1.3.9 [/B]
+- Added RCN Offical App
+- Update new host link
+
 [B] Version 1.3.8 [/B]
 - Update hqq support
 - Update random search
