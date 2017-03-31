@@ -1,3 +1,8 @@
+[B] Version 1.4.0 [/B]
+- Update pxstream support
+- Update EB support
+- Tracking?
+
 [B] Version 1.3.9 [/B]
 - Added RCN Offical App
 - Update new host link

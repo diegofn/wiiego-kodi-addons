@@ -50,6 +50,7 @@ import xml.dom.minidom as minidom
 
 # Base URL for all querys. 
 DROPBOX_BASE_URL='www.dropbox.com'
+BITLY_URL='bit.ly'
 GITHUB_BASE_URL='gist.githubusercontent.com'
 
 class ColombiaTVCore():
@@ -67,9 +68,9 @@ class ColombiaTVCore():
         except:
            pass
 
-        CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==")
-        self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL
-
+        CHANNEL_URL = base64.b64decode("L0NvbG9tYmlhVFZMaXN0Mg==")
+        self.url = "https://" + BITLY_URL + CHANNEL_URL
+        
         CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3Lw==")
         self.urlbackup = "https://" + GITHUB_BASE_URL + CHANNEL_URL_BACKUP + "channels.json"
 
@@ -231,7 +232,7 @@ class ColombiaTVCore():
     #    
     def getRequestP2pcast (self, url, referUrl, userAgent, xRequestedWith=""):
         UTF8 = 'utf-8'
-        headers = {'User-Agent':userAgent, 'Referer':referUrl, 'X-Requested-With': xRequestedWith, 'Accept':"text/html", 'Accept-Encoding':'gzip,deflate,sdch', 'Accept-Language':'en-US,en;q=0.8', 'Cookie':'hide_ce=true'} 
+        headers = {'User-Agent':userAgent, 'Referer':referUrl, 'X-Requested-With': xRequestedWith, 'Accept':"text/html", 'Accept-Encoding':'gzip,deflate,sdch', 'Accept-Language':'en-US,en;q=0.8'} 
         request = urllib2.Request(url.encode(UTF8), None, headers)
 
         try:
@@ -441,19 +442,22 @@ class ColombiaTVCore():
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3023.0 Safari/537.36"
 
         try:
-            # Get the stream IP Address
-            print ("VideoContent id: " + videoContentId)            
-            html = self.getRequestP2pcast("http://wp.latino-webtv.com/embed/app.php?ch=" + videoContentId + "&sd=si", "http://embed.latino-webtv.com/", USER_AGENT)
+            # Get the stream IP Address http://embed.latino-webtv.com/canales.php?ch=70&name=win&sd=si&mode=3
+            print ("VideoContent id: " + videoContentId)
+            referURL = "http://embed.latino-webtv.com/canales.php?ch=" + videoContentId + "&name=win&sd=si&mode=3"
+            html = self.getRequestP2pcast(referURL, "http://embed.latino-webtv.com/", USER_AGENT)
 
             # Find and decode the URL
             m = re.compile('urltoken = "(.*?)"').search(html)
             streamUrl = m.group(1)
+            print streamUrl
             
             # Get final url
-            streamUrl = self.getRequestP2pcast("http://wp.latino-webtv.com/embed/" + streamUrl, "http://wp.latino-webtv.com/embed/app.php?ch=" + videoContentId + "&sd=si", USER_AGENT, "XMLHttpRequest")
-                                                
+            streamUrl = self.getRequestP2pcast("http://embed.latino-webtv.com/" + streamUrl, referURL, USER_AGENT, "XMLHttpRequest")
+            print streamUrl
+
             # Parse the final URL
-            u = streamUrl + "|Referer=http%3a%2f%2fwp.latino-webtv.com%2fembed%2fapp.php%3fch%3d" + videoContentId +"%26sd%3dsi" + "&User-Agent=" + USER_AGENT + "&X-Requested-With=ShockwaveFlash/25.0.0.119"
+            u = streamUrl + "|Referer=" + urllib.quote(referURL, safe='') + "&User-Agent=" + USER_AGENT + "&X-Requested-With=ShockwaveFlash/25.0.0.119"
             print ("Final URL: " + u)
             return u
         except:
@@ -483,21 +487,21 @@ class ColombiaTVCore():
     # pxstream.tv support
     #
     def getPxstream (self, referUrl, videoContentId):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2727.0 Safari/537.36"
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3046.0 Safari/537.36"
 
         try:
             # Get the stream IP Address
             print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
             print ("VideoContent id: " + videoContentId)
             html = self.getRequestP2pcast("http://pxstream.tv/embedrouter.php?file=" + videoContentId + "&width=680&height=380&jwplayer=flash", urllib.unquote(referUrl), USER_AGENT)
-                        
+
             # Find and decode the URL
-            m = re.compile('file: "(.*?)"').search(html)
+            m = re.compile("source: '(.*?)'").search(html)
             streamUrl = m.group(1)
             print ("streamUrl: " + streamUrl)
                                     
             # Parse the final URL
-            u = streamUrl 
+            u = streamUrl + "|Referer=" + urllib.quote("http://pxstream.tv/embedrouter.php?file=" + videoContentId + "&width=680&height=380&jwplayer=seven", safe='') + "&User-Agent=" + USER_AGENT 
             print ("Final URL: " + u)
             return u
         except:
@@ -527,12 +531,12 @@ class ColombiaTVCore():
             USER_AGENT = "THEKING"
             print "URL: " + base64.b64decode(urllib.unquote(referUrl))
             html = self.getRequestP2pcast(base64.b64decode(urllib.unquote(referUrl)), "", USER_AGENT) 
-            print html
             
             # Get the URL Path
-            m = re.compile ("([^:]*)\/" + channelId + "\/(.*?)<\/link>").search(html)
+            m = re.compile ("([^:]*)canal=" + channelId + "(.*?)<\/link>").search(html)
             if m:
-                streamPath = "http:" + m.group(1) + "/" + channelId + "/" + m.group(2)
+                streamPath = "http:" + m.group(1) + "canal=" + channelId + m.group(2)
+                streamPath = streamPath.replace('&amp;', '&')
             else:
                 print ("Last parse error")
 

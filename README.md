@@ -9,13 +9,14 @@ It include the following plugins
 plugin.video.colombiatv
 =======================
 
-- ColombiaTV is a Kodi Addon to watch Colombian TV Channels for free. Its only for educational porpouses. If the Kodi repository does not work you can download the latest version from: https://github.com/diegofn/wiiego-xbmc-addons/raw/master/repo/plugin.video.colombiatv/plugin.video.colombiatv-1.3.8.zip 
+- ColombiaTV is a Kodi Addon to watch Colombian TV Channels for free. Its only for educational porpouses. If the Kodi repository does not work you can download it from the repository and get free updates when public release: https://bit.ly/ColombiaTVRepo
 
 Features
-- Site plugins on classes
+- Site plugins on python classes
+- On demand shows on hqq(dot)tv links
 
 Wish
-- Integration with mi(dot)tv to TV show name.
+- Integration with mi(dot)tv to TV EPG
 - Liga Aguila integration events
 
 plugin.audio.sonora (unavailable)
