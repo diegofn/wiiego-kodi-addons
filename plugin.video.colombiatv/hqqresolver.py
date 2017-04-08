@@ -130,7 +130,7 @@ class hqqResolver():
         return self._decode3(values.group(1), values.group(2), values.group(3), values.group(4))
 
     def resolve(self, vid):
-        user_agent = 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0'
+        user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1 (KHTML, like Gecko) CriOS/57.0.2987.137 Mobile/13G34 Safari/601.1.46'
         headers = { 'User-Agent': user_agent,
                     'Host' : 'hqq.tv',
                     'Referer': 'http://hqq.tv/',
@@ -143,7 +143,7 @@ class hqqResolver():
         data = self._decode_data(data)
         code_crypt = data.split(';; ')
         data = self._decode_data(code_crypt[1])
-        
+
         if data:
             jsonInfo = self.request("http://hqq.tv/player/ip.php?type=json", headers)
             jsonIp = json.loads(jsonInfo)['ip']
@@ -160,7 +160,7 @@ class hqqResolver():
 
                 at = re.search(r'var\s*at\s*=\s*"([^"]*?)"', data)
                 l = re.search(r'link_1: ([a-zA-Z]+), server_1: ([a-zA-Z]+)', data)
-
+                
                 data = self._decode_data(data)
                 data = self._decode_data(data)
                 code_crypt = data.split(';; ')
@@ -176,9 +176,10 @@ class hqqResolver():
                     data = self.request("http://hqq.tv/player/get_md5.php?" + urllib.urlencode(get_data), headers)
                     jsonData = json.loads(data)
                     encodedm3u = jsonData['file']
-                    decodedm3u = self._decode2(encodedm3u.replace('\\', ''))
+                    decodedm3u = self._decode2(encodedm3u.replace('#', ''))
+                    decodedm3u = decodedm3u.replace("?socket", ".mp4.m3u8")
 
-                    fake_agent = 'User-Agent=Mozilla/5.0 (iPhone; CPU iPhone OS 5_0_1 like Mac OS X)'
-                    return decodedm3u + '|' + fake_agent
+                    fake_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1 (KHTML, like Gecko) CriOS/57.0.2987.137 Mobile/13G34 Safari/601.1.46'
+                    return decodedm3u  + '|' + fake_agent
 
         return None

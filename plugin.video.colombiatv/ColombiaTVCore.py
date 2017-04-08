@@ -50,7 +50,6 @@ import xml.dom.minidom as minidom
 
 # Base URL for all querys. 
 DROPBOX_BASE_URL='www.dropbox.com'
-BITLY_URL='bit.ly'
 GITHUB_BASE_URL='gist.githubusercontent.com'
 
 class ColombiaTVCore():
@@ -68,8 +67,8 @@ class ColombiaTVCore():
         except:
            pass
 
-        CHANNEL_URL = base64.b64decode("L0NvbG9tYmlhVFZMaXN0Mg==")
-        self.url = "https://" + BITLY_URL + CHANNEL_URL
+        CHANNEL_URL = base64.b64decode("L3MvYjhoanR3cHlpNml4YW9mL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
+        self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL 
         
         CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3Lw==")
         self.urlbackup = "https://" + GITHUB_BASE_URL + CHANNEL_URL_BACKUP + "channels.json"
