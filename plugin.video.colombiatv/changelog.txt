@@ -1,3 +1,7 @@
+[B] Version 1.4.2 [/B]
+- Update hqq support
+- Add bro.adca.st support
+
 [B] Version 1.4.1 [/B]
 - Update on demand shows support
 - No tracking

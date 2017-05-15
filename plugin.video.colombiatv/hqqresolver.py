@@ -133,7 +133,7 @@ class hqqResolver():
         user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1 (KHTML, like Gecko) CriOS/57.0.2987.137 Mobile/13G34 Safari/601.1.46'
         headers = { 'User-Agent': user_agent,
                     'Host' : 'hqq.tv',
-                    'Referer': 'http://hqq.tv/',
+                    'Referer': 'https://hqq.tv/player/embed_player.php?vid=' + vid + '&autoplay=none',
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                     'Content-Type': 'text/html; charset=utf-8'}
         player_url = "http://hqq.tv/player/embed_player.php?vid=%s&autoplay=no" % vid
@@ -148,13 +148,19 @@ class hqqResolver():
             jsonInfo = self.request("http://hqq.tv/player/ip.php?type=json", headers)
             jsonIp = json.loads(jsonInfo)['ip']
 
-            at = re.search(r'var at = "(\w+)";', data, re.DOTALL)
+            at = re.search(r'var at *= *"(\w+)";', data, re.DOTALL)
             http_referer = re.search('var http_referer *= *"([^"]+)";', data, re.DOTALL)
-
+            
             if jsonIp and at:
                 get_data = {'iss': jsonIp, 'vid': vid, 'at': at.group(1), 'autoplayed': 'on', 'referer': 'on',
-                            'http_referer': http_referer.group(1), 'pass': '', 'embed_from' : '', 'need_captcha' : '0' }
+                            'http_referer': http_referer.group(1), 'pass': '', 'embed_from' : '', 'need_captcha' : '0',
+                            'hash_from' : ''
+                            }
 
+                #curl 'https://hqq.tv/sec/player/embed_player.php?iss=MTkwLjI2LjE3OC4xNQ==&vid=233207256242243226255237262241234263194271217271255&at=7922b7e58d64850607bf311522dc6d40&autoplayed=yes&referer=on&http_referer=aHR0cDovL3d3dy5jYXJ0ZWx0di5uZXQvQ29udHJhLUVsLVRpZW1wby82MC5odG1s&pass=&embed_from=&need_captcha=0&hash_from=7922b7e58d64850607bf311522dc6d40' 
+                # \-XGET \-H 'Referer: https://hqq.tv/player/embed_player.php?vid=233207256242243226255237262241234263194271217271255&autoplay=none&hash_from=7922b7e58d64850607bf311522dc6d40' 
+                # \-H 'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13G34 Safari/601.1' 
+                # \-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
                 data = urllib.unquote(self.request("http://hqq.tv/sec/player/embed_player.php?" +
                                                    urllib.urlencode(get_data), headers))
 
@@ -179,7 +185,7 @@ class hqqResolver():
                     decodedm3u = self._decode2(encodedm3u.replace('#', ''))
                     decodedm3u = decodedm3u.replace("?socket", ".mp4.m3u8")
 
-                    fake_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1 (KHTML, like Gecko) CriOS/57.0.2987.137 Mobile/13G34 Safari/601.1.46'
+                    fake_agent = user_agent
                     return decodedm3u  + '|' + fake_agent
 
         return None

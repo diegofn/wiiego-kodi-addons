@@ -66,9 +66,9 @@ class ColombiaTVCore():
            ssl._create_default_https_context = ssl._create_unverified_context
         except:
            pass
-
-        CHANNEL_URL = base64.b64decode("L3MvYjhoanR3cHlpNml4YW9mL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
-        self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL 
+        
+        CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
+        self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL #DEV
         
         CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3Lw==")
         self.urlbackup = "https://" + GITHUB_BASE_URL + CHANNEL_URL_BACKUP + "channels.json"
@@ -589,4 +589,26 @@ class ColombiaTVCore():
                 return u
             except:
                 pass
+        
+    #
+    # Bro.adca.st support
+    #
+    def getBroadcastSite (self, channelId):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
+        referUrl = "http://bro.adca.st/stream.php?id=" + channelId + "&p=1&c=0&stretching=uniform&old=0"
+        html = self.getRequestP2pcast(referUrl, "http://maxdeportv.net/mobil.php", USER_AGENT) 
+
+        # Get the URL
+        m = re.compile ('trap = "(.*?)"').search(html)
+        streamPath = base64.b64decode(m.group(1))
+
+        # Get the token
+        html = self.getRequestP2pcast("http://bro.adca.st/nws.php", referUrl, USER_AGENT, "XMLHttpRequest") 
+        m = re.compile ('"rumba":"(.*?)"').search(html)
+        token = m.group(1)
+
+        # Parse the final URL
+        u = streamPath + token + '|Referer=' + urllib.quote(referUrl, safe='') + '&User-Agent=' + USER_AGENT
+        print ("Final URL: " + u)
+        return u
         
