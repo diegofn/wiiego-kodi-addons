@@ -68,7 +68,7 @@ class ColombiaTVCore():
            pass
         
         CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
-        self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL #DEV
+        self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL
         
         CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3Lw==")
         self.urlbackup = "https://" + GITHUB_BASE_URL + CHANNEL_URL_BACKUP + "channels.json"
@@ -412,6 +412,10 @@ class ColombiaTVCore():
             STREAM_IP = "http://www.publish247.xyz:1935/loadbalancer"
             CHANNEL_URL = "http://www.247bay.tv/membedplayer/" + videoContentId + "/2/750/420"
             REFERER = "http://www.247bay.tv"
+        elif host == "zenplayer":
+            STREAM_IP = "http://www.zenexpublisher.com:1935/loadbalancer?25517&"
+            CHANNEL_URL = "http://www.zenexplayer.com/membedplayer/" + videoContentId + "/1/740/415"
+            REFERER = "http://www.zenexplayer.com"
 
         try:
             # Get the stream IP Address

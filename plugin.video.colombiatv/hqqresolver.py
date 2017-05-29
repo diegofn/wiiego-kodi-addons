@@ -132,38 +132,36 @@ class hqqResolver():
     def resolve(self, vid):
         user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1 (KHTML, like Gecko) CriOS/57.0.2987.137 Mobile/13G34 Safari/601.1.46'
         headers = { 'User-Agent': user_agent,
-                    'Host' : 'hqq.tv',
-                    'Referer': 'https://hqq.tv/player/embed_player.php?vid=' + vid + '&autoplay=none',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Content-Type': 'text/html; charset=utf-8'}
-        player_url = "http://hqq.tv/player/embed_player.php?vid=%s&autoplay=no" % vid
+                    'Referer': 'https://hqq.watch/player/embed_player.php?vid=' + vid}
+        player_url = "https://hqq.watch/player/embed_player.php?vid=%s" % vid
         data = self.request(player_url, headers)
-
         data = self._decode_data(data)
         data = self._decode_data(data)
+        
         code_crypt = data.split(';; ')
         data = self._decode_data(code_crypt[1])
 
         if data:
-            jsonInfo = self.request("http://hqq.tv/player/ip.php?type=json", headers)
+            jsonInfo = self.request("http://hqq.watch/player/ip.php?type=json", headers)
             jsonIp = json.loads(jsonInfo)['ip']
 
             at = re.search(r'var at *= *"(\w+)";', data, re.DOTALL)
-            http_referer = re.search('var http_referer *= *"([^"]+)";', data, re.DOTALL)
-            
+            http_referer = re.search('var http_referer *= *"([^"]*)";', data, re.DOTALL)
+
             if jsonIp and at:
                 get_data = {'iss': jsonIp, 'vid': vid, 'at': at.group(1), 'autoplayed': 'on', 'referer': 'on',
                             'http_referer': http_referer.group(1), 'pass': '', 'embed_from' : '', 'need_captcha' : '0',
                             'hash_from' : ''
                             }
 
-                #curl 'https://hqq.tv/sec/player/embed_player.php?iss=MTkwLjI2LjE3OC4xNQ==&vid=233207256242243226255237262241234263194271217271255&at=7922b7e58d64850607bf311522dc6d40&autoplayed=yes&referer=on&http_referer=aHR0cDovL3d3dy5jYXJ0ZWx0di5uZXQvQ29udHJhLUVsLVRpZW1wby82MC5odG1s&pass=&embed_from=&need_captcha=0&hash_from=7922b7e58d64850607bf311522dc6d40' 
-                # \-XGET \-H 'Referer: https://hqq.tv/player/embed_player.php?vid=233207256242243226255237262241234263194271217271255&autoplay=none&hash_from=7922b7e58d64850607bf311522dc6d40' 
-                # \-H 'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13G34 Safari/601.1' 
-                # \-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-                data = urllib.unquote(self.request("http://hqq.tv/sec/player/embed_player.php?" +
+                #curl 'https://hqq.watch/sec/player/embed_player.php?iss=MTg2LjE1NS44NS4yMjM=&vid=241269226240255227213221240261226272194271217261258&at=53d19b2b31422428c404f4d3ba401fde&autoplayed=yes&referer=on&http_referer=aHR0cDovL3d3dy52aXZlc2VyaWVzLmNvbS9zZWFyY2gvbGFiZWwvTm92ZWxhcyUyMFR1cmNhcw==&pass=&embed_from=&need_captcha=0&hash_from=' \
+                #-XGET \
+                #-H 'Referer: https://hqq.watch/player/embed_player.php?vid=241269226240255227213221240261226272194271217261258' \
+                #-H 'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13G34 Safari/601.1' \
+                #-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+                data = urllib.unquote(self.request("http://hqq.watch/sec/player/embed_player.php?" +
                                                    urllib.urlencode(get_data), headers))
-
+                
                 at = re.search(r'var\s*at\s*=\s*"([^"]*?)"', data)
                 l = re.search(r'link_1: ([a-zA-Z]+), server_1: ([a-zA-Z]+)', data)
                 
@@ -179,7 +177,7 @@ class hqqResolver():
                     get_data = {'server_1': vid_server, 'link_1': vid_link, 'at': at.group(1), 'adb': '0/',
                                 'b': '1', 'vid': vid }
                     headers['x-requested-with'] = 'XMLHttpRequest'
-                    data = self.request("http://hqq.tv/player/get_md5.php?" + urllib.urlencode(get_data), headers)
+                    data = self.request("http://hqq.watch/player/get_md5.php?" + urllib.urlencode(get_data), headers)
                     jsonData = json.loads(data)
                     encodedm3u = jsonData['file']
                     decodedm3u = self._decode2(encodedm3u.replace('#', ''))
