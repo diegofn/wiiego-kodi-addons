@@ -35,6 +35,7 @@ import gzip
 import json
 import base64
 from StringIO import StringIO
+from pyaes import openssl_aes
 import jsUnwiser
 import hqqresolver
 import ssl
@@ -296,19 +297,19 @@ class ColombiaTVCore():
             # Get the decodeURL
             print ("VideoContent id: " + videoContentId)
             print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-            html = self.getRequestP2pcast("http://nowlive.pw/stream.php?id=" + videoContentId + "&width=680&height=380&stretching=uniform&p=1", urllib.unquote(referUrl), USER_AGENT)
+            html = self.getRequestP2pcast("http://nowlive.club/stream.php?id=" + videoContentId + "&width=680&height=380&stretching=uniform&p=1", urllib.unquote(referUrl), USER_AGENT)
             m = re.compile('curl = "(.*?)"').search(html)
             decodedURL = base64.b64decode(m.group(1))
             print ("decodedURL: " + decodedURL)
                         
             # Get the token
-            html = self.getRequestP2pcast("http://nowlive.pw/getToken.php", "http://nowlive.pw/stream.php?id=" + videoContentId, USER_AGENT, "XMLHttpRequest")
+            html = self.getRequestP2pcast("http://nowlive.club/getToken.php", "http://nowlive.pw/stream.php?id=" + videoContentId, USER_AGENT, "XMLHttpRequest")
             m = re.compile('"token":"(.*?)"').search(html)
             token = m.group(1)
             print ("token: " + token)
 
             # Parse the final URL
-            u = decodedURL + token + "|Referer=http://nowlive.pw/stream.php?id=" + videoContentId + "&width=680&height=380&stretching=uniform&p=1&User-Agent=" + USER_AGENT
+            u = decodedURL + token + "|Referer=http://nowlive.club/stream.php?id=" + videoContentId + "&width=680&height=380&stretching=uniform&p=1&User-Agent=" + USER_AGENT
             print ("Final URL: " + u)
             return u
         except:
@@ -442,28 +443,34 @@ class ColombiaTVCore():
     # lw.ml support
     #
     def getLw (self, videoContentId):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3023.0 Safari/537.36"
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3171.0 Safari/537.36"
 
         try:
             # Get the stream IP Address http://embed.latino-webtv.com/canales.php?ch=70&name=win&sd=si&mode=3
+        
             print ("VideoContent id: " + videoContentId)
-            referURL = "http://embed.latino-webtv.com/canales.php?ch=" + videoContentId + "&name=win&sd=si&mode=3"
+            referURL = "http://embed.latino-webtv.com/channels/" + videoContentId + ".html"
             html = self.getRequestP2pcast(referURL, "http://embed.latino-webtv.com/", USER_AGENT)
 
-            # Find and decode the URL
-            m = re.compile('urltoken = "(.*?)"').search(html)
-            streamUrl = m.group(1)
-            print streamUrl
+            # Find and decode the cryptArr
+            m = re.compile('MarioCSdecrypt.dec\("(.*?)"\)').search(html)
+            cryptArr = m.group(1)
             
-            # Get final url
-            streamUrl = self.getRequestP2pcast("http://embed.latino-webtv.com/" + streamUrl, referURL, USER_AGENT, "XMLHttpRequest")
-            print streamUrl
+            # Find the key
+            html = self.getRequestP2pcast("http://js.latino-webtv.com/jquery-latest.js", "http://embed.latino-webtv.com/", USER_AGENT)
+            m = re.compile("openSSLKey\(s2a\('(.*?)'").search(html)
+            opensslkey = m.group(1)
+            print "opensslkey = " + opensslkey
 
+            OpenSSL_AES = openssl_aes.AESCipher()
+            streamUrl = OpenSSL_AES.decrypt(cryptArr, opensslkey)
+                   
             # Parse the final URL
             u = streamUrl + "|Referer=" + urllib.quote(referURL, safe='') + "&User-Agent=" + USER_AGENT + "&X-Requested-With=ShockwaveFlash/25.0.0.119"
             print ("Final URL: " + u)
             return u
-        except:
+        except Exception, e:
+            print str(e)
             pass
 
     #
