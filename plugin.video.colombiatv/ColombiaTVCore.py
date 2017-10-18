@@ -79,10 +79,10 @@ class ColombiaTVCore():
         try:
             request = urllib2.Request(self.url)
             requesturl = urllib2.urlopen(request)
-
+            
             result = simplejson.load(requesturl)
             requesturl.close()
-
+        
             if self.enabledebug == True:
                 print (result['ColombiaTV'])
             return result['ColombiaTV']
@@ -604,22 +604,36 @@ class ColombiaTVCore():
     #
     # Bro.adca.st support
     #
-    def getBroadcastSite (self, channelId):
+    def getBroadcastSite (self, channelId, referUrl):
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
-        referUrl = "http://bro.adca.st/stream.php?id=" + channelId + "&p=1&c=0&stretching=uniform&old=0"
-        html = self.getRequestP2pcast(referUrl, "http://maxdeportv.net/mobil.php", USER_AGENT) 
+        channelUrl = "http://bro.adca.st/stream.php?id=" + channelId + "&p=1&c=0&stretching=uniform&old=0"
+        html = self.getRequestP2pcast(channelUrl, urllib.unquote(referUrl), USER_AGENT) 
 
         # Get the URL
         m = re.compile ('trap = "(.*?)"').search(html)
         streamPath = base64.b64decode(m.group(1))
 
         # Get the token
-        html = self.getRequestP2pcast("http://bro.adca.st/nws.php", referUrl, USER_AGENT, "XMLHttpRequest") 
+        html = self.getRequestP2pcast("http://bro.adca.st/nws.php", channelUrl, USER_AGENT, "XMLHttpRequest") 
         m = re.compile ('"rumba":"(.*?)"').search(html)
         token = m.group(1)
 
         # Parse the final URL
-        u = streamPath + token + '|Referer=' + urllib.quote(referUrl, safe='') + '&User-Agent=' + USER_AGENT
+        u = streamPath + token + '|Referer=' + urllib.quote(channelUrl, safe='') + '&User-Agent=' + USER_AGENT
         print ("Final URL: " + u)
         return u
         
+    #
+    # cv support support
+    #
+    def getCV (self, channelId):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
+        
+        first = "aHR0cDovL2xhdGFtbGl2ZWNoYW5uZWxzaGxzLmNsYXJvdmlkZW8uY29tL0NvbnRlbnQvaGxzX2NsZWFyL0xpdmUv"
+        last = "L1N0cmVhbSgwMSkvaW5kZXgubTN1OD9hcHA9Y29sb21iaWF0diZ1YT1pUGFk" 
+        streamPath = base64.b64decode(first) + channelId + base64.b64decode(last)
+        
+        # Parse the final URL
+        u = streamPath + '|Referer=https://www.clarovideo.com&User-Agent=' + USER_AGENT
+        print ("Final URL: " + u)
+        return u

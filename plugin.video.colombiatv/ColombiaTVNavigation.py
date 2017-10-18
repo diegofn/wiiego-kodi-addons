@@ -82,9 +82,11 @@ class ColombiaTVNavigation():
         elif mode == 'random':  
             stream_url = self.core.getRandom( params('host'), params('url') )
         elif mode == 'bro.adca.st':  
-            stream_url = self.core.getBroadcastSite( params('channelid') )
+            stream_url = self.core.getBroadcastSite( params('channelid'), params('url') )
         elif mode == 'rcnapp':  
             stream_url = self.core.getRCNApp( )
+        elif mode == 'cv':  
+            stream_url = self.core.getCV( params('channelid') )
         
         if (stream_url):
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=stream_url))  
