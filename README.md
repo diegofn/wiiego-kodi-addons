@@ -11,8 +11,8 @@ A video tutorial to install in Kodi is available here: https://www.youtube.com/w
 
 # Project resources
 
-- `Source code <https://github.com/diegofn/wiiego-xbmc-addons>`_
-- `Issue tracker <https://github.com/diegofn/wiiego-xbmc-addons/issues>`_
+- [Source code](https://github.com/diegofn/wiiego-xbmc-addons)
+- [Issue tracker](https://github.com/diegofn/wiiego-xbmc-addons/issues>)
 
 # Credits
 
@@ -34,6 +34,7 @@ A video tutorial to install in Kodi is available here: https://www.youtube.com/w
 ### Wish
 - Integration with mi(dot)tv to TV EPG Kodi
 - Liga Aguila integration events
+
 
 ## plugin.audio.sonora (unavailable)
 
