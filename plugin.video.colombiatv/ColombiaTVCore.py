@@ -54,7 +54,9 @@ DROPBOX_BASE_URL='www.dropbox.com'
 GITHUB_BASE_URL='gist.githubusercontent.com'
 
 class ColombiaTVCore():
+    #
     # Define the global variables for ColombiaTV
+    #
     def __init__(self, instanceId=10, platformId=4, version=10):
         self.settings = sys.modules["__main__"].settings
         self.plugin = sys.modules["__main__"].plugin
@@ -68,13 +70,16 @@ class ColombiaTVCore():
         except:
            pass
         
-        CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
+        #CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
+        CHANNEL_URL = base64.b64decode("L3MvYjhoanR3cHlpNml4YW9mL2NoYW5uZWxzZGV2Lmpzb24/ZGw9MQ==") #REALDEV
         self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL
         
         CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3Lw==")
         self.urlbackup = "https://" + GITHUB_BASE_URL + CHANNEL_URL_BACKUP + "channels.json"
 
+    #
     # Return the URL from TV Channel
+    #
     def getChannelList(self):
         try:
             request = urllib2.Request(self.url)
@@ -97,8 +102,9 @@ class ColombiaTVCore():
                 print (result['ColombiaTV'])
             return result['ColombiaTV']
         
-
+    #
     # Return the Show List 
+    #
     def getShowList(self, show):
         show_url = "https://" + DROPBOX_BASE_URL + base64.b64decode(urllib.unquote(show))
         request = urllib2.Request(show_url)
@@ -110,6 +116,21 @@ class ColombiaTVCore():
         if self.enabledebug == True:
             print (result['ColombiaPlay'])
         return result['ColombiaPlay']
+
+    #
+    # Return the stations list 
+    #
+    def getStationList(self, show):
+        show_url = "https://" + DROPBOX_BASE_URL + base64.b64decode(urllib.unquote(show))
+        request = urllib2.Request(show_url)
+        requesturl = urllib2.urlopen(request)
+
+        result = simplejson.load(requesturl)
+        requesturl.close()
+
+        if self.enabledebug == True:
+            print (result['ColombiaRadio'])
+        return result['ColombiaRadio']
 
     #
     # Brightcove support
@@ -637,3 +658,40 @@ class ColombiaTVCore():
         u = streamPath + '|Referer=https://www.clarovideo.com&User-Agent=' + USER_AGENT
         print ("Final URL: " + u)
         return u
+
+    #
+    # Radiotime.com support
+    #
+    def getRadiotime (self, station):
+        streamPath = "http://opml.radiotime.com/Tune.ashx?formats=aac,html,mp3,ogg,qt,real,flash,wma,wmpro,wmvideo,wmvoice&partnerId=RadioTime&id=" + station
+        streams = []
+
+        # Get the streamlist
+        request = urllib2.Request(streamPath)
+        file = urllib2.urlopen(request)
+        for line in file:
+            print('StreamURL: %s' % line)
+
+            # PLS file
+            m = re.compile ("\.pls").search(line)
+            if m:
+                requestPls = urllib2.Request(line)
+                filePls = urllib2.urlopen(requestPls)
+                for linePls in filePls:
+                    mPls = re.compile ("File.*?=(.*)").search(linePls)
+                    if mPls:
+                        streams.append(mPls.group(1))
+                     
+                filePls.close()
+
+            # M3U or playlist file
+            elif len(line.strip()) > 0 and not line.strip().startswith('#'):
+                streams.append(line.strip())
+        
+        file.close()
+
+        # Parse the final URL
+        if (streams):
+            u = streams[0]
+            print ("Final URL: " + u)
+            return u

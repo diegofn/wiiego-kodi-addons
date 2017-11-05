@@ -27,7 +27,7 @@ import ssl
 import re
 
 # Set global values.
-version = "1.4.5"
+version = "1.4.6"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
@@ -57,6 +57,8 @@ if (__name__ == "__main__" ):
     navigation = ColombiaTVNavigation.ColombiaTVNavigation()
     import ColombiaPlayNavigation
     navigationPlay = ColombiaPlayNavigation.ColombiaPlayNavigation()
+    import ColombiaRadioNavigation
+    navigationRadio = ColombiaRadioNavigation.ColombiaRadioNavigation()
 
     # Parse the parameters
     paramters = {}
@@ -81,6 +83,8 @@ if (__name__ == "__main__" ):
       
     elif mode == 'colombiaplay': 
         navigationPlay.listMenu( p('show') )
+    elif mode == 'colombiaradio': 
+        navigationRadio.listMenu( p('station') )
     else:
         navigation.playStream( mode, p )
     

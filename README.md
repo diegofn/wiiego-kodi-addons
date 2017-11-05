@@ -1,26 +1,46 @@
+******************
 wiiego-xbmc-addons
-==================
+******************
 
-Wiiego's Kodi Addons is a Multimedia Collection for Kodi to listen music and see videos.
-You can download my repo from: https://github.com/diegofn/wiiego-xbmc-addons/raw/master/repo/repository.wiiego/repository.wiiego-1.0.1.zip 
+Wiiego's Kodi Addons is a Multimedia Collection for Kodi to listen music, see videos and enjoy live channels.
 
-It include the following plugins
+Installation
+=================
+You can download the Kodi repository from: https://github.com/diegofn/wiiego-xbmc-addons/raw/master/repo/repository.wiiego/repository.wiiego-1.0.1.zip 
+
+A video tutorial to install in Kodi is available here: https://www.youtube.com/watch?v=XQ6XoJ5i_jM  
+
+Project resources
+=================
+
+- `Source code <https://github.com/diegofn/wiiego-xbmc-addons>`_
+- `Issue tracker <https://github.com/diegofn/wiiego-xbmc-addons/issues>`_
+
+Credits
+=======
+
+- `Original author <https://github.com/diegofn>`_
+- `Current maintainer <https://github.com/diegofn>`_
+- `Contributors <https://github.com/diegofn/wiiego-xbmc-addons/graphs/contributors>`_
+
+Include Plugins
+===============
 
 plugin.video.colombiatv
-=======================
+-----------------------
 
-- ColombiaTV is a Kodi Addon to watch Colombian TV Channels for free. Its only for educational porpouses. If the Kodi repository does not work you can download it from the repository and get free updates when public release: https://bit.ly/ColombiaTVRepo
+- ColombiaTV is a Kodi Addon to watch Colombian TV Channels for free. Its only for educational porpouses. If the Kodi repository does not work you can download it from the repository and get free updates: https://bit.ly/ColombiaTVRepo
 
 Features
 - Site plugins on python classes
-- On demand shows on hqq(dot)tv links
+- On demand shows based on hqq(dot)tv links
 
 Wish
-- Integration with mi(dot)tv to TV EPG
+- Integration with mi(dot)tv to TV EPG Kodi
 - Liga Aguila integration events
 
 plugin.audio.sonora (unavailable)
-=================================
+---------------------------------
 
 Terra's Sonora is a online service to listen more that 20 millons of songs and radios for free. With one free account you can create playlist, mark songs as favorites and download songs (premium service). With this plugin you can listen the sonora library without ads. Its only for educational porpouses.
 
@@ -41,15 +61,4 @@ Wish
 - Downloads
 - Pager
 - Ranking by genre
-
-Version 1.0
-===========
-
-- First version of Sonora XBMC plugin
-
-Version 0.1
-===========
-
-- First version of XBMC repository
-
 

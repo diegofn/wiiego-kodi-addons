@@ -87,6 +87,8 @@ class ColombiaTVNavigation():
             stream_url = self.core.getRCNApp( )
         elif mode == 'cv':  
             stream_url = self.core.getCV( params('channelid') )
+        elif mode == 'radiotime':  
+            stream_url = self.core.getRadiotime( params('station') )
         
         if (stream_url):
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=stream_url))  
@@ -101,8 +103,8 @@ class ColombiaTVNavigation():
         fanart = os.path.join(self.settings.getAddonInfo("path"), "fanart.jpg")
 
         #
-        # Dont add the 0 channeld (update item) if the user got the latest version
-        # ColombiaPlay is the 100 id 
+        # Dont add the 0 channeld (update item) if the user has the latest version
+        # ColombiaPlay and ColombiaRadio is the 100 id 
         #
         if item('id') == '0':
             print ("Check for new version")
@@ -116,7 +118,7 @@ class ColombiaTVNavigation():
                 ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False)
 
         elif item('id') == '100':
-            print ("ColombiaPlay Main Menu")
+            print ("ColombiaRadio and ColombiaTV Main Menu")
             listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
             listitem.setProperty("fanart_image", fanart)
             ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=True)
