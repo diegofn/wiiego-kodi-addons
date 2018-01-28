@@ -1,3 +1,6 @@
+[B] Version 1.4.7 [/B]
+- Added gamovideo support
+
 [B] Version 1.4.6 [/B]
 - New ColombiaRadio audio stations
 

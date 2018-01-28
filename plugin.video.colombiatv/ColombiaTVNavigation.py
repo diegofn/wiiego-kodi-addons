@@ -2,7 +2,7 @@
 # *
 # * ColombiaTV: ColombiaTV add-on for Kodi.
 # *
-# * Copyleft 2013-2017 Wiiego
+# * Copyleft 2013-2018 Wiiego
 # *
 # * This program is free software: you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -89,6 +89,8 @@ class ColombiaTVNavigation():
             stream_url = self.core.getCV( params('channelid') )
         elif mode == 'radiotime':  
             stream_url = self.core.getRadiotime( params('station') )
+        elif mode == 'gamovideo':  
+            stream_url = self.core.getGamovideo( params('vid') )
         
         if (stream_url):
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=stream_url))  

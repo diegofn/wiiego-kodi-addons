@@ -2,7 +2,7 @@
 # *
 # * ColombiaTV: ColombiaTV add-on for Kodi.
 # *
-# * Copyleft 2013-2017 Wiiego
+# * Copyleft 2013-2018 Wiiego
 # *
 # * This program is free software: you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -70,7 +70,8 @@ class ColombiaTVCore():
         except:
            pass
         
-        CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
+        #CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
+        CHANNEL_URL = base64.b64decode("L3MvYjhoanR3cHlpNml4YW9mL2NoYW5uZWxzZGV2Lmpzb24/ZGw9MQ==") #REALDEV
         self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL
         
         CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3Lw==")
@@ -694,3 +695,21 @@ class ColombiaTVCore():
             u = streams[0]
             print ("Final URL: " + u)
             return u
+
+    #
+    # gamovideo.com support
+    #
+    def getGamovideo (self, vid):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
+        referUrl = "http://gamovideo.com"
+        channelUrl = "http://gamovideo.com/embed-" + vid + "-600x400.html"
+        html = self.getRequestP2pcast(channelUrl, urllib.unquote(referUrl), USER_AGENT) 
+
+        # Get the URL
+        m = re.compile ('file: "(h.*?)"').search(html)
+        streamPath = m.group(1)
+
+        # Parse the final URL
+        u = streamPath + '|Referer=' + urllib.quote(channelUrl, safe='') + '&User-Agent=' + USER_AGENT
+        print ("Final URL: " + u)
+        return u
