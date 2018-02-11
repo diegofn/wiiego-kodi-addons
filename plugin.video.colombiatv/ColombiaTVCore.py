@@ -70,8 +70,7 @@ class ColombiaTVCore():
         except:
            pass
         
-        #CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
-        CHANNEL_URL = base64.b64decode("L3MvYjhoanR3cHlpNml4YW9mL2NoYW5uZWxzZGV2Lmpzb24/ZGw9MQ==") #REALDEV
+        CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
         self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL
         
         CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3Lw==")
@@ -463,7 +462,7 @@ class ColombiaTVCore():
     #
     # lw.ml support
     #
-    def getLw (self, videoContentId):
+    def getLw (self, videoContentId, sslPassword):
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3171.0 Safari/537.36"
 
         try:
@@ -476,11 +475,11 @@ class ColombiaTVCore():
             # Find and decode the cryptArr
             m = re.compile('MarioCSdecrypt.dec\("(.*?)"\)').search(html)
             cryptArr = m.group(1)
+            print cryptArr
             
             # Find the key
             html = self.getRequestP2pcast("http://js.latino-webtv.com/jquery-latest.js", "http://embed.latino-webtv.com/", USER_AGENT)
-            m = re.compile("openSSLKey\(s2a\('(.*?)'").search(html)
-            opensslkey = m.group(1)
+            opensslkey = sslPassword
             print "opensslkey = " + opensslkey
 
             OpenSSL_AES = openssl_aes.AESCipher()

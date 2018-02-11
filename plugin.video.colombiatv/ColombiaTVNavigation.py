@@ -66,7 +66,7 @@ class ColombiaTVNavigation():
         elif mode == 'caston':  
             stream_url = self.core.getCastOn( params('channelid') )
         elif mode == 'lw':  
-            stream_url = self.core.getLw( params('channelid') )
+            stream_url = self.core.getLw( params('channelid'), params('pass') )
         elif mode == 'publisher':  
             stream_url = self.core.getPublisher( params('host'), params('channelid') )
         elif mode == 'pxstream':  

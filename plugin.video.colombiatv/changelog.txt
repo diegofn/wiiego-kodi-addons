@@ -1,3 +1,6 @@
+[B] Version 1.4.8 [/B]
+- Update lw support
+
 [B] Version 1.4.7 [/B]
 - Added gamovideo support
 
