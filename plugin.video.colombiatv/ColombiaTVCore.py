@@ -580,19 +580,19 @@ class ColombiaTVCore():
     #
     # Random support
     #
-    def getRandom (self, host, referUrl):
+    def getRandom (self, host, requestUrl, refererUrl=""):
         if host == "ssh101":
             try:
                 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
-                print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-                html = self.getRequestP2pcast(urllib.unquote(referUrl), "", USER_AGENT) 
+                print ("URL: " + requestUrl + " --> " + urllib.unquote(requestUrl))
+                html = self.getRequestP2pcast(urllib.unquote(requestUrl), "", USER_AGENT) 
 
                 # Get the URL Path
                 m = re.compile ("'file': '(.*?)',").search(html)
                 if m:
                     streamPath = m.group(1)
                 else:
-                    print ("Last parse error")
+                    print ("parse error")
 
                 # Parse the final URL
                 u = streamPath
@@ -604,18 +604,59 @@ class ColombiaTVCore():
         elif host == "janjua":
             try:
                 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
-                print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-                html = self.getRequestP2pcast(urllib.unquote(referUrl), "", USER_AGENT) 
+                print ("URL: " + requestUrl + " --> " + urllib.unquote(requestUrl))
+                html = self.getRequestP2pcast(urllib.unquote(requestUrl), "", USER_AGENT) 
 
                 # Get the URL Path
                 m = re.compile ("channel='(.*?)',").search(html)
                 if m:
                     streamPath = m.group(1)
                 else:
-                    print ("Last parse error")
+                    print ("parse error")
 
                 # Parse the final URL
                 u = "plugin://plugin.video.colombiatv/?mode=publisher&host=janjua&channelid=" + streamPath
+                print ("Final URL: " + u)
+                return u
+            except:
+                pass
+
+        elif host == "vk":
+            try:
+                USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
+                print ("URL: " + requestUrl + " --> " + urllib.unquote(requestUrl))
+                html = self.getRequestP2pcast(urllib.unquote(requestUrl), "", USER_AGENT) 
+
+                # Get the URL Path
+                m = re.compile ('file:\s+"(.*?)"').search(html)
+                if m:
+                    streamPath = m.group(1)
+                else:
+                    print ("parse error")
+
+                # Parse the final URL
+                u = streamPath
+                print ("Final URL: " + u)
+                return u
+            except:
+                pass
+
+        elif host == "vergol":
+            try:
+                USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:58.0) Gecko/20100101 Firefox/58.0"
+                print ("URL: " + requestUrl + " --> " + urllib.unquote(requestUrl))
+                print ("Referer URL: " + refererUrl + " --> " + urllib.unquote(refererUrl))
+                html = self.getRequestP2pcast(urllib.unquote(requestUrl), urllib.unquote(refererUrl), USER_AGENT) 
+                
+                # Get the URL Path
+                m = re.compile ("source:\s+'(.*?)'").search(html)
+                if m:
+                    streamPath = m.group(1)
+                else:
+                    print ("parse error")
+
+                # Parse the final URL
+                u = streamPath + "|Referer=" + urllib.unquote(requestUrl) + "&User-Agent=" + USER_AGENT
                 print ("Final URL: " + u)
                 return u
             except:
@@ -712,3 +753,17 @@ class ColombiaTVCore():
         u = streamPath + '|Referer=' + urllib.quote(channelUrl, safe='') + '&User-Agent=' + USER_AGENT
         print ("Final URL: " + u)
         return u
+
+    #
+    # MPD hide support
+    #
+    def getMPD (self, url):
+        u = base64.b64decode (url)
+        print ("Final URL: " + u)
+        return u
+
+    #
+    # Vergol.com support
+    # curl 'http://vergol.com/live3/winsports.php' -H 'Connection: keep-alive' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' -H 'Upgrade-Insecure-Requests: 1' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3350.0 Safari/537.36' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8' -H 'Referer: http://vercanalestv.com/tv/colombia/win-sports.html' 
+    #
+    

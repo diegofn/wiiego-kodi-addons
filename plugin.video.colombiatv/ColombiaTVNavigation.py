@@ -80,7 +80,7 @@ class ColombiaTVNavigation():
         elif mode == 'eb':  
             stream_url = self.core.getEb( params('channelid'), params('url') )
         elif mode == 'random':  
-            stream_url = self.core.getRandom( params('host'), params('url') )
+            stream_url = self.core.getRandom( params('host'), params('url'), params('referer') )
         elif mode == 'bro.adca.st':  
             stream_url = self.core.getBroadcastSite( params('channelid'), params('url') )
         elif mode == 'rcnapp':  
@@ -91,9 +91,20 @@ class ColombiaTVNavigation():
             stream_url = self.core.getRadiotime( params('station') )
         elif mode == 'gamovideo':  
             stream_url = self.core.getGamovideo( params('vid') )
+        elif mode == 'mpd':  
+            stream_url = self.core.getMPD( params('url') )
         
-        if (stream_url):
+
+        if (mode != 'mpd' and stream_url):
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=stream_url))  
+        elif ( stream_url ):
+            listitem = self.xbmcgui.ListItem(path = stream_url)
+            
+            listitem.setProperty('inputstreamaddon','inputstream.adaptive')
+            listitem.setProperty('inputstream.adaptive.manifest_type','mpd')
+            #listitem.setProperty('inputstream.adaptive.license_type','com.widevine.alpha')
+            #listitem.setProperty('inputstream.adaptive.llicense_key','https://widevine-vod.clarovideo.net/licenser/getlicense')
+            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, listitem)  
 
 
     def addListItem(self, item_params={}):
