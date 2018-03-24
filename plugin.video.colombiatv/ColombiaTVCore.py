@@ -61,6 +61,7 @@ class ColombiaTVCore():
         self.settings = sys.modules["__main__"].settings
         self.plugin = sys.modules["__main__"].plugin
         self.enabledebug = sys.modules["__main__"].enabledebug
+        self.xbmcgui = sys.modules["__main__"].xbmcgui
         urllib2.install_opener(sys.modules["__main__"].opener)
 
         # SSL context since Kodi Krypton version
@@ -466,13 +467,15 @@ class ColombiaTVCore():
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3171.0 Safari/537.36"
 
         try:
-            # Get the stream IP Address http://embed.latino-webtv.com/canales.php?ch=70&name=win&sd=si&mode=3
+            # Get the stream IP Address http://embed.latino-webtv.com/win.html
         
             print ("VideoContent id: " + videoContentId)
             referURL = "http://embed.latino-webtv.com/channels/" + videoContentId + ".html"
             html = self.getRequestP2pcast(referURL, "http://embed.latino-webtv.com/", USER_AGENT)
 
-            # Find and decode the cryptArr
+            # Find the token get the cryptArr
+            m = re.compile('= "(.*?)"').search(html)
+            html = self.getRequestP2pcast("http://tvcanales.cf/" + m.group(1), "http://embed.latino-webtv.com/", USER_AGENT)
             m = re.compile('MarioCSdecrypt.dec\("(.*?)"\)').search(html)
             cryptArr = m.group(1)
             print cryptArr
@@ -687,17 +690,16 @@ class ColombiaTVCore():
     #
     # cv support support
     #
-    def getCV (self, channelId):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
+    def getCVHLS (self, url):
+        # Create the listitem
+        u = base64.b64decode(urllib.unquote(url))
+        print "u: " + u
+        list_item = self.xbmcgui.ListItem(path=u)
+        list_item.setProperty('inputstream.adaptive.manifest_type', 'hls')
+        list_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
+        list_item.setProperty('inputstream.adaptive.license_key', 'http://latinowebtv.ml/hls/key.php?token=U2FsdGVkX19QV9t4YnrB83%2F6MlMRunEqwS6VSfbQzeT5CmRRsEVlhXGS6D5E60wVxYqOFRaoj8Maxw64g84PTyuHE3O4QGfgU3hoVT1M9ntrhG4GO%2FQLVstUF6NhGaed')
         
-        first = "aHR0cDovL2xhdGFtbGl2ZWNoYW5uZWxzaGxzLmNsYXJvdmlkZW8uY29tL0NvbnRlbnQvaGxzX2NsZWFyL0xpdmUv"
-        last = "L1N0cmVhbSgwMSkvaW5kZXgubTN1OD9hcHA9Y29sb21iaWF0diZ1YT1pUGFk" 
-        streamPath = base64.b64decode(first) + channelId + base64.b64decode(last)
-        
-        # Parse the final URL
-        u = streamPath + '|Referer=https://www.clarovideo.com&User-Agent=' + USER_AGENT
-        print ("Final URL: " + u)
-        return u
+        return list_item
 
     #
     # Radiotime.com support
@@ -757,10 +759,32 @@ class ColombiaTVCore():
     #
     # MPD hide support
     #
-    def getMPD (self, url):
-        u = base64.b64decode (url)
-        print ("Final URL: " + u)
-        return u
+    def getCVMPD (self, url, url_webapi):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:59.0) Gecko/20100101 Firefox/59.0"
+
+        # Get the device_id and token
+        response = urllib2.urlopen(base64.b64decode(urllib.unquote(url_webapi)))
+        data = json.load(response)
+        device_id = data['entry']['device_id']
+        token = json.loads(data['response']['media']['challenge'])['token']
+        print "device_id: " + device_id
+        print "token: " + token
+
+        # Get the certificate
+        server_certificate = self.getRequestP2pcast("https://widevine-vod.clarovideo.net/licenser/getcertificate", "https://www.clarovideo.com", USER_AGENT)
+        
+
+        # Create the listitem
+        list_item = self.xbmcgui.ListItem(path=url)
+        list_item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+        list_item.setProperty('inputstream.adaptive.license_key', 'https://widevine-vod.clarovideo.net/licenser/getlicense|Content-Type=|{"token":"' + token + '","device_id":"' + device_id + '","widevineBody":"b{SSM}"}|')
+        list_item.setProperty('inputstream.adaptive.server_certificate', server_certificate);
+        list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
+        list_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
+        list_item.setMimeType('application/dash+xml')
+        list_item.setContentLookup(False)
+
+        return list_item
 
     #
     # Vergol.com support

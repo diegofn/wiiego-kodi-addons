@@ -56,6 +56,7 @@ class ColombiaTVNavigation():
     def playStream(self, mode, params={}):
         # Find the URL to play
         stream_url = None
+        stream_listitem = None
 
         if mode == 'brightcove':  
             stream_url = self.core.getBrightcove( params('channelid'), params('url') )
@@ -85,26 +86,20 @@ class ColombiaTVNavigation():
             stream_url = self.core.getBroadcastSite( params('channelid'), params('url') )
         elif mode == 'rcnapp':  
             stream_url = self.core.getRCNApp( )
-        elif mode == 'cv':  
-            stream_url = self.core.getCV( params('channelid') )
+        elif mode == 'cvhls':  
+            stream_listitem = self.core.getCVHLS( params('url') )
         elif mode == 'radiotime':  
             stream_url = self.core.getRadiotime( params('station') )
         elif mode == 'gamovideo':  
             stream_url = self.core.getGamovideo( params('vid') )
-        elif mode == 'mpd':  
-            stream_url = self.core.getMPD( params('url') )
+        elif mode == 'cvmpd':  
+            stream_listitem = self.core.getCVMPD( params('url'), params('url_webapi') )
         
 
-        if (mode != 'mpd' and stream_url):
+        if (stream_listitem == None):
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=stream_url))  
-        elif ( stream_url ):
-            listitem = self.xbmcgui.ListItem(path = stream_url)
-            
-            listitem.setProperty('inputstreamaddon','inputstream.adaptive')
-            listitem.setProperty('inputstream.adaptive.manifest_type','mpd')
-            #listitem.setProperty('inputstream.adaptive.license_type','com.widevine.alpha')
-            #listitem.setProperty('inputstream.adaptive.llicense_key','https://widevine-vod.clarovideo.net/licenser/getlicense')
-            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, listitem)  
+        else:
+            self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, stream_listitem)  
 
 
     def addListItem(self, item_params={}):

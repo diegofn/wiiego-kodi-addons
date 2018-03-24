@@ -1,3 +1,7 @@
+[B] Version 1.5.0 [/B]
+- Update lw support
+- New inputstream.adaptive support for cv streams thanks to @peak3d
+
 [B] Version 1.4.9 [/B]
 - Added vk support
 - Added vergol support
