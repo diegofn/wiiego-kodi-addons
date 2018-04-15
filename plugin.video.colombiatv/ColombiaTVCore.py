@@ -467,15 +467,13 @@ class ColombiaTVCore():
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3171.0 Safari/537.36"
 
         try:
-            # Get the stream IP Address http://embed.latino-webtv.com/win.html
+            # Get the stream IP Address http://tvcanales.cf/channels/win.html
         
             print ("VideoContent id: " + videoContentId)
-            referURL = "http://embed.latino-webtv.com/channels/" + videoContentId + ".html"
+            referURL = "http://tvcanales.cf/channels/" + videoContentId + ".html"
             html = self.getRequestP2pcast(referURL, "http://embed.latino-webtv.com/", USER_AGENT)
 
-            # Find the token get the cryptArr
-            m = re.compile('= "(.*?)"').search(html)
-            html = self.getRequestP2pcast("http://tvcanales.cf/" + m.group(1), "http://embed.latino-webtv.com/", USER_AGENT)
+            # Find the cryptArr
             m = re.compile('MarioCSdecrypt.dec\("(.*?)"\)').search(html)
             cryptArr = m.group(1)
             print cryptArr
@@ -674,16 +672,20 @@ class ColombiaTVCore():
         html = self.getRequestP2pcast(channelUrl, urllib.unquote(referUrl), USER_AGENT) 
 
         # Get the URL
-        m = re.compile ('trap = "(.*?)"').search(html)
-        streamPath = base64.b64decode(m.group(1))
-
+        m = re.compile ('tambor = "(.*?)"').search(html)
+        streamPath = m.group(1)
+        
+        # Get the tokenpage
+        m = re.compile ('firme = "(.*?)"').search(html)
+        tokenpage = m.group(1)
+        
         # Get the token
-        html = self.getRequestP2pcast("http://bro.adca.st/nws.php", channelUrl, USER_AGENT, "XMLHttpRequest") 
-        m = re.compile ('"rumba":"(.*?)"').search(html)
+        html = self.getRequestP2pcast("http://bro.adca.st/" + tokenpage, channelUrl, USER_AGENT, "XMLHttpRequest") 
+        m = re.compile (':"(.*?)"').search(html)
         token = m.group(1)
 
         # Parse the final URL
-        u = streamPath + token + '|Referer=' + urllib.quote(channelUrl, safe='') + '&User-Agent=' + USER_AGENT
+        u = streamPath + token + '|Referer=' + urllib.quote(channelUrl, safe='') + '&User-Agent=' + USER_AGENT + "&Origin=http://bro.adca.st"
         print ("Final URL: " + u)
         return u
         
@@ -760,10 +762,12 @@ class ColombiaTVCore():
     # MPD hide support
     #
     def getCVMPD (self, url, url_webapi):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:59.0) Gecko/20100101 Firefox/59.0"
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3397.0 Safari/537.36"
 
         # Get the device_id and token
-        response = urllib2.urlopen(base64.b64decode(urllib.unquote(url_webapi)))
+        headers = {'User-Agent':USER_AGENT, 'Referer': 'https://www.clarovideo.com' } 
+        request = urllib2.Request (base64.b64decode(urllib.unquote(url_webapi)), None, headers)
+        response = urllib2.urlopen(request)
         data = json.load(response)
         device_id = data['entry']['device_id']
         token = json.loads(data['response']['media']['challenge'])['token']
@@ -773,7 +777,6 @@ class ColombiaTVCore():
         # Get the certificate
         server_certificate = self.getRequestP2pcast("https://widevine-vod.clarovideo.net/licenser/getcertificate", "https://www.clarovideo.com", USER_AGENT)
         
-
         # Create the listitem
         list_item = self.xbmcgui.ListItem(path=url)
         list_item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
@@ -786,8 +789,5 @@ class ColombiaTVCore():
 
         return list_item
 
-    #
-    # Vergol.com support
-    # curl 'http://vergol.com/live3/winsports.php' -H 'Connection: keep-alive' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' -H 'Upgrade-Insecure-Requests: 1' -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3350.0 Safari/537.36' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8' -H 'Referer: http://vercanalestv.com/tv/colombia/win-sports.html' 
-    #
+    
     
