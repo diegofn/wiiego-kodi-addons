@@ -438,6 +438,10 @@ class ColombiaTVCore():
             STREAM_IP = "http://www.zenexpublisher.com:1935/loadbalancer?25517&"
             CHANNEL_URL = "http://www.zenexplayer.com/membedplayer/" + videoContentId + "/1/740/415"
             REFERER = "http://www.zenexplayer.com"
+        elif host == "playerfs":
+            STREAM_IP = "http://www.pubfstream.com:1935/loadbalancer"
+            CHANNEL_URL = "http://www.playerfs.com/hembedplayer/" + videoContentId + "/2/650/400"
+            REFERER = "http://www.playerfs.com"
 
         try:
             # Get the stream IP Address
@@ -789,5 +793,34 @@ class ColombiaTVCore():
 
         return list_item
 
-    
+    #
+    # Streamango support
+    #
+    def getStreamango (self, vid):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
+        referUrl = "ffsamqtncpfdpbrd"
+        channelUrl = "https://streamango.com/f/" + vid
+        html = self.getRequestP2pcast(channelUrl, "", USER_AGENT) 
+
+        # Get the URL
+        m = re.compile ("type:\"video\/([^\"]+)\",src:d\('([^']+)',(.*?)\).+?height:(\d+)").search(html)
+
+        if (m.group (1)):
+            ext = m.group(1)
+            encoded = m.group(2)
+            code = m.group(3)
+            quality = m.group(4)
+
+            # Get the URL
+            unWiser = jsUnwiser.JsUnwiser()
+            streamPath = unWiser.decode(encoded, int(code))
+            streamPath = streamPath.replace("@","")
+            if not streamPath.startswith("http"):
+                streamPath = "http:" + streamPath
+
+            # Parse the final URL
+            u = streamPath
+            print ("Final URL: " + u)
+            return u
+
     

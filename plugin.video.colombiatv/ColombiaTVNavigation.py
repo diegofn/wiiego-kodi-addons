@@ -92,10 +92,11 @@ class ColombiaTVNavigation():
             stream_url = self.core.getRadiotime( params('station') )
         elif mode == 'gamovideo':  
             stream_url = self.core.getGamovideo( params('vid') )
+        elif mode == 'streamango':  
+            stream_url = self.core.getStreamango( params('vid') )
         elif mode == 'cvmpd':  
             stream_listitem = self.core.getCVMPD( params('url'), params('url_webapi') )
         
-
         if (stream_listitem == None):
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=stream_url))  
         else:
