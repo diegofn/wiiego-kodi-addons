@@ -2,6 +2,7 @@
 - Added kastream support
 - Added whostreams support
 - Update nowlive support
+- Update hqq support
 
 [B] Version 1.5.2 [/B]
 - Update playerfs support
