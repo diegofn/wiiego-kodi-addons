@@ -124,6 +124,21 @@ class hqqResolver():
                 var2 = 0
         return ''.join(result)
 
+    def decodeUN(self, a):
+        a = a[1:]
+        s2 = ""
+
+        i = 0
+        while i < len(a):
+            s2 += ('\u0' + a[i:i+3])
+            i = i + 3
+        
+        s3 = s2.decode('unicode-escape')
+        if not s3.startswith('http'):
+            s3 = 'http:' + s3
+            
+        return s3
+
     def _decode_data(self, data):
         valuesPattern = r";}\('(\w+)','(\w*)','(\w*)','(\w*)'\)\)"
         values = re.search(valuesPattern, data, re.DOTALL)
@@ -178,12 +193,18 @@ class hqqResolver():
                                 'b': '1', 'vid': vid }
                     headers['x-requested-with'] = 'XMLHttpRequest'
                     data = self.request("http://hqq.watch/player/get_md5.php?" + urllib.urlencode(get_data), headers)
-                    jsonData = json.loads(data)
-                    encodedm3u = jsonData['file']
-                    decodedm3u = self._decode2(encodedm3u.replace('#', ''))
-                    decodedm3u = decodedm3u.replace("?socket", ".mp4.m3u8")
 
-                    fake_agent = user_agent
-                    return decodedm3u  + '|' + fake_agent
+                    #
+                    # Find the links
+                    # 
+                    jsonData = json.loads(data)
+                    file_url = jsonData['obf_link']
+
+                    if file_url:
+                        list_url = self.decodeUN(file_url.replace('\\', ''))
+                        decodedm3u = list_url + ".mp4.m3u8"
+
+                        fake_agent = user_agent
+                        return decodedm3u  + '|' + fake_agent
 
         return None

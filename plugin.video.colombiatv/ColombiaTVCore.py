@@ -318,19 +318,13 @@ class ColombiaTVCore():
             # Get the decodeURL
             print ("VideoContent id: " + videoContentId)
             print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-            html = self.getRequestP2pcast("http://nowlive.club/stream.php?id=" + videoContentId + "&width=680&height=380&stretching=uniform&p=1", urllib.unquote(referUrl), USER_AGENT)
-            m = re.compile('curl = "(.*?)"').search(html)
-            decodedURL = base64.b64decode(m.group(1))
+            html = self.getRequestP2pcast("http://nowlive.pro/1/" + videoContentId + ".html?id=" + videoContentId + videoContentId, urllib.unquote(referUrl), USER_AGENT)
+            m = re.compile('application\/x-mpegurl.*\/\/(.*?)m3u8').search(html)
+            decodedURL = m.group(1)
             print ("decodedURL: " + decodedURL)
                         
-            # Get the token
-            html = self.getRequestP2pcast("http://nowlive.club/getToken.php", "http://nowlive.pw/stream.php?id=" + videoContentId, USER_AGENT, "XMLHttpRequest")
-            m = re.compile('"token":"(.*?)"').search(html)
-            token = m.group(1)
-            print ("token: " + token)
-
             # Parse the final URL
-            u = decodedURL + token + "|Referer=http://nowlive.club/stream.php?id=" + videoContentId + "&width=680&height=380&stretching=uniform&p=1&User-Agent=" + USER_AGENT
+            u = "http://" + decodedURL + "m3u8" + "|Referer=" + urllib.unquote(referUrl) + "&User-Agent=" + USER_AGENT
             print ("Final URL: " + u)
             return u
         except:
@@ -823,4 +817,49 @@ class ColombiaTVCore():
             print ("Final URL: " + u)
             return u
 
-    
+    #
+    # kastream.biz support
+    #
+    def getKastream (self, referUrl, videoContentId):
+        #
+        # Global variables
+        #
+        USER_AGENT = "Mozilla/5.0 (X11 Linux i686 rv:41.0) Gecko/20100101 Firefox/41.0 Iceweasel/41.0.2"
+
+        try:
+            # Get the decodeURL
+            print ("VideoContent id: " + videoContentId)
+            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
+            html = self.getRequestP2pcast("http://kastream.biz/embed.php?file=" + videoContentId, urllib.unquote(referUrl), USER_AGENT)
+            m = re.compile('source.*?:.*?"(.*?)"').search(html)
+
+            # Parse the final URL
+            u = "http:" + m.group(1) + '|Referer=' + referUrl + '&User-Agent=' + USER_AGENT
+            print ("Final URL: " + u)
+            return u
+        except:
+            pass
+
+    #
+    # whostreams.net support
+    #
+    def getWhostreams (self, referUrl, videoContentId):
+        #
+        # Global variables
+        #
+        USER_AGENT = "Mozilla/5.0 (X11 Linux i686 rv:41.0) Gecko/20100101 Firefox/41.0 Iceweasel/41.0.2"
+
+        try:
+            # Get the decodeURL
+            print ("VideoContent id: " + videoContentId)
+            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
+            html = self.getRequestP2pcast("http://whostreams.net/embed/" + videoContentId, urllib.unquote(referUrl), USER_AGENT)
+            wmsAuthSign = re.compile('\|(\w+?)\|m3u8').search(html)
+            if wmsAuthSign:
+                # Parse the final URL
+                u = "http://cdn.whostreams.net:8081/wsedge/" + videoContentId + "/playlist.m3u8?wmsAuthSign=" + wmsAuthSign.group(1) + '|Referer=' + urllib.unquote(referUrl) + '&User-Agent=' + USER_AGENT
+                print ("Final URL: " + u)
+                return u
+        
+        except:
+            pass

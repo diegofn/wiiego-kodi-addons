@@ -2,7 +2,7 @@
 <addons>
 <addon id="plugin.video.colombiatv"
        name="ColombiaTV"
-       version="1.5.2"
+       version="1.5.3"
        provider-name="Wiiego">
   <requires>
     <import addon="xbmc.python" version="2.1.0" />
