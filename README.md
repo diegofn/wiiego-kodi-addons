@@ -24,7 +24,7 @@ A video tutorial to install in Kodi is available here: https://www.youtube.com/w
 
 ## plugin.video.colombiatv
 
-- ColombiaTV is a Kodi Addon to watch Colombian TV Channels for free. Its only for educational porpouses. If the Kodi repository does not work you can download it from the repository and get free updates: https://bit.ly/ColombiaTVRepo
+- ColombiaTV is a Kodi Addon to watch Colombian TV Channels for free. Its only for educational porpouses. If the Kodi repository does not work you can download it from the repository and get free updates: https://bit.ly/ColombiaTVRepo2
 
 ### Features
 - Site plugins on python classes
