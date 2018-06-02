@@ -1,2 +1,5 @@
+[B]Version 1.0.2[/B]
+- Update kodi name
+
 [B]Version 1.0.1[/B]
 - Initial version

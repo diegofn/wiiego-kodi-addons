@@ -1,24 +1,24 @@
-**wiiego-xbmc-addons**
+**wiiego-kodi-addons**
 ======================
 
 Wiiego's Kodi Addons is a Multimedia Collection for Kodi to listen music, see videos and enjoy live channels.
 
 # Installation
 
-You can download the Kodi repository from: https://github.com/diegofn/wiiego-xbmc-addons/raw/master/repo/repository.wiiego/repository.wiiego-1.0.1.zip 
+You can download the Kodi repository from: https://github.com/diegofn/wiiego-kodi-addons/raw/master/repo/repository.wiiego/repository.wiiego-1.0.2.zip 
 
 A video tutorial to install in Kodi is available here: https://www.youtube.com/watch?v=XQ6XoJ5i_jM  
 
 # Project resources
 
-- [Source code](https://github.com/diegofn/wiiego-xbmc-addons)
-- [Issue tracker](https://github.com/diegofn/wiiego-xbmc-addons/issues>)
+- [Source code](https://github.com/diegofn/wiiego-kodi-addons)
+- [Issue tracker](https://github.com/diegofn/wiiego-kodi-addons/issues>)
 
 # Credits
 
 - [Original author](https://github.com/diegofn)
 - [Current maintainer](https://github.com/diegofn)
-- [Contributors](https://github.com/diegofn/wiiego-xbmc-addons/graphs/contributors)
+- [Contributors](https://github.com/diegofn/wiiego-kodi-addons/graphs/contributors)
 
 # Include Plugins
 

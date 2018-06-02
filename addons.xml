@@ -51,11 +51,11 @@
   </extension>
 </addon>
 
-<addon id="repository.wiiego" name="Wiiego's XBMC Addons" version="1.0.1" provider-name="wiiego">
-	<extension point="xbmc.addon.repository" name="Wiiego's XBMC Addons Repository">
-		<info compressed="false">https://github.com/diegofn/wiiego-xbmc-addons/raw/master/addons.xml</info>
-		<checksum>https://github.com/diegofn/wiiego-xbmc-addons/raw/master/addons.xml.md5</checksum>
-		<datadir zip="true">https://github.com/diegofn/wiiego-xbmc-addons/raw/master/repo/</datadir>
+<addon id="repository.wiiego" name="Wiiego's Kodi Addons" version="1.0.2" provider-name="wiiego">
+	<extension point="xbmc.addon.repository" name="Wiiego's Kodi Addons Repository">
+		<info compressed="false">https://github.com/diegofn/wiiego-kodi-addons/raw/master/addons.xml</info>
+		<checksum>https://github.com/diegofn/wiiego-kodi-addons/raw/master/addons.xml.md5</checksum>
+		<datadir zip="true">https://github.com/diegofn/wiiego-kodi-addons/raw/master/repo/</datadir>
 	</extension>
 	<extension point="xbmc.addon.metadata">
 		<summary>Install Wiiego's Addons</summary>
