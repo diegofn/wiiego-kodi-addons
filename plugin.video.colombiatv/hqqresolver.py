@@ -18,7 +18,7 @@
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # *
 # */
-# *  based on https://gitorious.org/iptv-pl-dla-openpli/ urlresolver
+# *  based on https://github.com/jsergio123/script.module.resolveurl/blob/master/lib/resolveurl/plugins/waaw.py
 # */
 from StringIO import StringIO
 import json
@@ -41,170 +41,140 @@ class hqqResolver():
             data=error.read()
         print('len(data) %s' % len(data))
         return data
-
-    def _decode2(self, file_url):
-        def K12K(a, typ='b'):
-            codec_a = ["G", "L", "M", "N", "Z", "o", "I", "t", "V", "y", "x", "p", "R", "m", "z", "u",
-                       "D", "7", "W", "v", "Q", "n", "e", "0", "b", "="]
-            codec_b = ["2", "6", "i", "k", "8", "X", "J", "B", "a", "s", "d", "H", "w", "f", "T", "3",
-                       "l", "c", "5", "Y", "g", "1", "4", "9", "U", "A"]
-            if 'd' == typ:
-                tmp = codec_a
-                codec_a = codec_b
-                codec_b = tmp
-            idx = 0
-            while idx < len(codec_a):
-                a = a.replace(codec_a[idx], "___")
-                a = a.replace(codec_b[idx], codec_a[idx])
-                a = a.replace("___", codec_b[idx])
-                idx += 1
-            return a
-
-        def _xc13(_arg1):
-            _lg27 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
-            _local2 = ""
-            _local3 = [0, 0, 0, 0]
-            _local4 = [0, 0, 0]
-            _local5 = 0
-            while _local5 < len(_arg1):
-                _local6 = 0
-                while _local6 < 4 and (_local5 + _local6) < len(_arg1):
-                    _local3[_local6] = _lg27.find(_arg1[_local5 + _local6])
-                    _local6 += 1
-                _local4[0] = ((_local3[0] << 2) + ((_local3[1] & 48) >> 4))
-                _local4[1] = (((_local3[1] & 15) << 4) + ((_local3[2] & 60) >> 2))
-                _local4[2] = (((_local3[2] & 3) << 6) + _local3[3])
-
-                _local7 = 0
-                while _local7 < len(_local4):
-                    if _local3[_local7 + 1] == 64:
-                        break
-                    _local2 += chr(_local4[_local7])
-                    _local7 += 1
-                _local5 += 4
-            return _local2
-
-        return _xc13(K12K(file_url, 'e'))               
-
-    def _decode3(self, w, i, s, e):
-        var1 = 0
-        var2 = 0
-        var3 = 0
-        var4 = []
-        var5 = []
-        while (True):
-            if (var1 < 5):
-                var5.append(w[var1])
-            elif (var1 < len(w)):
-                var4.append(w[var1])
-            var1 += 1
-            if (var2 < 5):
-                var5.append(i[var2])
-            elif (var2 < len(i)):
-                var4.append(i[var2])
-            var2 += 1
-            if (var3 < 5):
-                var5.append(s[var3])
-            elif (var3 < len(s)):
-                var4.append(s[var3])
-            var3 += 1
-            if (len(w) + len(i) + len(s) + len(e) == len(var4) + len(var5) + len(e)):
-                break
-        var6 = ''.join(var4)
-        var7 = ''.join(var5)
-        var2 = 0
-        result = []
-        for var1 in range(0, len(var4), 2):
-            ll11 = -1
-            if (ord(var7[var2]) % 2):
-                ll11 = 1
-            result.append(chr(int(var6[var1:var1 + 2], 36) - ll11))
-            var2 += 1
-            if (var2 >= len(var5)):
-                var2 = 0
-        return ''.join(result)
-
-    def decodeUN(self, a):
-        a = a[1:]
-        s2 = ""
-
-        i = 0
-        while i < len(a):
-            s2 += ('\u0' + a[i:i+3])
-            i = i + 3
-        
-        s3 = s2.decode('unicode-escape')
-        if not s3.startswith('http'):
-            s3 = 'http:' + s3
-            
-        return s3
-
-    def _decode_data(self, data):
-        valuesPattern = r";}\('(\w+)','(\w*)','(\w*)','(\w*)'\)\)"
-        values = re.search(valuesPattern, data, re.DOTALL)
-        return self._decode3(values.group(1), values.group(2), values.group(3), values.group(4))
-
-    def resolve(self, vid):
+    
+    def resolve(self, media_id):
         user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1 (KHTML, like Gecko) CriOS/57.0.2987.137 Mobile/13G34 Safari/601.1.46'
         headers = { 'User-Agent': user_agent,
-                    'Referer': 'https://hqq.watch/player/embed_player.php?vid=' + vid}
-        player_url = "https://hqq.watch/player/embed_player.php?vid=%s" % vid
-        data = self.request(player_url, headers)
-        data = self._decode_data(data)
-        data = self._decode_data(data)
+                    'Referer': 'https://hqq.watch/player/embed_player.php?vid=' + media_id}
+        web_url = "https://hqq.watch/player/embed_player.php?vid=%s" % media_id
+        html = self.request(web_url, headers)
         
-        code_crypt = data.split(';; ')
-        data = self._decode_data(code_crypt[1])
+        if html:
+            try:
+                wise = re.search('''<script type=["']text/javascript["']>\s*;?(eval.*?)</script>''', html,
+                                 re.DOTALL | re.I).groups()[0]
+                data_unwise = self.jswise(wise).replace("\\", "")
+                try:
+                    at = re.search('at=(\w+)', data_unwise, re.I).groups()[0]
+                except:
+                    at = ""
+                try:
+                    http_referer = re.search('http_referer=(.*?)&', data_unwise, re.I).groups()[0]
+                except:
+                    http_referer = ""
 
-        if data:
-            jsonInfo = self.request("http://hqq.watch/player/ip.php?type=json", headers)
-            jsonIp = json.loads(jsonInfo)['ip']
+                player_url = "http://hqq.watch/sec/player/embed_player.php?iss=&vid=%s&at=%s&autoplayed=yes&referer=on&http_referer=%s&pass=&embed_from=&need_captcha=0&hash_from=&secured=0" % (
+                media_id, at, http_referer)
+                headers.update({'Referer': web_url})
+                data_player = self.request(player_url, headers=headers)
+                data_unescape = re.findall('document.write\(unescape\("([^"]+)"', data_player)
+                data = ""
+                for d in data_unescape:
+                    data += urllib.unquote(d)
 
-            at = re.search(r'var at *= *"(\w+)";', data, re.DOTALL)
-            http_referer = re.search('var http_referer *= *"([^"]*)";', data, re.DOTALL)
+                data_unwise_player = ""
+                wise = ""
+                wise = re.search('''<script type=["']text/javascript["']>\s*;?(eval.*?)</script>''', data_player,
+                                 re.DOTALL | re.I)
+                if wise:
+                    data_unwise_player = self.jswise(wise.group(1)).replace("\\", "")
 
-            if jsonIp and at:
-                get_data = {'iss': jsonIp, 'vid': vid, 'at': at.group(1), 'autoplayed': 'on', 'referer': 'on',
-                            'http_referer': http_referer.group(1), 'pass': '', 'embed_from' : '', 'need_captcha' : '0',
-                            'hash_from' : ''
-                            }
+                try:
+                    vars_data = re.search('/player/get_md5.php",\s*\{(.*?)\}', data, re.DOTALL | re.I).groups()[0]
+                except:
+                    vars_data = ""
+                matches = re.findall('\s*([^:]+):\s*([^,]*)[,"]', vars_data)
+                params = {}
+                for key, value in matches:
+                    if key == "adb":
+                        params[key] = "0/"
+                    elif '"' in value:
+                        params[key] = value.replace('"', '')
+                    else:
+                        try:
+                            value_var = re.search('var\s*%s\s*=\s*"([^"]+)"' % value, data, re.I).groups()[0]
+                        except:
+                            value_var = ""
+                        if not value_var and data_unwise_player:
+                            try:
+                                value_var = \
+                                re.search('var\s*%s\s*=\s*"([^"]+)"' % value, data_unwise_player, re.I).groups()[0]
+                            except:
+                                value_var = ""
+                        params[key] = value_var
 
-                #curl 'https://hqq.watch/sec/player/embed_player.php?iss=MTg2LjE1NS44NS4yMjM=&vid=241269226240255227213221240261226272194271217261258&at=53d19b2b31422428c404f4d3ba401fde&autoplayed=yes&referer=on&http_referer=aHR0cDovL3d3dy52aXZlc2VyaWVzLmNvbS9zZWFyY2gvbGFiZWwvTm92ZWxhcyUyMFR1cmNhcw==&pass=&embed_from=&need_captcha=0&hash_from=' \
-                #-XGET \
-                #-H 'Referer: https://hqq.watch/player/embed_player.php?vid=241269226240255227213221240261226272194271217261258' \
-                #-H 'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13G34 Safari/601.1' \
-                #-H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-                data = urllib.unquote(self.request("http://hqq.watch/sec/player/embed_player.php?" +
-                                                   urllib.urlencode(get_data), headers))
-                
-                at = re.search(r'var\s*at\s*=\s*"([^"]*?)"', data)
-                l = re.search(r'link_1: ([a-zA-Z]+), server_1: ([a-zA-Z]+)', data)
-                
-                data = self._decode_data(data)
-                data = self._decode_data(data)
-                code_crypt = data.split(';; ')
-                data = self._decode_data(code_crypt[1])
-                
-                vid_server = re.search(r'var ' + l.group(2) + ' = "([^"]+)"', data).group(1)
-                vid_link = re.search(r'var ' + l.group(1) + ' = "([^"]+)"', data).group(1)
+                params = urllib.urlencode(params)
+                headers.update({'X-Requested-With': 'XMLHttpRequest', 'Referer': player_url})
+                data = ""
+                data = self.request("http://hqq.watch/player/get_md5.php?" + params, headers=headers)
+                url_data = json.loads(data)
+                media_url = "https:" + self.tb(url_data["obf_link"].replace("#", "")) + ".mp4.m3u8"
 
-                if vid_server and vid_link and at:
-                    get_data = {'server_1': vid_server, 'link_1': vid_link, 'at': at.group(1), 'adb': '0/',
-                                'b': '1', 'vid': vid }
-                    headers['x-requested-with'] = 'XMLHttpRequest'
-                    data = self.request("http://hqq.watch/player/get_md5.php?" + urllib.urlencode(get_data), headers)
+                if media_url:
+                    del headers['X-Requested-With']
+                    headers.update({'Origin': 'https://hqq.watch'})
+                    return media_url 
 
-                    #
-                    # Find the links
-                    # 
-                    jsonData = json.loads(data)
-                    file_url = jsonData['obf_link']
+            except Exception as e:
+                print str(e)
+                raise ResolverError(e)
 
-                    if file_url:
-                        list_url = self.decodeUN(file_url.replace('\\', ''))
-                        decodedm3u = list_url + ".mp4.m3u8"
+    def tb(self, b_m3u8_2):
+        j = 0
+        s2 = ""
+        while j < len(b_m3u8_2):
+            s2 += "\\u0" + b_m3u8_2[j:(j + 3)]
+            j += 3
 
-                        fake_agent = user_agent
-                        return decodedm3u  + '|' + fake_agent
+        return s2.decode('unicode-escape').encode('ASCII', 'ignore')
 
-        return None
+    ## loop2unobfuscated
+    def jswise(self, wise):
+        while True:
+            wise = re.search("var\s.+?\('([^']+)','([^']+)','([^']+)','([^']+)'\)", wise, re.DOTALL)
+            if not wise: break
+            ret = wise = self.js_wise(wise.groups())
+
+        return ret
+
+    ## js2python
+    def js_wise(self, wise):
+        w, i, s, e = wise
+
+        v0 = 0;
+        v1 = 0;
+        v2 = 0
+        v3 = [];
+        v4 = []
+
+        while True:
+            if v0 < 5:
+                v4.append(w[v0])
+            elif v0 < len(w):
+                v3.append(w[v0])
+            v0 += 1
+            if v1 < 5:
+                v4.append(i[v1])
+            elif v1 < len(i):
+                v3.append(i[v1])
+            v1 += 1
+            if v2 < 5:
+                v4.append(s[v2])
+            elif v2 < len(s):
+                v3.append(s[v2])
+            v2 += 1
+            if len(w) + len(i) + len(s) + len(e) == len(v3) + len(v4) + len(e): break
+
+        v5 = "".join(v3);
+        v6 = "".join(v4)
+        v1 = 0
+        v7 = []
+
+        for v0 in range(0, len(v3), 2):
+            v8 = -1
+            if ord(v6[v1]) % 2: v8 = 1
+            v7.append(chr(int(v5[v0:v0 + 2], 36) - v8))
+            v1 += 1
+            if v1 >= len(v4): v1 = 0
+
+        return "".join(v7)

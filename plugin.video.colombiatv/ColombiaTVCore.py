@@ -71,7 +71,8 @@ class ColombiaTVCore():
         except:
            pass
         
-        CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
+        #CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
+        CHANNEL_URL = base64.b64decode("L3MvYjhoanR3cHlpNml4YW9mL2NoYW5uZWxzZGV2Lmpzb24/ZGw9MQ==") #REALDEV
         self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL
         
         CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3Lw==")
@@ -347,7 +348,7 @@ class ColombiaTVCore():
             m = re.compile('(http[^"]+\.m3u8[^"]*)').search(html)
 
             # Parse the final URL
-            u = m.group(1) + '|Referer=' + referUrl + '&User-Agent=' + USER_AGENT + '&X-Requested-With=ShockwaveFlash/22.0.0.209&Host=cdn.widestream.io:8081'
+            u = m.group(1) + '|Referer=' + referUrl + '&User-Agent=' + USER_AGENT + '&Host=ultra.widestream.io:8081'
             print ("Final URL: " + u)
             return u
         except:
@@ -477,7 +478,7 @@ class ColombiaTVCore():
             print cryptArr
             
             # Find the key
-            html = self.getRequestP2pcast("http://js.latino-webtv.com/jquery-latest.js", "http://embed.latino-webtv.com/", USER_AGENT)
+            html = self.getRequestP2pcast("http://tvcanales.cf/jquery.js", "http://embed.latino-webtv.com/", USER_AGENT)
             opensslkey = sslPassword
             print "opensslkey = " + opensslkey
 
@@ -847,19 +848,42 @@ class ColombiaTVCore():
         #
         # Global variables
         #
-        USER_AGENT = "Mozilla/5.0 (X11 Linux i686 rv:41.0) Gecko/20100101 Firefox/41.0 Iceweasel/41.0.2"
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3448.0 Safari/537.36"
 
         try:
             # Get the decodeURL
             print ("VideoContent id: " + videoContentId)
             print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
             html = self.getRequestP2pcast("http://whostreams.net/embed/" + videoContentId, urllib.unquote(referUrl), USER_AGENT)
-            wmsAuthSign = re.compile('\|(\w+?)\|m3u8').search(html)
+            wmsAuthSign = re.compile('\|(\w+?)\|wmsAuthSign\|m3u8').search(html)
             if wmsAuthSign:
                 # Parse the final URL
-                u = "http://cdn.whostreams.net:8081/wsedge/" + videoContentId + "/playlist.m3u8?wmsAuthSign=" + wmsAuthSign.group(1) + '|Referer=' + urllib.unquote(referUrl) + '&User-Agent=' + USER_AGENT
+                u = "http://cdn.whostreams.net:8081/wsedge/" + videoContentId + "/playlist.m3u8?wmsAuthSign=" + wmsAuthSign.group(1) + '=|Referer=' + urllib.unquote(referUrl) + '&User-Agent=' + USER_AGENT
                 print ("Final URL: " + u)
                 return u
         
         except:
             pass
+
+    #
+    # Telerium.tv support
+    #
+    def getTeleriumTV (self, channelId, referUrl):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
+        channelUrl = "http://telerium.tv/embed/" + channelId + ".html"
+        html = self.getRequestP2pcast(channelUrl, urllib.unquote(referUrl), USER_AGENT) 
+
+        # Get the URL
+        m = re.compile ('domains = ".*?".*?"(.*?)";.*?".*?";.*?"(.*?)";').search(html)
+        streamPath = base64.b64decode( m.group(1) )
+        tokenpage = base64.b64decode ( m.group(2) )
+        
+        # Get the token
+        html = self.getRequestP2pcast("http://telerium.tv/" + tokenpage, channelUrl, USER_AGENT, "XMLHttpRequest") 
+        m = re.compile (':"(.*?)"').search(html)
+        token = m.group(1)
+
+        # Parse the final URL
+        u = streamPath + token + '|Referer=' + urllib.quote(channelUrl, safe='') + '&User-Agent=' + USER_AGENT + "&Origin=http://telerium.tv"
+        print ("Final URL: " + u)
+        return u

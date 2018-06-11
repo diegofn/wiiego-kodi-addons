@@ -98,6 +98,8 @@ class ColombiaTVNavigation():
             stream_url = self.core.getKastream( params('url'), params('channelid') )
         elif mode == 'whostreams':  
             stream_url = self.core.getWhostreams( params('url'), params('channelid') )
+        elif mode == 'telerium':  
+            stream_url = self.core.getTeleriumTV( params('channelid'), params('url') )
         elif mode == 'cvmpd':  
             stream_listitem = self.core.getCVMPD( params('url'), params('url_webapi') )
                 
@@ -140,6 +142,15 @@ class ColombiaTVNavigation():
             listitem = self.xbmcgui.ListItem(label=item('title'), label2='TV Show', iconImage=image, thumbnailImage=image)
             listitem.addContextMenuItems(items=contextmenu, replaceItems=True)
             listitem.setProperty("fanart_image", fanart)
-            listitem.setInfo('Video', {'Title': item('title'), 'MediaType': 'tvshow', 'Plot': '[B]' + item('title') + '[/B] Plot'})
+            #listitem.setInfo('Video', {'Title': item('title'), 'MediaType': 'tvshow', 'Plot': '[B]' + item('title') + '[/B] Plot'})
+            listitem.setInfo('video',
+                {   'title': item('title'),
+                    'mediatype': 'tvshow',
+                    'plot': '[B]' + item('title') + '[/B][CR][CR]Plot[CR]TV Show description',
+                    'tagline': 'Tag yo',
+                    'genre': ['Infantil'],
+                    'tag': ['Series','Infantil','Children']
+                })
             listitem.setProperty('IsPlayable', "true")
             ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False) 
+    

@@ -1,3 +1,10 @@
+[B] Version 1.5.4 [/B]
+- Update widestream support
+- Update whostreams support
+- Update lw support
+- Update hqq support
+- Added telerium support
+
 [B] Version 1.5.3 [/B]
 - Added kastream support
 - Added whostreams support
