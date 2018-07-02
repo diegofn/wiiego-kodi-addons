@@ -38,6 +38,7 @@ class ColombiaTVNavigation():
         self.language = sys.modules["__main__"].language
         self.core = sys.modules["__main__"].core
         self.common = sys.modules["__main__"].common
+        self.epg = sys.modules["__main__"].mitvEpg
 
         self.pluginsettings = sys.modules["__main__"].pluginsettings
                 
@@ -60,14 +61,12 @@ class ColombiaTVNavigation():
 
         if mode == 'brightcove':  
             stream_url = self.core.getBrightcove( params('channelid'), params('url') )
-        elif mode == 'fog':  
-            stream_url = self.core.getFog( params ('url'), params('channelid') )
         elif mode == 'p2pcast':  
             stream_url = self.core.getP2pcast( params('channelid') )
         elif mode == 'caston':  
             stream_url = self.core.getCastOn( params('channelid') )
         elif mode == 'lw':  
-            stream_url = self.core.getLw( params('channelid'), params('pass') )
+            stream_url = self.core.getLw( params('channelid') )
         elif mode == 'publisher':  
             stream_url = self.core.getPublisher( params('host'), params('channelid') )
         elif mode == 'pxstream':  
@@ -142,15 +141,23 @@ class ColombiaTVNavigation():
             listitem = self.xbmcgui.ListItem(label=item('title'), label2='TV Show', iconImage=image, thumbnailImage=image)
             listitem.addContextMenuItems(items=contextmenu, replaceItems=True)
             listitem.setProperty("fanart_image", fanart)
-            #listitem.setInfo('Video', {'Title': item('title'), 'MediaType': 'tvshow', 'Plot': '[B]' + item('title') + '[/B] Plot'})
-            listitem.setInfo('video',
+
+            #
+            # Get epg data
+            #
+            now, plot = self.epg.getChannelInfo(item('id'))
+            if not now:
+                listitem.setInfo('Video', {'Title': item('title'), 'MediaType': 'tvshow', 'Plot': '[B]' + item('title') + '[/B]'})   
+            else:
+                listitem.setInfo('video',
                 {   'title': item('title'),
                     'mediatype': 'tvshow',
-                    'plot': '[B]' + item('title') + '[/B][CR][CR]Plot[CR]TV Show description',
-                    'tagline': 'Tag yo',
-                    'genre': ['Infantil'],
-                    'tag': ['Series','Infantil','Children']
+                    'plot': '[B]' + item('title') + '[/B][CR][CR]' + plot,
+                    'tagline': now["title"] if now["title"] else "",
+                    'genre': now["category"] if now["category"] else "",
+                    'tag': now["tags"] if now["tags"] else ""
                 })
+                
             listitem.setProperty('IsPlayable', "true")
             ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False) 
     

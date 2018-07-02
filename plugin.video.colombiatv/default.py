@@ -27,7 +27,7 @@ import ssl
 import re
 
 # Set global values.
-version = "1.5.4"
+version = "1.5.5"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
@@ -53,13 +53,15 @@ if (__name__ == "__main__" ):
     pluginsettings = ColombiaTVPluginSettings.ColombiaTVPluginSettings()
     import ColombiaTVCore
     core = ColombiaTVCore.ColombiaTVCore()
+    import MiTVIntegration
+    mitvEpg = MiTVIntegration.MiTVIntegration()
     import ColombiaTVNavigation
     navigation = ColombiaTVNavigation.ColombiaTVNavigation()
     import ColombiaPlayNavigation
     navigationPlay = ColombiaPlayNavigation.ColombiaPlayNavigation()
     import ColombiaRadioNavigation
     navigationRadio = ColombiaRadioNavigation.ColombiaRadioNavigation()
-
+    
     # Parse the parameters
     paramters = {}
     try:

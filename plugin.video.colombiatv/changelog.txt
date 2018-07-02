@@ -1,3 +1,9 @@
+[B] Version 1.5.5 [/B]
+- Added mi(dot)tv integration
+- Fix ColombiaRadio section
+- Update lw support
+- Url resolver cosmetic changes 
+
 [B] Version 1.5.4 [/B]
 - Update widestream support
 - Update whostreams support

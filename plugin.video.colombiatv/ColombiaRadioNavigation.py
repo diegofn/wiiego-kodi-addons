@@ -68,6 +68,7 @@ class ColombiaRadioNavigation():
             listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
             listitem.addContextMenuItems(items=contextmenu, replaceItems=True)
             listitem.setProperty("fanart_image", fanart)
+            listitem.setInfo('music', {'Title': item('title')})
             listitem.setProperty('IsPlayable', "true")
             ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False)
         else:
