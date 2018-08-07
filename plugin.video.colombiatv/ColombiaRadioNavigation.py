@@ -35,6 +35,7 @@ class ColombiaRadioNavigation():
         self.settings = sys.modules["__main__"].settings
         self.plugin = sys.modules["__main__"].plugin
         self.enabledebug = sys.modules["__main__"].enabledebug
+        self.enabledeveloper = sys.modules["__main__"].enabledeveloper
         self.language = sys.modules["__main__"].language
         self.core = sys.modules["__main__"].core
         self.common = sys.modules["__main__"].common

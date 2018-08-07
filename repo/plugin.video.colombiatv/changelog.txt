@@ -1,3 +1,8 @@
+[B] Version 1.5.6 [/B]
+- Developer mode enable
+- Update lw support
+- Update whostreams support
+
 [B] Version 1.5.5 [/B]
 - Added mi(dot)tv integration
 - Fix ColombiaRadio section

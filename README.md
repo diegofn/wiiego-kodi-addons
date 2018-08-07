@@ -30,9 +30,9 @@ A video tutorial to install in Kodi is available here: https://www.youtube.com/w
 - Site plugins on python classes
 - On demand shows based on hqq(dot)tv links
 - Audio radio stations links  
+- EPG show information for live streams thanks to mi(dot)tv
 
 ### Wish
-- Integration with mi(dot)tv to TV EPG Kodi
 - Liga Aguila integration events
 
 

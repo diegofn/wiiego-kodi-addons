@@ -2,6 +2,7 @@
 <settings>
 	<!-- Advanced -->
 	<category label="1030">
-		<setting id="enabledebug" type="bool" label="1031" default="false"/>
+		<setting id="enabledebug" type="bool" label="1031" default="false"/>	
+		<setting id="enabledeveloper" type="bool" label="1032" default="false"/>		
 	</category>
 </settings>

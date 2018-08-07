@@ -26,8 +26,12 @@ class ColombiaTVPluginSettings():
 
     def __init__(self):
         self.settings = sys.modules["__main__"].settings
+        self.enabledeveloper = sys.modules["__main__"].enabledeveloper
         self.enabledebug = sys.modules["__main__"].enabledebug
 
-    def isEnableDebug(self):
+    def enabledebug(self):
         return self.settings.getSetting("enabledebug") == "false"
+
+    def enabledeveloper(self):
+        return self.settings.getSetting("enabledeveloper") == "false"
 

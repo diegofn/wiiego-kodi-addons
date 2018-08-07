@@ -2,7 +2,8 @@
 <strings>	
 	<!-- Settings -->
 	<string id="1030">Avanzadas</string>
-	<string id="1031">Habilitar Debug</string>
+	<string id="1031">Habilitar debug</string>
+	<string id="1032">Habilitar modo desarrollador</string>
 
 	<!-- Menus -->
 	<string id="3001">Actualizar</string>

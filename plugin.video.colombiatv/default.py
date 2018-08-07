@@ -27,7 +27,7 @@ import ssl
 import re
 
 # Set global values.
-version = "1.5.5"
+version = "1.5.6"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
@@ -35,6 +35,7 @@ author = 'Wiiego'
 settings = xbmcaddon.Addon(id='plugin.video.colombiatv')
 language = settings.getLocalizedString
 enabledebug = settings.getSetting('enabledebug') == "true"
+enabledeveloper = settings.getSetting('enabledeveloper') == "true"
 
 # Enable HTTP Cookies.
 cookie = cookielib.LWPCookieJar()
@@ -43,7 +44,7 @@ opener = urllib2.build_opener(cookie_handler)
 
 # Plugin Main
 if (__name__ == "__main__" ):
-    if enabledebug:
+    if enabledeveloper:
         print("ARGV Parameters: " + repr(sys.argv))
    
     import CommonFunctions as common

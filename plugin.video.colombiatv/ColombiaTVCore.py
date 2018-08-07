@@ -37,6 +37,7 @@ import base64
 from StringIO import StringIO
 from pyaes import openssl_aes
 import jsUnwiser
+import jsUnpack
 import hqqresolver
 import ssl
 import xbmc
@@ -61,6 +62,7 @@ class ColombiaTVCore():
         self.settings = sys.modules["__main__"].settings
         self.plugin = sys.modules["__main__"].plugin
         self.enabledebug = sys.modules["__main__"].enabledebug
+        self.enabledeveloper = sys.modules["__main__"].enabledeveloper
         self.xbmcgui = sys.modules["__main__"].xbmcgui
         urllib2.install_opener(sys.modules["__main__"].opener)
 
@@ -71,8 +73,11 @@ class ColombiaTVCore():
         except:
            pass
         
-        #CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
-        CHANNEL_URL = base64.b64decode("L3MvYjhoanR3cHlpNml4YW9mL2NoYW5uZWxzZGV2Lmpzb24/ZGw9MQ==") #REALDEV
+        if self.settings.getSetting("enabledeveloper"):
+            CHANNEL_URL = base64.b64decode("L3MvYjhoanR3cHlpNml4YW9mL2NoYW5uZWxzZGV2Lmpzb24/ZGw9MQ==") #REALDEV
+        else:
+            CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
+            
         self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL
         
         CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3Lw==")
@@ -89,7 +94,7 @@ class ColombiaTVCore():
             result = simplejson.load(requesturl)
             requesturl.close()
         
-            if self.enabledebug == True:
+            if self.enabledeveloper == True:
                 print (result['ColombiaTV'])
             return result['ColombiaTV']
 
@@ -100,7 +105,7 @@ class ColombiaTVCore():
             result = simplejson.load(requesturl)
             requesturl.close()
 
-            if self.enabledebug == True:
+            if self.enabledeveloper == True:
                 print (result['ColombiaTV'])
             return result['ColombiaTV']
         
@@ -116,7 +121,7 @@ class ColombiaTVCore():
         result = simplejson.load(requesturl)
         requesturl.close()
 
-        if self.enabledebug == True:
+        if self.enabledeveloper == True:
             print (result['ColombiaPlay'])
         return result['ColombiaPlay']
 
@@ -131,7 +136,7 @@ class ColombiaTVCore():
         result = simplejson.load(requesturl)
         requesturl.close()
 
-        if self.enabledebug == True:
+        if self.enabledeveloper == True:
             print (result['ColombiaRadio'])
         return result['ColombiaRadio']
 
@@ -422,10 +427,10 @@ class ColombiaTVCore():
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3171.0 Safari/537.36"
 
         try:
-            # Get the stream IP Address http://tvcanales.cf/channels/win.html
+            # Get the stream IP Address http://tv.jaffmisshwedd.com/channels/win.html
         
             print ("VideoContent id: " + videoContentId)
-            referURL = "http://tvcanales.cf/channels/" + videoContentId + ".html"
+            referURL = "http://tv.jaffmisshwedd.com/channels/" + videoContentId + ".html"
             html = self.getRequest(referURL, "http://embed.latino-webtv.com/", USER_AGENT)
 
             # Find the cryptArr
@@ -435,7 +440,7 @@ class ColombiaTVCore():
             
             # Find the key
             headers = {'User-Agent':USER_AGENT, 'Referer':referURL, 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
-            html = self.getRequestAdv("http://tvcanales.cf/jquery.js", headers)
+            html = self.getRequestAdv("http://tv.jaffmisshwedd.com/config-player.js", headers)
 
             m = re.compile("'decode','slice','(\w+?)'\]").search(html)
             opensslkey = m.group(1)
@@ -443,9 +448,13 @@ class ColombiaTVCore():
 
             OpenSSL_AES = openssl_aes.AESCipher()
             streamUrl = OpenSSL_AES.decrypt(cryptArr, opensslkey)
-                   
+
+            # Get the balancer server
+            headers = {'User-Agent':USER_AGENT, 'Referer':referURL, 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
+            balancer = self.getRequestAdv("http://mariocs.com:2082/loadbalance", headers)
+            
             # Parse the final URL
-            u = streamUrl + "|Referer=" + urllib.quote(referURL, safe='') + "&User-Agent=" + USER_AGENT + "&X-Requested-With=ShockwaveFlash/25.0.0.119"
+            u = balancer + streamUrl + "|Referer=" + urllib.quote(referURL, safe='') + "&User-Agent=" + USER_AGENT + "&X-Requested-With=ShockwaveFlash/25.0.0.119"
             print ("Final URL: " + u)
             return u
         except Exception, e:
@@ -809,28 +818,37 @@ class ColombiaTVCore():
         #
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3448.0 Safari/537.36"
 
-        try:
-            # Get the decodeURL
-            print ("VideoContent id: " + videoContentId)
-            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-            html = self.getRequest("http://whostreams.net/embed/" + videoContentId, urllib.unquote(referUrl), USER_AGENT)
-            wmsAuthSign = re.compile('\|(\w+?)\|wmsAuthSign\|m3u8').search(html)
-            if wmsAuthSign:
-                # Parse the final URL
-                u = "http://cdn.whostreams.net:8081/wsedge/" + videoContentId + "/playlist.m3u8?wmsAuthSign=" + wmsAuthSign.group(1) + '=|Referer=' + urllib.unquote(referUrl) + '&User-Agent=' + USER_AGENT
-                print ("Final URL: " + u)
-                return u
+        # Get the decodeURL
+        print ("VideoContent id: " + videoContentId)
+        print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
+        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
+        html = self.getRequestAdv("https://whostreams.net/embed/" + videoContentId, headers, False)
         
-        except:
-            pass
-
+        #
+        # Unpack URL
+        #
+        wsParams = re.compile('<script>(e.*)').search(html)
+        if (wsParams):
+            unPacker = jsUnpack.jsUnpacker()
+            unPack = unPacker.unpack(wsParams.group(1))
+            print (unPack)
+            
+            #
+            # Find URL
+            #
+            wsUrl = re.compile('source:"(.*?)"').search(unPack)
+            if (wsUrl):
+                u = wsUrl.group(1) + '|Referer=' + urllib.unquote(referUrl) + '&User-Agent=' + USER_AGENT
+                print ("Final URL: " + u)
+                return u 
+    
     #
     # Telerium.tv support
     #
     def getTeleriumTV (self, channelId, referUrl):
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
         channelUrl = "http://telerium.tv/embed/" + channelId + ".html"
-        html = self.getRequestP2pcast(channelUrl, urllib.unquote(referUrl), USER_AGENT) 
+        html = self.getRequestAdv(channelUrl, urllib.unquote(referUrl), USER_AGENT) 
 
         # Get the URL
         # Get the URL
@@ -840,7 +858,7 @@ class ColombiaTVCore():
         tokenpage = base64.b64decode ( m.group(2) )
         
         # Get the token
-        html = self.getRequestP2pcast("http://telerium.tv/" + tokenpage, channelUrl, USER_AGENT, "XMLHttpRequest") 
+        html = self.getRequestAdv("http://telerium.tv/" + tokenpage, channelUrl, USER_AGENT, "XMLHttpRequest") 
         m = re.compile (':"(.*?)"').search(html)
         token = m.group(1)
 
