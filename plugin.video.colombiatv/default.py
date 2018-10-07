@@ -27,15 +27,15 @@ import ssl
 import re
 
 # Set global values.
-version = "1.5.6"
+version = "1.5.7"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
 # XBMC Hooks
 settings = xbmcaddon.Addon(id='plugin.video.colombiatv')
 language = settings.getLocalizedString
-enabledebug = settings.getSetting('enabledebug') == "true"
-enabledeveloper = settings.getSetting('enabledeveloper') == "true"
+enabledebug = settings.getSetting('enabledebug')
+enabledeveloper = settings.getSetting('enabledeveloper')
 
 # Enable HTTP Cookies.
 cookie = cookielib.LWPCookieJar()

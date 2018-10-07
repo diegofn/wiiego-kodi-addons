@@ -1,3 +1,8 @@
+[B] Version 1.5.7 [/B]
+- Added limpitv support
+- Update mips.tv support
+- Update Developer mode enable
+
 [B] Version 1.5.6 [/B]
 - Developer mode enable
 - Update lw support

@@ -73,10 +73,11 @@ class ColombiaTVCore():
         except:
            pass
         
-        if self.settings.getSetting("enabledeveloper"):
-            CHANNEL_URL = base64.b64decode("L3MvYjhoanR3cHlpNml4YW9mL2NoYW5uZWxzZGV2Lmpzb24/ZGw9MQ==") #REALDEV
-        else:
+        print "Developer Mode: " + self.settings.getSetting("enabledeveloper")
+        if self.settings.getSetting("enabledeveloper") == "false":
             CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
+        else:
+            CHANNEL_URL = base64.b64decode("L3MvYjhoanR3cHlpNml4YW9mL2NoYW5uZWxzZGV2Lmpzb24/ZGw9MQ==") #REALDEV
             
         self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL
         
@@ -380,7 +381,7 @@ class ColombiaTVCore():
             REFERER = "http://www.liveflashplayer.net"
         elif host == "janjua":
             STREAM_IP = "http://www.janjuapublisher.com:1935/loadbalancer?58743"
-            CHANNEL_URL = "http://www.janjuaplayer.com/membedplayer/" + videoContentId + "/1/620/380"
+            CHANNEL_URL = "http://www.janjuaplayer.com/sharedcdn/membedplayer/" + videoContentId + "/1/680/380"
             REFERER = "http://www.janjuaplayer.com"
         elif host == "zony":
             STREAM_IP = "http://cdn.pubzony.com:1935/loadbalancer"
@@ -413,8 +414,14 @@ class ColombiaTVCore():
             m3u8Address = m.group(1)
             print ("m3u8Address: " + m3u8Address)
 
+            # Get the private key
+            if host == "mips": 
+                m = re.compile('enableVideo\(\"(.*?)\"').search(html)
+                m3u8Address = m3u8Address + m.group(1)
+                print ("m3u8Address final: " + m3u8Address)
+
             # Parse the final URL
-            u = "http://" + ipAddress + m3u8Address
+            u = "https://" + ipAddress + m3u8Address
             print ("Final URL: " + u)
             return u
         except:
@@ -482,7 +489,33 @@ class ColombiaTVCore():
             pass
 
     #
-    # pxstream.tv support
+    # limpi.tv support
+    #
+    def getLimpitv (self, videoContentId, referUrl):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3046.0 Safari/537.36"
+
+        try:
+            # Get the first stream IP Address
+            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
+            print ("VideoContent id: " + videoContentId)
+            html = self.getRequest("https://player.limpi.tv/embed.js", urllib.unquote(referUrl), USER_AGENT)
+
+            # Get the second stream IP address
+            m = re.compile("src=\"(.*?)\'").search(html)
+            secondReferUrl = m.group(1)
+            html = self.getRequest(secondReferUrl + videoContentId, urllib.unquote(referUrl), USER_AGENT)
+            m = re.compile("source: \"(.*?)\"").search(html)
+            streamUrl = m.group(1)
+                                                            
+            # Parse the final URL
+            u = streamUrl + "|Referer=" + urllib.quote(secondReferUrl + videoContentId, safe='') + "&User-Agent=" + USER_AGENT 
+            print ("Final URL: " + u)
+            return u
+        except:
+            pass
+
+    #
+    # Pxstream.tv support
     #
     def getPxstream (self, referUrl, videoContentId):
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3046.0 Safari/537.36"
@@ -789,7 +822,7 @@ class ColombiaTVCore():
     #
     # kastream.biz support
     #
-    def getKastream (self, referUrl, videoContentId):
+    def getKastream (self, videoContentId, referUrl):
         #
         # Global variables
         #
@@ -812,7 +845,7 @@ class ColombiaTVCore():
     #
     # whostreams.net support
     #
-    def getWhostreams (self, referUrl, videoContentId):
+    def getWhostreams (self, videoContentId, referUrl):
         #
         # Global variables
         #
@@ -842,27 +875,53 @@ class ColombiaTVCore():
                 print ("Final URL: " + u)
                 return u 
     
-    #
-    # Telerium.tv support
-    #
-    def getTeleriumTV (self, channelId, referUrl):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
-        channelUrl = "http://telerium.tv/embed/" + channelId + ".html"
-        html = self.getRequestAdv(channelUrl, urllib.unquote(referUrl), USER_AGENT) 
+    def getTlTv (self, channelId, referUrl):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:62.0) Gecko/20100101 Firefox/62.0"
+        channelUrl = base64.b64decode("aHR0cHM6Ly90ZWxlcml1bS50di9lbWJlZC8=") + channelId + ".html"
+        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
+        html = self.getRequestAdv(channelUrl, headers, False) 
 
-        # Get the URL
-        # Get the URL
-        #m = re.compile ('\w{10}?="(.*?)";').search(html)
-        m = re.compile ('domains = ".*?".*?"(.*?)";.*?".*?";.*?"(.*?)";').search(html)
-        streamPath = base64.b64decode( m.group(1) )
-        tokenpage = base64.b64decode ( m.group(2) )
-        
-        # Get the token
-        html = self.getRequestAdv("http://telerium.tv/" + tokenpage, channelUrl, USER_AGENT, "XMLHttpRequest") 
-        m = re.compile (':"(.*?)"').search(html)
-        token = m.group(1)
+        dataUnpack = re.compile('(eval.*)').search(html)
+        if (dataUnpack):
+            unPacker = jsUnpack.jsUnpacker()
+            unPack = unPacker.unpack(dataUnpack.group(1))
 
-        # Parse the final URL
-        u = streamPath + token + '|Referer=' + urllib.quote(channelUrl, safe='') + '&User-Agent=' + USER_AGENT + "&Origin=http://telerium.tv"
-        print ("Final URL: " + u)     
-        return u
+            # Get the URL and token
+            streamPath1 = ""
+            streamPath2 = ""
+            token = ""
+            m = re.findall (';(\w*)="(.*?)"', unPack)
+            if m:
+                for m_element in m:
+                    # Find if the variables is reversable
+                    m_reverse = re.compile("rSt\(" + m_element[0] + "\)").search(unPack)
+                    if m_reverse:
+                        varResult = base64.b64decode(m_element[1][::-1])
+                    else:
+                        varResult = base64.b64decode(m_element[1])
+                
+                    # Check if the variables is present
+                    print m_element[0] + ": " + varResult
+                    if "m3u8" in varResult:
+
+                        # Find the first URL to get the real token
+                        for m_element_adjacent in m:
+                            if m_element_adjacent[0] == m_element[0] + "a":
+                                streamPath1 = varResult
+                            else:
+                                streamPath2 = varResult
+                    elif "token" in varResult: 
+                        token = varResult
+
+            # Get the real token
+            tokenUrl = "https:" + streamPath1 + token
+            print "tokenUrl " + tokenUrl
+            headers = {'User-Agent':USER_AGENT, 'Referer':channelUrl, 'Origin':base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg=='), 'Accept-Language':'en-US,en;q=0.5', 'Accept':'application/json, text/javascript, */*; q=0.01', 'Connection':'keep-alive'} 
+            tokenHtml = self.getRequestAdv(tokenUrl, headers, False)
+            tokenHtml = tokenHtml[::-1].replace('\"','')
+            print "token[::-1] " + tokenHtml
+
+            # Parse the final URL
+            u = "https:" + streamPath2 + tokenHtml + '|Referer=' + urllib.quote(channelUrl, safe='') + '&User-Agent=' + USER_AGENT + "&Origin=" + base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg==')
+            print ("Final URL: " + u)     
+            return u

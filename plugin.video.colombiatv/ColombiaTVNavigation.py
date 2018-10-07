@@ -95,11 +95,13 @@ class ColombiaTVNavigation():
         elif mode == 'streamango':  
             stream_url = self.core.getStreamango( params('vid') )
         elif mode == 'kastream':  
-            stream_url = self.core.getKastream( params('url'), params('channelid') )
+            stream_url = self.core.getKastream( params('channelid'), params('url') )
         elif mode == 'whostreams':  
-            stream_url = self.core.getWhostreams( params('url'), params('channelid') )
-        elif mode == 'telerium':  
-            stream_url = self.core.getTeleriumTV( params('channelid'), params('url') )
+            stream_url = self.core.getWhostreams( params('channelid'), params('url') )
+        elif mode == 'tltv':  
+            stream_url = self.core.getTlTv( params('channelid'), params('url') )
+        elif mode == 'limpitv':  
+            stream_url = self.core.getLimpitv( params('channelid'), params('url') )
         elif mode == 'cvmpd':  
             stream_listitem = self.core.getCVMPD( params('url'), params('url_webapi') )
                 
