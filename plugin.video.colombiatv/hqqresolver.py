@@ -108,7 +108,7 @@ class hqqResolver():
                 data = ""
                 data = self.request("http://hqq.watch/player/get_md5.php?" + params, headers=headers)
                 url_data = json.loads(data)
-                media_url = "https:" + self.tb(url_data["obf_link"].replace("#", "")) + ".mp4.m3u8"
+                media_url = self.tb(url_data["obf_link"].replace("#", "")) + ".mp4.m3u8"
 
                 if media_url:
                     del headers['X-Requested-With']

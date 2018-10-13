@@ -1,3 +1,6 @@
+[B] Version 1.5.8 [/B]
+- Update hqq support
+
 [B] Version 1.5.7 [/B]
 - Added limpitv support
 - Update mips.tv support
