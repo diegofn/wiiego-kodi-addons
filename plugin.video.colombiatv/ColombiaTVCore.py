@@ -44,6 +44,7 @@ import xbmc
 
 import ConfigParser
 import xml.dom.minidom as minidom
+from BeautifulSoup import BeautifulSoup
 
 # ERRORCODES:
 # 200 = OK
@@ -820,6 +821,32 @@ class ColombiaTVCore():
             return u
 
     #
+    # Okru support
+    #
+    def getOkru (self, vid):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
+        channelUrl = "https://ok.ru/video/" + vid
+        html = self.getRequest(channelUrl, "", USER_AGENT) 
+
+        #
+        # Unscape HTML
+        #
+        html = BeautifulSoup(html, convertEntities=BeautifulSoup.HTML_ENTITIES)
+        unscapeHtml = str(html).replace("\\", "")
+
+        # Get the URL
+        m = re.findall (r'\{"name":"([^"]+)","url":"([^"]+)"', unscapeHtml)
+        if m:
+            for m_element in m:
+                if m_element[0] == "sd": #hd
+                    u = m_element[1].replace("%3B", ";").replace("u0026", "&")
+                elif m_element[0] == "low": 
+                    u = m_element[1].replace("%3B", ";").replace("u0026", "&")
+                
+        print ("Final URL: " + u)
+        return u
+
+    #
     # kastream.biz support
     #
     def getKastream (self, videoContentId, referUrl):
@@ -874,7 +901,9 @@ class ColombiaTVCore():
                 u = wsUrl.group(1) + '|Referer=' + urllib.unquote(referUrl) + '&User-Agent=' + USER_AGENT
                 print ("Final URL: " + u)
                 return u 
-    
+    #
+    # tl.tv support
+    #
     def getTlTv (self, channelId, referUrl):
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:62.0) Gecko/20100101 Firefox/62.0"
         channelUrl = base64.b64decode("aHR0cHM6Ly90ZWxlcml1bS50di9lbWJlZC8=") + channelId + ".html"
@@ -925,3 +954,6 @@ class ColombiaTVCore():
             u = "https:" + streamPath2 + tokenHtml + '|Referer=' + urllib.quote(channelUrl, safe='') + '&User-Agent=' + USER_AGENT + "&Origin=" + base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg==')
             print ("Final URL: " + u)     
             return u
+
+
+    

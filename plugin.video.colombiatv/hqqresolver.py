@@ -26,6 +26,7 @@ import re
 import base64
 import urllib
 import urllib2
+from random import randint
 
 __name__ = 'hqq'
 
@@ -45,33 +46,53 @@ class hqqResolver():
     def resolve(self, media_id):
         user_agent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1 (KHTML, like Gecko) CriOS/57.0.2987.137 Mobile/13G34 Safari/601.1.46'
         headers = { 'User-Agent': user_agent,
-                    'Referer': 'https://hqq.watch/player/embed_player.php?vid=' + media_id}
-        web_url = "https://hqq.watch/player/embed_player.php?vid=%s" % media_id
+                    'Referer': 'https://mundovideohd.net/la-ley-del-corazon-2-capitulo-1/',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+                }
+
+        web_url = "https://hqq.tv/player/embed_player.php?vid=%s&autoplay=none" % media_id
         html = self.request(web_url, headers)
         
         if html:
             try:
+                #
+                # Get IP
+                #
+                n = 16
+                rand = ''.join(["%s" % randint(0, 9) for num in range(0, n)])
+                jsonInfo = self.request("https://hqq.tv/player/ip.php?type=json&rand=" + rand, headers)
+                jsonIp = json.loads(jsonInfo)['ip']
+                need_captcha = json.loads(jsonInfo)['need_captcha']
+
                 wise = re.search('''<script type=["']text/javascript["']>\s*;?(eval.*?)</script>''', html,
                                  re.DOTALL | re.I).groups()[0]
                 data_unwise = self.jswise(wise).replace("\\", "")
                 try:
+                    vid = re.search('vid=(.*?)&', data_unwise, re.I).groups()[0]
                     at = re.search('at=(\w+)', data_unwise, re.I).groups()[0]
+                    http_referer = re.search('http_referer=(.*?)&', data_unwise, re.I).groups()[0]
+                    autoplayed = re.search('autoplayed=(.*?)&', data_unwise, re.I).groups()[0]
+                    referer = re.search('referer=(.*?)&', data_unwise, re.I).groups()[0]
+                    pass1 = re.search('pass=(.*?)&', data_unwise, re.I).groups()[0]
+                    embed_from = re.search('embed_from=(.*?)&', data_unwise, re.I).groups()[0]
+                    hash_from = re.search('hash_from=(.*?)&', data_unwise, re.I).groups()[0]
                 except:
                     at = ""
-                try:
-                    http_referer = re.search('http_referer=(.*?)&', data_unwise, re.I).groups()[0]
-                except:
-                    http_referer = ""
 
-                player_url = "http://hqq.watch/sec/player/embed_player.php?iss=&vid=%s&at=%s&autoplayed=yes&referer=on&http_referer=%s&pass=&embed_from=&need_captcha=0&hash_from=&secured=0" % (
-                media_id, at, http_referer)
-                headers.update({'Referer': web_url})
+                #
+                # Get sec/player/embeb_player
+                #
+                player_url = "https://hqq.tv/sec/player/embed_player_%s.php?iss=%s&vid=%s&at=%s&autoplayed=%s&referer=%s&http_referer=%s&pass=%s&embed_from=%s&need_captcha=%s&hash_from=%s&secured=0&gtoken=%s" % (
+                '20776934216621856', jsonIp, vid, at, autoplayed, referer, http_referer, pass1, embed_from, need_captcha, hash_from, '' )
+                headers.update({'Referer': 'https://hqq.tv'})
+                
                 data_player = self.request(player_url, headers=headers)
                 data_unescape = re.findall('document.write\(unescape\("([^"]+)"', data_player)
                 data = ""
                 for d in data_unescape:
                     data += urllib.unquote(d)
 
+                print "data: " + data
                 data_unwise_player = ""
                 wise = ""
                 wise = re.search('''<script type=["']text/javascript["']>\s*;?(eval.*?)</script>''', data_player,
@@ -79,6 +100,10 @@ class hqqResolver():
                 if wise:
                     data_unwise_player = self.jswise(wise.group(1)).replace("\\", "")
 
+                print "data_unwise_player: " + data_unwise_player
+                #
+                # Get get_md5.php
+                #
                 try:
                     vars_data = re.search('/player/get_md5.php",\s*\{(.*?)\}', data, re.DOTALL | re.I).groups()[0]
                 except:
@@ -102,22 +127,22 @@ class hqqResolver():
                             except:
                                 value_var = ""
                         params[key] = value_var
-
+                
                 params = urllib.urlencode(params)
                 headers.update({'X-Requested-With': 'XMLHttpRequest', 'Referer': player_url})
                 data = ""
-                data = self.request("http://hqq.watch/player/get_md5.php?" + params, headers=headers)
+                data = self.request("http://hqq.tv/player/get_md5.php?" + params, headers=headers)
+                print ("data2: " + data)
                 url_data = json.loads(data)
                 media_url = self.tb(url_data["obf_link"].replace("#", "")) + ".mp4.m3u8"
 
                 if media_url:
                     del headers['X-Requested-With']
-                    headers.update({'Origin': 'https://hqq.watch'})
+                    headers.update({'Origin': 'https://hqq.tv'})
                     return media_url 
 
             except Exception as e:
                 print str(e)
-                raise ResolverError(e)
 
     def tb(self, b_m3u8_2):
         j = 0

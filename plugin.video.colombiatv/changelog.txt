@@ -1,3 +1,7 @@
+[B] Version 1.5.9 [/B]
+- Beta: ColombiaPlay migraton to okru
+- Added Ok.ru support 
+
 [B] Version 1.5.8 [/B]
 - Update hqq support
 

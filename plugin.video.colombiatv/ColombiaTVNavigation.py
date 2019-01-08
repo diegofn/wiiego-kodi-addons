@@ -60,6 +60,10 @@ class ColombiaTVNavigation():
         stream_url = None
         stream_listitem = None
 
+
+        #
+        # Streaming sites
+        #
         if mode == 'brightcove':  
             stream_url = self.core.getBrightcove( params('channelid'), params('url') )
         elif mode == 'p2pcast':  
@@ -76,8 +80,6 @@ class ColombiaTVNavigation():
             stream_url = self.core.getNowLive( params('url'), params('channelid') )
         elif mode == 'widestream':  
             stream_url = self.core.getWideStream( params('url'), params('channelid') )
-        elif mode == 'hqq':  
-            stream_url = self.core.getHqq( params('vid') )
         elif mode == 'eb':  
             stream_url = self.core.getEb( params('channelid'), params('url') )
         elif mode == 'random':  
@@ -90,10 +92,6 @@ class ColombiaTVNavigation():
             stream_listitem = self.core.getCVHLS( params('url') )
         elif mode == 'radiotime':  
             stream_url = self.core.getRadiotime( params('station') )
-        elif mode == 'gamovideo':  
-            stream_url = self.core.getGamovideo( params('vid') )
-        elif mode == 'streamango':  
-            stream_url = self.core.getStreamango( params('vid') )
         elif mode == 'kastream':  
             stream_url = self.core.getKastream( params('channelid'), params('url') )
         elif mode == 'whostreams':  
@@ -104,7 +102,19 @@ class ColombiaTVNavigation():
             stream_url = self.core.getLimpitv( params('channelid'), params('url') )
         elif mode == 'cvmpd':  
             stream_listitem = self.core.getCVMPD( params('url'), params('url_webapi') )
-                
+        
+        #
+        # Videohosters
+        #
+        elif mode == 'hqq':  
+            stream_url = self.core.getHqq( params('vid') )
+        elif mode == 'gamovideo':  
+            stream_url = self.core.getGamovideo( params('vid') )
+        elif mode == 'streamango':  
+            stream_url = self.core.getStreamango( params('vid') )
+        elif mode == 'okru':  
+            stream_url = self.core.getOkru( params('vid') )
+
         if (stream_listitem == None):
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=stream_url))  
         else:
