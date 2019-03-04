@@ -1,3 +1,8 @@
+[B] Version 1.6.0 [/B]
+- New addon icon
+- New hqq.tv support
+- Improved tl support
+
 [B] Version 1.5.9 [/B]
 - Beta: ColombiaPlay migraton to okru
 - Added Ok.ru support 

@@ -471,24 +471,9 @@ class ColombiaTVCore():
 
     #
     # RCN HD App support
+    # http://app.canalrcn.tech/js/indexAndroid5mas.js http://app.canalrcn.tech
     #
-    def getRCNApp (self):
-        USER_AGENT = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8C148 Safari/6533.18.5"
-
-        try:
-            # Get the token
-            html = self.getRequest("http://app.canalrcn.tech/js/indexAndroid5mas.js", "http://app.canalrcn.tech", USER_AGENT)
-            m = re.compile("wifi.*stream\/(.*)\?autoplay").search(html)
-            token = m.group(1)
-            streamUrl = "http://mdstrm.com/live-stream-playlist/" + token + ".m3u8?&dnt=true&ref=http%3A%2F%2Fapp.canalrcn.tech%2Fandroid5mas%2Fwifi"
-                                                
-            # Parse the final URL
-            u = streamUrl
-            print ("Final URL: " + u)
-            return u
-        except:
-            pass
-
+    
     #
     # limpi.tv support
     #
@@ -910,49 +895,33 @@ class ColombiaTVCore():
         headers = {'User-Agent':USER_AGENT, 'Referer':urllib.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
         html = self.getRequestAdv(channelUrl, headers, False) 
 
-        dataUnpack = re.compile('(eval.*)').search(html)
+        dataUnpack = re.compile('(eval\(function\(p,a,c,k,e,d\).*)').search(html)
         if (dataUnpack):
             unPacker = jsUnpack.jsUnpacker()
             unPack = unPacker.unpack(dataUnpack.group(1))
 
-            # Get the URL and token
-            streamPath1 = ""
-            streamPath2 = ""
-            token = ""
-            m = re.findall (';(\w*)="(.*?)"', unPack)
-            if m:
-                for m_element in m:
-                    # Find if the variables is reversable
-                    m_reverse = re.compile("rSt\(" + m_element[0] + "\)").search(unPack)
-                    if m_reverse:
-                        varResult = base64.b64decode(m_element[1][::-1])
-                    else:
-                        varResult = base64.b64decode(m_element[1])
-                
-                    # Check if the variables is present
-                    print m_element[0] + ": " + varResult
-                    if "m3u8" in varResult:
+            # Get the URL and CDN
+            varNames = re.compile('\$\.ajax\(\s*\{\s*url\s*:\s*atob\((.+?)\)\s*\+\s*atob\((.+?)\)\s*,dataType\s*:\s*[\'\"]json[\'\"]')
+            
+            vars = varNames.findall(unPack)[0]
+            part1Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[0])).findall(unPack)[0]
+            part2Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[1])).findall(unPack)[0]
+            part1 = base64.b64decode(part1Reversed)
+            part2 = base64.b64decode(part2Reversed)
 
-                        # Find the first URL to get the real token
-                        for m_element_adjacent in m:
-                            if m_element_adjacent[0] == m_element[0] + "a":
-                                streamPath1 = varResult
-                            else:
-                                streamPath2 = varResult
-                    elif "token" in varResult: 
-                        token = varResult
+            varCDN = re.compile('geoReady\(country,(.+?),').search(unPack)
+            cdnReversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(varCDN.group(1))).findall(unPack)[0]
+            cdnUrl = base64.b64decode(cdnReversed)
 
             # Get the real token
-            tokenUrl = "https:" + streamPath1 + token
-            print "tokenUrl " + tokenUrl
+            tokenUrl = base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg==') + part1 + part2
             headers = {'User-Agent':USER_AGENT, 'Referer':channelUrl, 'Origin':base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg=='), 'Accept-Language':'en-US,en;q=0.5', 'Accept':'application/json, text/javascript, */*; q=0.01', 'Connection':'keep-alive'} 
             tokenHtml = self.getRequestAdv(tokenUrl, headers, False)
             tokenHtml = tokenHtml[::-1].replace('\"','')
-            print "token[::-1] " + tokenHtml
 
             # Parse the final URL
-            u = "https:" + streamPath2 + tokenHtml + '|Referer=' + urllib.quote(channelUrl, safe='') + '&User-Agent=' + USER_AGENT + "&Origin=" + base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg==')
-            print ("Final URL: " + u)     
+            stream = 'https:{0}{1}|Referer={2}&User-Agent={3}&Origin=https://telerium.tv&Connection=keep-alive&Accept=*/*'
+            u = stream.format(cdnUrl, tokenHtml, urllib.quote(channelUrl, safe=''), USER_AGENT)
             return u
 
 

@@ -86,8 +86,6 @@ class ColombiaTVNavigation():
             stream_url = self.core.getRandom( params('host'), params('url'), params('referer') )
         elif mode == 'bro.adca.st':  
             stream_url = self.core.getBroadcastSite( params('channelid'), params('url') )
-        elif mode == 'rcnapp':  
-            stream_url = self.core.getRCNApp( )
         elif mode == 'cvhls':  
             stream_listitem = self.core.getCVHLS( params('url') )
         elif mode == 'radiotime':  
