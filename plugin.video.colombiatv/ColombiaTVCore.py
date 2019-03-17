@@ -676,20 +676,6 @@ class ColombiaTVCore():
         return u
         
     #
-    # cv support support
-    #
-    def getCVHLS (self, url):
-        # Create the listitem
-        u = base64.b64decode(urllib.unquote(url))
-        print "u: " + u
-        list_item = self.xbmcgui.ListItem(path=u)
-        list_item.setProperty('inputstream.adaptive.manifest_type', 'hls')
-        list_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
-        list_item.setProperty('inputstream.adaptive.license_key', 'http://latinowebtv.ml/hls/key.php?token=U2FsdGVkX19QV9t4YnrB83%2F6MlMRunEqwS6VSfbQzeT5CmRRsEVlhXGS6D5E60wVxYqOFRaoj8Maxw64g84PTyuHE3O4QGfgU3hoVT1M9ntrhG4GO%2FQLVstUF6NhGaed')
-        
-        return list_item
-
-    #
     # Radiotime.com support
     #
     def getRadiotime (self, station):
@@ -745,13 +731,32 @@ class ColombiaTVCore():
         return u
 
     #
+    # HLS CV support
+    #
+    def getCVHLS (self, url):
+        USER_AGENT = "AppleCoreMedia/1.0.0.15E302 (iPhone; U; CPU OS 11_3_1 like Mac OS X; en_us)"
+        headers = {'User-Agent':USER_AGENT, 
+                    'Referer': 'https://www.clarovideo.com', 
+                    'Pragma': 'akamai-x-get-client-ip, akamai-x-cache-on, akamai-x-cache-remote-on, akamai-x-check-cacheable, akamai-x-get-cache-key, akamai-x-get-extracted-values, akamai-x-get-nonces, akamai-x-get-ssl-client-session-id, akamai-x-get-true-cache-key, akamai-x-serial-no, akamai-x-feo-trace, akamai-x-get-request-id' } 
+        request = urllib2.Request (base64.b64decode(urllib.unquote(url)), None, headers)
+        response = urllib2.urlopen(request)
+        data = json.load(response)
+        video_url = data['response']['media']['video_url']
+        print "video_url: " + video_url
+
+        # Parse the final URL
+        stream = '{0}|User-Agent={1}'
+        u = stream.format(video_url, USER_AGENT)
+        return u
+        
+    #
     # MPD hide support
     #
     def getCVMPD (self, url, url_webapi):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3397.0 Safari/537.36"
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3730.0 Safari/537.36"
 
         # Get the device_id and token
-        headers = {'User-Agent':USER_AGENT, 'Referer': 'https://www.clarovideo.com' } 
+        headers = {'User-Agent': USER_AGENT, 'Referer': 'https://www.clarovideo.com' } 
         request = urllib2.Request (base64.b64decode(urllib.unquote(url_webapi)), None, headers)
         response = urllib2.urlopen(request)
         data = json.load(response)
@@ -764,9 +769,9 @@ class ColombiaTVCore():
         server_certificate = self.getRequest("https://widevine-vod.clarovideo.net/licenser/getcertificate", "https://www.clarovideo.com", USER_AGENT)
         
         # Create the listitem
-        list_item = self.xbmcgui.ListItem(path=url)
+        list_item = self.xbmcgui.ListItem(path=url + '|Referer=' + urllib.unquote("https://www.clarovideo.com") + '&User-Agent=' + USER_AGENT)
         list_item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
-        list_item.setProperty('inputstream.adaptive.license_key', 'https://widevine-vod.clarovideo.net/licenser/getlicense|Content-Type=|{"token":"' + token + '","device_id":"' + device_id + '","widevineBody":"b{SSM}"}|')
+        list_item.setProperty('inputstream.adaptive.license_key', 'https://widevine-claroglobal-vod.clarovideo.net/licenser/getlicense|Content-Type=|{"token":"' + token + '","device_id":"' + device_id + '","widevineBody":"b{SSM}"}|')
         list_item.setProperty('inputstream.adaptive.server_certificate', server_certificate);
         list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
         list_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
@@ -901,7 +906,7 @@ class ColombiaTVCore():
             unPack = unPacker.unpack(dataUnpack.group(1))
 
             # Get the URL and CDN
-            varNames = re.compile('\$\.ajax\(\s*\{\s*url\s*:\s*atob\((.+?)\)\s*\+\s*atob\((.+?)\)\s*,dataType\s*:\s*[\'\"]json[\'\"]')
+            varNames = re.compile('"POST",url\s*:\s*atob\((.+?)\)\s*\+\s*atob\((.+?)\)\s*,dataType\s*:\s*[\'\"]json[\'\"]')
             
             vars = varNames.findall(unPack)[0]
             part1Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[0])).findall(unPack)[0]
@@ -909,7 +914,7 @@ class ColombiaTVCore():
             part1 = base64.b64decode(part1Reversed)
             part2 = base64.b64decode(part2Reversed)
 
-            varCDN = re.compile('geoReady\(country,(.+?),').search(unPack)
+            varCDN = re.compile('\(country,(.+?),').search(unPack)
             cdnReversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(varCDN.group(1))).findall(unPack)[0]
             cdnUrl = base64.b64decode(cdnReversed)
 
@@ -924,5 +929,28 @@ class ColombiaTVCore():
             u = stream.format(cdnUrl, tokenHtml, urllib.quote(channelUrl, safe=''), USER_AGENT)
             return u
 
+    #
+    # streamcdn.co support
+    #
+    def getStreamcdn(self, videoContentId, referUrl):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3730.0 Safari/537.36"
+        channelUrl = "https://streamcdn.co/e/" + videoContentId
+        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
+        html = self.getRequestAdv(channelUrl, headers, False) 
 
+        dataUnpack = re.compile('(eval\(function\(p,a,c,k,e,d\).*)').search(html)
+        if (dataUnpack):
+            unPacker = jsUnpack.jsUnpacker()
+            unPack = unPacker.unpack(dataUnpack.group(1))
+
+            # Get the URL
+            m = re.compile('{file:"(.+?)"').search(unPack)
+            streamUrl = ""
+            if (m):
+                streamUrl = m.group(1)
+
+            # Parse the final URL
+            stream = '{0}|Referer={1}&User-Agent={2}'
+            u = stream.format(streamUrl, urllib.quote(channelUrl, safe=''), USER_AGENT)
+            return u
     

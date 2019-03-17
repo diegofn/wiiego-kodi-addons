@@ -79,14 +79,6 @@ class hqqResolver():
                     url = url.replace('"+need_captcha+"', '0')
                     url = url.replace('"+token', '')
 
-                    # vid = re.search('vid=(.*?)&', data_unwise, re.I).groups()[0]
-                    # at = re.search('at=(\w+)', data_unwise, re.I).groups()[0]
-                    # http_referer = re.search('http_referer=(.*?)&', data_unwise, re.I).groups()[0]
-                    # autoplayed = re.search('autoplayed=(.*?)&', data_unwise, re.I).groups()[0]
-                    # referer = re.search('referer=(.*?)&', data_unwise, re.I).groups()[0]
-                    # pass1 = re.search('pass=(.*?)&', data_unwise, re.I).groups()[0]
-                    # embed_from = re.search('embed_from=(.*?)&', data_unwise, re.I).groups()[0]
-                    # hash_from = re.search('hash_from=(.*?)&', data_unwise, re.I).groups()[0]
                 except:
                     url = ""
 
@@ -96,6 +88,7 @@ class hqqResolver():
                 player_url = "https://hqq.tv" + url
                 data_player = self.request(player_url, headers=headers)
                 data_unescape = re.findall('document.write\(unescape\("([^"]+)"', data_player)
+                # print "data_player: " + data_player
                 data = ""
                 for d in data_unescape:
                     data += urllib.unquote(d)

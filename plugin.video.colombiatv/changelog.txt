@@ -1,3 +1,8 @@
+[B] Version 1.6.1 [/B]
+- New streamcdn support
+- Update tl support
+- New cvhls support
+
 [B] Version 1.6.0 [/B]
 - New addon icon
 - New hqq.tv support

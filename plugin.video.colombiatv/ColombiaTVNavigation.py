@@ -86,8 +86,6 @@ class ColombiaTVNavigation():
             stream_url = self.core.getRandom( params('host'), params('url'), params('referer') )
         elif mode == 'bro.adca.st':  
             stream_url = self.core.getBroadcastSite( params('channelid'), params('url') )
-        elif mode == 'cvhls':  
-            stream_listitem = self.core.getCVHLS( params('url') )
         elif mode == 'radiotime':  
             stream_url = self.core.getRadiotime( params('station') )
         elif mode == 'kastream':  
@@ -98,6 +96,10 @@ class ColombiaTVNavigation():
             stream_url = self.core.getTlTv( params('channelid'), params('url') )
         elif mode == 'limpitv':  
             stream_url = self.core.getLimpitv( params('channelid'), params('url') )
+        elif mode == 'streamcdn':  
+            stream_url = self.core.getStreamcdn( params('channelid'), params('url') )
+        elif mode == 'cvhls':  
+            stream_url = self.core.getCVHLS( params('url') )
         elif mode == 'cvmpd':  
             stream_listitem = self.core.getCVMPD( params('url'), params('url_webapi') )
         
