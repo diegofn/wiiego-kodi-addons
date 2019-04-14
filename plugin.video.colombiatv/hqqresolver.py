@@ -48,7 +48,7 @@ class hqqResolver():
         headers = { 'User-Agent': user_agent
                 }
 
-        web_url = "https://hqq.tv/player/embed_player.php?vid=%s" % media_id
+        web_url = "https://hqq.tv/player/embed_player.php?vid=%s&post=1" % media_id
         html = self.request(web_url, headers)
         
         if html:
@@ -88,7 +88,7 @@ class hqqResolver():
                 player_url = "https://hqq.tv" + url
                 data_player = self.request(player_url, headers=headers)
                 data_unescape = re.findall('document.write\(unescape\("([^"]+)"', data_player)
-                # print "data_player: " + data_player
+                print "data_player: " + data_player
                 data = ""
                 for d in data_unescape:
                     data += urllib.unquote(d)

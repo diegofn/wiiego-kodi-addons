@@ -369,7 +369,7 @@ class ColombiaTVCore():
         USER_AGENT = "Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_2_1 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8C148 Safari/6533.18.5"
 
         if host == "mips":
-            STREAM_IP = "http://cdn.mipspublisher.com:1935/loadbalancer"
+            STREAM_IP = "https://mstable.pw/loadbalancer?273018"
             CHANNEL_URL = "http://www.mips.tv/membedplayer/" + videoContentId + "/1/500/400"
             REFERER = "http://www.mips.tv"
         elif host == "streamify":
@@ -891,6 +891,7 @@ class ColombiaTVCore():
                 u = wsUrl.group(1) + '|Referer=' + urllib.unquote(referUrl) + '&User-Agent=' + USER_AGENT
                 print ("Final URL: " + u)
                 return u 
+
     #
     # tl.tv support
     #
@@ -906,7 +907,7 @@ class ColombiaTVCore():
             unPack = unPacker.unpack(dataUnpack.group(1))
 
             # Get the URL and CDN
-            varNames = re.compile('"POST",url\s*:\s*atob\((.+?)\)\s*\+\s*atob\((.+?)\)\s*,dataType\s*:\s*[\'\"]json[\'\"]')
+            varNames = re.compile('\{url\s*:\s*atob\((.+?)\)\s*\+\s*atob\((.+?)\)\s*,dataType\s*:\s*[\'\"]json[\'\"]')
             
             vars = varNames.findall(unPack)[0]
             part1Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[0])).findall(unPack)[0]
@@ -914,7 +915,7 @@ class ColombiaTVCore():
             part1 = base64.b64decode(part1Reversed)
             part2 = base64.b64decode(part2Reversed)
 
-            varCDN = re.compile('\(country,(.+?),').search(unPack)
+            varCDN = re.compile('\(country=="GB"\).*?\{.*?atob\((.*?)\)').search(unPack)
             cdnReversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(varCDN.group(1))).findall(unPack)[0]
             cdnUrl = base64.b64decode(cdnReversed)
 
@@ -922,11 +923,14 @@ class ColombiaTVCore():
             tokenUrl = base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg==') + part1 + part2
             headers = {'User-Agent':USER_AGENT, 'Referer':channelUrl, 'Origin':base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg=='), 'Accept-Language':'en-US,en;q=0.5', 'Accept':'application/json, text/javascript, */*; q=0.01', 'Connection':'keep-alive'} 
             tokenHtml = self.getRequestAdv(tokenUrl, headers, False)
-            tokenHtml = tokenHtml[::-1].replace('\"','')
-
+            print "tokenHtml: " + tokenHtml
+            tokenRE = re.compile('\[\"(.*?)\",.*\]').search(tokenHtml)
+            if (tokenRE):
+                tokenHtml = tokenRE.group(1)[::-1]
+                
             # Parse the final URL
-            stream = 'https:{0}{1}|Referer={2}&User-Agent={3}&Origin=https://telerium.tv&Connection=keep-alive&Accept=*/*'
-            u = stream.format(cdnUrl, tokenHtml, urllib.quote(channelUrl, safe=''), USER_AGENT)
+            stream = 'https:{0}{1}|Referer={2}&User-Agent={3}&Origin={4}&Connection=keep-alive&Accept=*/*'
+            u = stream.format(cdnUrl, tokenHtml, urllib.quote(channelUrl, safe=''), USER_AGENT, base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg=='))
             return u
 
     #
