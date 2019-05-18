@@ -886,7 +886,7 @@ class ColombiaTVCore():
             #
             # Find URL
             #
-            wsUrl = re.compile('source:"(.*?)"').search(unPack)
+            wsUrl = re.compile('src:"(.*?)"').search(unPack)
             if (wsUrl):
                 u = wsUrl.group(1) + '|Referer=' + urllib.unquote(referUrl) + '&User-Agent=' + USER_AGENT
                 print ("Final URL: " + u)
@@ -905,32 +905,39 @@ class ColombiaTVCore():
         if (dataUnpack):
             unPacker = jsUnpack.jsUnpacker()
             unPack = unPacker.unpack(dataUnpack.group(1))
+            if self.enabledebug: print "unPack: " + unPack
 
-            # Get the URL and CDN
-            varNames = re.compile('\{url\s*:\s*atob\((.+?)\)\s*\+\s*atob\((.+?)\)\s*,dataType\s*:\s*[\'\"]json[\'\"]')
+            # Get the Token URL 
+            varNames = re.compile('\{url\s*:\s*atob\((\w*?)\).*?\+\.*?atob\((\w*?)\)\s*,dataType\s*:\s*[\'\"]json[\'\"]')
             
             vars = varNames.findall(unPack)[0]
             part1Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[0])).findall(unPack)[0]
             part2Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[1])).findall(unPack)[0]
-            part1 = base64.b64decode(part1Reversed)
+            part1 = base64.b64decode(part1Reversed)[12:]
             part2 = base64.b64decode(part2Reversed)
-
-            varCDN = re.compile('\(country=="GB"\).*?\{.*?atob\((.*?)\)').search(unPack)
-            cdnReversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(varCDN.group(1))).findall(unPack)[0]
-            cdnUrl = base64.b64decode(cdnReversed)
+            if self.enabledebug: print "part1 + part2: " + part1 + part2
 
             # Get the real token
             tokenUrl = base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg==') + part1 + part2
             headers = {'User-Agent':USER_AGENT, 'Referer':channelUrl, 'Origin':base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg=='), 'Accept-Language':'en-US,en;q=0.5', 'Accept':'application/json, text/javascript, */*; q=0.01', 'Connection':'keep-alive'} 
-            tokenHtml = self.getRequestAdv(tokenUrl, headers, False)
-            print "tokenHtml: " + tokenHtml
-            tokenRE = re.compile('\[\"(.*?)\",.*\]').search(tokenHtml)
+            tokenJson = self.getRequestAdv(tokenUrl, headers, False)
+            if self.enabledebug: print "tokenJson: " + tokenJson
+            tokenRE = re.compile('\"(\S*?)\"\]').search(tokenJson)
             if (tokenRE):
                 tokenHtml = tokenRE.group(1)[::-1]
-                
+                if self.enabledebug: print "tokenHtml " + tokenHtml
+
+            # Get the real CDN Url
+            varCdn = re.compile('if\(isMobile\)\{(\w*?)=.*?\};')
+                        
+            vars = varCdn.findall(unPack)
+            cdnReversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[0])).findall(unPack)[0]
+            cdn = base64.b64decode(cdnReversed)
+            if self.enabledebug: print "cdn: " + cdn
+
             # Parse the final URL
             stream = 'https:{0}{1}|Referer={2}&User-Agent={3}&Origin={4}&Connection=keep-alive&Accept=*/*'
-            u = stream.format(cdnUrl, tokenHtml, urllib.quote(channelUrl, safe=''), USER_AGENT, base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg=='))
+            u = stream.format(cdn, tokenHtml, urllib.quote(channelUrl, safe=''), USER_AGENT, base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg=='))
             return u
 
     #

@@ -27,7 +27,7 @@ import ssl
 import re
 
 # Set global values.
-version = "1.6.2"
+version = "1.6.3"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 
