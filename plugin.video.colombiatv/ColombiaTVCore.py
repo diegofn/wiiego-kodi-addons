@@ -400,6 +400,10 @@ class ColombiaTVCore():
             STREAM_IP = "http://www.pubfstream.com:1935/loadbalancer"
             CHANNEL_URL = "http://www.playerfs.com/hembedplayer/" + videoContentId + "/2/650/400"
             REFERER = "http://www.playerfs.com"
+        elif host == "playuc":
+            STREAM_IP = "https://www.lquest123b.top/loadbalancer?109348"
+            CHANNEL_URL = "https://www.playuc.live/membedplayer/" + videoContentId + "/1/640/360"
+            REFERER = "https://cdn.chatytvgratis.net"
 
         try:
             # Get the stream IP Address
@@ -416,11 +420,14 @@ class ColombiaTVCore():
             print ("m3u8Address: " + m3u8Address)
 
             # Get the private key
-            if host == "mips": 
+            if host == "mips" or host == "playuc": 
                 m = re.compile('enableVideo\(\"(.*?)\"').search(html)
-                m3u8Address = m3u8Address + m.group(1)
-                print ("m3u8Address final: " + m3u8Address)
+                pk = m.group(1)
+                pk = pk[:2] + pk[3:]
 
+                m3u8Address = m3u8Address + pk
+                print ("m3u8Address final: " + m3u8Address)
+                
             # Parse the final URL
             u = "https://" + ipAddress + m3u8Address
             print ("Final URL: " + u)
@@ -896,7 +903,7 @@ class ColombiaTVCore():
     # tl.tv support
     #
     def getTlTv (self, channelId, referUrl):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:62.0) Gecko/20100101 Firefox/62.0"
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3826.0 Safari/537.36"
         channelUrl = base64.b64decode("aHR0cHM6Ly90ZWxlcml1bS50di9lbWJlZC8=") + channelId + ".html"
         headers = {'User-Agent':USER_AGENT, 'Referer':urllib.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
         html = self.getRequestAdv(channelUrl, headers, False) 
@@ -919,7 +926,9 @@ class ColombiaTVCore():
 
             # Get the real token
             tokenUrl = base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg==') + part1 + part2
-            headers = {'User-Agent':USER_AGENT, 'Referer':channelUrl, 'Origin':base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg=='), 'Accept-Language':'en-US,en;q=0.5', 'Accept':'application/json, text/javascript, */*; q=0.01', 'Connection':'keep-alive'} 
+            headers = { 'User-Agent':USER_AGENT, 'Referer':channelUrl, 'Origin':base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg=='), 
+                        'Accept-Language':'en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=0.5,ru;q=0.4', 'Accept':'application/json, text/javascript, */*; q=0.01', 
+                        'Accept-Encoding': 'gzip, deflate, br', 'Connection':'keep-alive', 'X-Requested-With': 'XMLHttpRequest'} 
             tokenJson = self.getRequestAdv(tokenUrl, headers, False)
             if self.enabledebug: print "tokenJson: " + tokenJson
             tokenRE = re.compile('\"(\S*?)\"\]').search(tokenJson)
@@ -941,11 +950,11 @@ class ColombiaTVCore():
             return u
 
     #
-    # streamcdn.co support
+    # wstream.to support
     #
-    def getStreamcdn(self, videoContentId, referUrl):
+    def getWstream(self, videoContentId, referUrl):
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3730.0 Safari/537.36"
-        channelUrl = "https://streamcdn.co/e/" + videoContentId
+        channelUrl = "https://wstream.to/embed/" + videoContentId
         headers = {'User-Agent':USER_AGENT, 'Referer':urllib.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
         html = self.getRequestAdv(channelUrl, headers, False) 
 
@@ -955,7 +964,7 @@ class ColombiaTVCore():
             unPack = unPacker.unpack(dataUnpack.group(1))
 
             # Get the URL
-            m = re.compile('{file:"(.+?)"').search(unPack)
+            m = re.compile('src:"(.+?)"').search(unPack)
             streamUrl = ""
             if (m):
                 streamUrl = m.group(1)
@@ -964,4 +973,28 @@ class ColombiaTVCore():
             stream = '{0}|Referer={1}&User-Agent={2}'
             u = stream.format(streamUrl, urllib.quote(channelUrl, safe=''), USER_AGENT)
             return u
+
+
+    #
+    # premiumtvchannels.tv support
+    #
+    def getPremiumtv(self, videoContentId, referUrl):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3730.0 Safari/537.36"
+        channelUrl = "http://premiumtvchannels.com/clappr/" + videoContentId + ".php"
+        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
+        html = self.getRequestAdv(channelUrl, headers, False) 
+        print "html" + html 
+
+        m = re.compile('file: "(.*?)"').search(html)
+        if (not m):
+            m = re.compile('source: "(.*?)"').search(html)
+
+        if (m):
+            streamUrl = m.group(1)
+            
+            # Parse the final URL
+            stream = '{0}|Referer={1}&User-Agent={2}'
+            u = stream.format(streamUrl, urllib.quote(channelUrl, safe=''), USER_AGENT)
+            return u
+    
     
