@@ -21,8 +21,8 @@
 # *  based on https://gitorious.org/iptv-pl-dla-openpli/ urlresolver
 # */
 import simplejson
-import urllib
-import urllib2
+import urllib3
+import certifi
 import json
 import base64
 from datetime import datetime
@@ -30,24 +30,23 @@ import time
 
 
 # Base URL for all querys. 
-DROPBOX_BASE_URL='www.dropbox.com'
+DROPBOX_BASE_URL = "www.dropbox.com"
 
 class MiTVIntegration():
     def __init__(self):
         #
         # Load EPG channels from file
         # 
-        CHANNEL_URL = base64.b64decode("L3MvenQ1NXJzZDYxOXQydTV1L2VwZy5qc29uP2RsPTE=")
-        self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL
+        CHANNEL_URL = base64.b64decode("L3MvenQ1NXJzZDYxOXQydTV1L2VwZy5qc29uP2RsPTE=").decode('utf-8')
+        self.url = "https://{0}{1}".format(DROPBOX_BASE_URL, CHANNEL_URL)
 
         #
         # Load the info in a JSON structure
         #
-        request = urllib2.Request(self.url)
-        requesturl = urllib2.urlopen(request)
-        
-        self.epgChannels = simplejson.load(requesturl)
-        requesturl.close()
+        http = urllib3.PoolManager(ca_certs=certifi.where())
+        response = http.request('GET', self.url)
+                
+        self.epgChannels = simplejson.loads(response.data.decode('utf-8'))
 
         #
         # Load epg info
@@ -59,7 +58,7 @@ class MiTVIntegration():
         #
         # Load the epg info from mi.tv
         #
-        EPG_BASE = base64.b64decode("aHR0cDovL2FwaS5taS50di9lcGcvZ3VpZGUvdjMv")
+        EPG_BASE = base64.b64decode("aHR0cDovL2FwaS5taS50di9lcGcvZ3VpZGUvdjMv").decode('utf-8')
         epg_url = EPG_BASE + datetime.now().strftime('%Y-%m-%d') + "?"
 
         for element in self.epgChannels["mitvEpg"]:
@@ -70,11 +69,10 @@ class MiTVIntegration():
         #
         # Load the info in a JSON structure
         #
-        request = urllib2.Request(epg_url)
-        requesturl = urllib2.urlopen(request)
+        http = urllib3.PoolManager(ca_certs=certifi.where())
+        response = http.request('GET', self.url)
         
-        self.epgGuide = simplejson.load(requesturl)
-        requesturl.close()
+        self.epgGuide = simplejson.loads(response.data.decode('utf-8'))
 
 
     def getChannelInfo(self, channelId):

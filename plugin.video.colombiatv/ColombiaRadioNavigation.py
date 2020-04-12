@@ -20,9 +20,7 @@
 # */
 
 import sys
-import urllib3
 import os
-import re
 
 class ColombiaRadioNavigation():
     def __init__(self):
@@ -36,7 +34,6 @@ class ColombiaRadioNavigation():
         self.enabledeveloper = sys.modules["__main__"].enabledeveloper
         self.language = sys.modules["__main__"].language
         self.core = sys.modules["__main__"].core
-        self.common = sys.modules["__main__"].common
 
         self.pluginsettings = sys.modules["__main__"].pluginsettings
                 

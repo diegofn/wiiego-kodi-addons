@@ -24,6 +24,7 @@ import os
 
 import simplejson
 import urllib3
+import certifi
 import subprocess
 import re
 import cgi
@@ -35,11 +36,10 @@ import io
 import jsUnwiser
 import jsUnpack
 import hqqresolver
-import ssl
 import xbmc
 
 from pyaes import openssl_aes
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 # ERRORCODES:
 # 200 = OK
@@ -47,8 +47,8 @@ from BeautifulSoup import BeautifulSoup
 # 500 = uncaught error
 
 # Base URL for all querys. 
-DROPBOX_BASE_URL='www.dropbox.com'
-GITHUB_BASE_URL='gist.githubusercontent.com'
+DROPBOX_BASE_URL = "www.dropbox.com"
+GITHUB_BASE_URL = "gist.githubusercontent.com"
 
 class ColombiaTVCore():
     #
@@ -60,8 +60,7 @@ class ColombiaTVCore():
         self.enabledebug = sys.modules["__main__"].enabledebug
         self.enabledeveloper = sys.modules["__main__"].enabledeveloper
         self.xbmcgui = sys.modules["__main__"].xbmcgui
-        urllib2.install_opener(sys.modules["__main__"].opener)
-
+        
         # SSL context since Kodi Krypton version
         try:
            import ssl
@@ -71,36 +70,34 @@ class ColombiaTVCore():
         
         print ("Developer Mode: " + self.addon.getSetting("enabledeveloper"))
         if self.addon.getSetting("enabledeveloper") == "false":
-            CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
+            CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==").decode('utf-8')
         else:
-            CHANNEL_URL = base64.b64decode("L3MvYjhoanR3cHlpNml4YW9mL2NoYW5uZWxzZGV2Lmpzb24/ZGw9MQ==") #REALDEV
+            CHANNEL_URL = base64.b64decode("L3MvYjhoanR3cHlpNml4YW9mL2NoYW5uZWxzZGV2Lmpzb24/ZGw9MQ==").decode('utf-8') #REALDEV
             
-        self.url = "https://" + DROPBOX_BASE_URL + CHANNEL_URL
+        self.url = "https://{0}{1}".format(DROPBOX_BASE_URL, CHANNEL_URL)
         
-        CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3Lw==")
-        self.urlbackup = "https://" + GITHUB_BASE_URL + CHANNEL_URL_BACKUP + "channels.json"
+        CHANNEL_URL_BACKUP = base64.b64decode("L2RpZWdvZm4vYjAwMzYyMjc4YjFjYTE3MWIyN2ViNDBiZDdjMmQ1ZTQvcmF3Lw==").decode('utf-8')
+        self.urlbackup = "https://{0}{1}channels.json".format(GITHUB_BASE_URL, CHANNEL_URL_BACKUP)
 
     #
     # Return the URL from TV Channel
     #
     def getChannelList(self):
         try:
-            request = urllib2.Request(self.url)
-            requesturl = urllib2.urlopen(request)
-            
-            result = simplejson.load(requesturl)
-            requesturl.close()
+            http = urllib3.PoolManager(ca_certs=certifi.where())
+
+            response = http.request('GET', self.url)
+            result = simplejson.loads(response.data.decode('utf-8'))
         
             if self.enabledeveloper == True:
                 print (result['ColombiaTV'])
             return result['ColombiaTV']
 
         except:
-            request = urllib3.Request(self.urlbackup)
-            requesturl = urllib3.urlopen(request)
+            http = urllib3.PoolManager(ca_certs=certifi.where())
 
-            result = simplejson.load(requesturl)
-            requesturl.close()
+            response = http.request('GET', self.urlbackup)
+            result = simplejson.load(response.data.decode('utf-8'))
 
             if self.enabledeveloper == True:
                 print (result['ColombiaTV'])
@@ -111,12 +108,11 @@ class ColombiaTVCore():
     # Return the Show List 
     #
     def getShowList(self, show):
-        show_url = "https://" + DROPBOX_BASE_URL + base64.b64decode(urllib.unquote(show))
-        request = urllib3.Request(show_url)
-        requesturl = urllib3.urlopen(request)
+        show_url = "https://{0}{1}".format(DROPBOX_BASE_URL, base64.b64decode(urllib.unquote(show).decode('utf-8')))
+        http = urllib3.PoolManager(ca_certs=certifi.where())
 
-        result = simplejson.load(requesturl)
-        requesturl.close()
+        response = http.request('GET', show_url)
+        result = simplejson.loads(response.data.decode('utf-8'))
 
         if self.enabledeveloper == True:
             print (result['ColombiaPlay'])
@@ -126,12 +122,11 @@ class ColombiaTVCore():
     # Return the stations list 
     #
     def getStationList(self, show):
-        show_url = "https://" + DROPBOX_BASE_URL + base64.b64decode(urllib.unquote(show))
-        request = urllib3.Request(show_url)
-        requesturl = urllib3.urlopen(request)
+        show_url = "https://{0}{1}".format(DROPBOX_BASE_URL, base64.b64decode(urllib.unquote(show).decode('utf-8')))
+        http = urllib3.PoolManager(ca_certs=certifi.where())
 
-        result = simplejson.load(requesturl)
-        requesturl.close()
+        response = http.request('GET', show_url)
+        result = simplejson.loads(response.data.decode('utf-8'))
 
         if self.enabledeveloper == True:
             print (result['ColombiaRadio'])
@@ -146,7 +141,7 @@ class ColombiaTVCore():
         request = urllib3.Request(url.encode(UTF8), None, headers)
 
         try:
-            response = urllib2.urlopen(request)
+            response = urllib3.urlopen(request)
             
             if response.info().getheader('Content-Encoding') == 'gzip':
                 print ("Content Encoding == gzip")
@@ -685,16 +680,16 @@ class ColombiaTVCore():
         streams = []
 
         # Get the streamlist
-        request = urllib2.Request(streamPath)
-        file = urllib2.urlopen(request)
+        request = urllib3.Request(streamPath)
+        file = urllib3.urlopen(request)
         for line in file:
             print('StreamURL: %s' % line)
 
             # PLS file
             m = re.compile ("\.pls").search(line)
             if m:
-                requestPls = urllib2.Request(line)
-                filePls = urllib2.urlopen(requestPls)
+                requestPls = urllib3.Request(line)
+                filePls = urllib3.urlopen(requestPls)
                 for linePls in filePls:
                     mPls = re.compile ("File.*?=(.*)").search(linePls)
                     if mPls:

@@ -20,7 +20,6 @@
 # */
 
 import sys
-import urllib3
 import os
 import re
 
@@ -36,7 +35,6 @@ class ColombiaTVNavigation():
         self.enabledeveloper = sys.modules["__main__"].enabledeveloper
         self.language = sys.modules["__main__"].language
         self.core = sys.modules["__main__"].core
-        self.common = sys.modules["__main__"].common
         self.epg = sys.modules["__main__"].mitvEpg
 
         self.pluginsettings = sys.modules["__main__"].pluginsettings
@@ -135,8 +133,8 @@ class ColombiaTVNavigation():
         #
         if item('id') == '0':
             print ("Check for new version")
-            if re.search(self.common.version, item('title')):
-                print ("You have the latest version: " + self.common.version)
+            if re.search(self.addon.getAddonInfo('version'), item('title')):
+                print ("You have the latest version: " + self.addon.getAddonInfo('version'))
             else:
                 listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
                 listitem.setProperty("fanart_image", fanart)
