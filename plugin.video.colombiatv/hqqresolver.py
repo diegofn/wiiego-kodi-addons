@@ -17,15 +17,13 @@
 # * You should have received a copy of the GNU General Public License
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # *
+# * Based on https://github.com/jsergio123/script.module.resolveurl/blob/master/lib/resolveurl/plugins/waaw.py
 # */
-# *  based on https://github.com/jsergio123/script.module.resolveurl/blob/master/lib/resolveurl/plugins/waaw.py
-# */
-from StringIO import StringIO
+
 import json
 import re
 import base64
-import urllib
-import urllib2
+import urllib3
 import random
 
 __name__ = 'hqq'
@@ -33,12 +31,12 @@ __name__ = 'hqq'
 class hqqResolver():
     def request(self, url, headers={}):
         print('request: %s' % url)
-        req = urllib2.Request(url, headers=headers)
+        req = urllib3.Request(url, headers=headers)
         try:
-            response = urllib2.urlopen(req)
+            response = urllib3.urlopen(req)
             data = response.read()
             response.close()
-        except urllib2.HTTPError, error:
+        except urllib3.HTTPError as error:
             data=error.read()
         print('len(data) %s' % len(data))
         return data
@@ -88,10 +86,10 @@ class hqqResolver():
                 player_url = "https://hqq.tv" + url
                 data_player = self.request(player_url, headers=headers)
                 data_unescape = re.findall('document.write\(unescape\("([^"]+)"', data_player)
-                print "data_player: " + data_player
+                print ("data_player: " + data_player)
                 data = ""
                 for d in data_unescape:
-                    data += urllib.unquote(d)
+                    data += urllib3.unquote(d)
 
                 #
                 # Find variables
@@ -125,10 +123,10 @@ class hqqResolver():
                 #
                 link_m3u8 = 'https://hqq.tv/player/get_md5.php?ver=2&at=%s&adb=0&b=1&link_1=%s&server_2=%s&vid=%s&ext=%s' % (at, link_1, server_2, vid, ext)
                 print ("link_m3u8: " + link_m3u8)
-                return link_m3u8 + '|Referer=' + urllib.quote(player_url, safe='') + '&User-Agent=' + user_agent
+                return link_m3u8 + '|Referer=' + urllib3.quote(player_url, safe='') + '&User-Agent=' + user_agent
 
             except Exception as e:
-                print str(e)
+                print (str(e))
 
     def tb(self, b_m3u8_2):
         j = 0

@@ -18,31 +18,27 @@
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # *
 # */
-# *  based on https://gitorious.org/iptv-pl-dla-openpli/ urlresolver
-# */
 
 import sys
 import os
 
 import simplejson
 import urllib3
-import cookielib
 import subprocess
 import re
 import cgi
 import gzip
 import json
 import base64
-from StringIO import StringIO
-from pyaes import openssl_aes
+import io
+
 import jsUnwiser
 import jsUnpack
 import hqqresolver
 import ssl
 import xbmc
 
-import ConfigParser
-import xml.dom.minidom as minidom
+from pyaes import openssl_aes
 from BeautifulSoup import BeautifulSoup
 
 # ERRORCODES:
@@ -59,7 +55,7 @@ class ColombiaTVCore():
     # Define the global variables for ColombiaTV
     #
     def __init__(self, instanceId=10, platformId=4, version=10):
-        self.settings = sys.modules["__main__"].settings
+        self.addon = sys.modules["__main__"].addon
         self.plugin = sys.modules["__main__"].plugin
         self.enabledebug = sys.modules["__main__"].enabledebug
         self.enabledeveloper = sys.modules["__main__"].enabledeveloper
@@ -73,8 +69,8 @@ class ColombiaTVCore():
         except:
            pass
         
-        print "Developer Mode: " + self.settings.getSetting("enabledeveloper")
-        if self.settings.getSetting("enabledeveloper") == "false":
+        print ("Developer Mode: " + self.addon.getSetting("enabledeveloper"))
+        if self.addon.getSetting("enabledeveloper") == "false":
             CHANNEL_URL = base64.b64decode("L3MvbjUxd2JudWNwYmZrZHkzL2NoYW5uZWxzLmpzb24/ZGw9MQ==") 
         else:
             CHANNEL_URL = base64.b64decode("L3MvYjhoanR3cHlpNml4YW9mL2NoYW5uZWxzZGV2Lmpzb24/ZGw9MQ==") #REALDEV
@@ -100,8 +96,8 @@ class ColombiaTVCore():
             return result['ColombiaTV']
 
         except:
-            request = urllib2.Request(self.urlbackup)
-            requesturl = urllib2.urlopen(request)
+            request = urllib3.Request(self.urlbackup)
+            requesturl = urllib3.urlopen(request)
 
             result = simplejson.load(requesturl)
             requesturl.close()
@@ -116,8 +112,8 @@ class ColombiaTVCore():
     #
     def getShowList(self, show):
         show_url = "https://" + DROPBOX_BASE_URL + base64.b64decode(urllib.unquote(show))
-        request = urllib2.Request(show_url)
-        requesturl = urllib2.urlopen(request)
+        request = urllib3.Request(show_url)
+        requesturl = urllib3.urlopen(request)
 
         result = simplejson.load(requesturl)
         requesturl.close()
@@ -131,8 +127,8 @@ class ColombiaTVCore():
     #
     def getStationList(self, show):
         show_url = "https://" + DROPBOX_BASE_URL + base64.b64decode(urllib.unquote(show))
-        request = urllib2.Request(show_url)
-        requesturl = urllib2.urlopen(request)
+        request = urllib3.Request(show_url)
+        requesturl = urllib3.urlopen(request)
 
         result = simplejson.load(requesturl)
         requesturl.close()
@@ -147,14 +143,14 @@ class ColombiaTVCore():
     def getRequest (self, url, referUrl, userAgent, xRequestedWith=""):
         UTF8 = 'utf-8'
         headers = {'User-Agent':userAgent, 'Referer':referUrl, 'X-Requested-With': xRequestedWith, 'Accept':"text/html", 'Accept-Encoding':'gzip,deflate,sdch', 'Accept-Language':'en-US,en;q=0.8'} 
-        request = urllib2.Request(url.encode(UTF8), None, headers)
+        request = urllib3.Request(url.encode(UTF8), None, headers)
 
         try:
             response = urllib2.urlopen(request)
             
             if response.info().getheader('Content-Encoding') == 'gzip':
                 print ("Content Encoding == gzip")
-                buf = StringIO( response.read() )
+                buf = io.StringIO( response.read() )
                 f = gzip.GzipFile(fileobj=buf)
                 link1 = f.read()
             else:
@@ -170,14 +166,14 @@ class ColombiaTVCore():
     #    
     def getRequestAdv (self, url, headers, isReplace=True):
         UTF8 = 'utf-8'
-        request = urllib2.Request(url.encode(UTF8), None, headers)
+        request = urllib3.Request(url.encode(UTF8), None, headers)
 
         try:
-            response = urllib2.urlopen(request)
+            response = urllib3.urlopen(request)
             
             if response.info().getheader('Content-Encoding') == 'gzip':
                 print ("Content Encoding == gzip")
-                buf = StringIO( response.read() )
+                buf = io.StringIO( response.read() )
                 f = gzip.GzipFile(fileobj=buf)
                 link1 = f.read()
             else:
@@ -259,7 +255,7 @@ class ColombiaTVCore():
             print ("token: " + token)
 
             # Get the URL Enconded Link
-            urlEncodedLink = urllib.quote_plus(decodedURL + token + "|Referer=http://cdn.p2pcast.tech/jwplayer.flash.swf&User-Agent=" + USER_AGENT)
+            urlEncodedLink = urllib3.quote_plus(decodedURL + token + "|Referer=http://cdn.p2pcast.tech/jwplayer.flash.swf&User-Agent=" + USER_AGENT)
 
             # Parse the final URL
             u = "plugin://plugin.video.f4mTester/?streamtype=HLS&amp;url=" + urlEncodedLink
@@ -450,7 +446,7 @@ class ColombiaTVCore():
             # Find the cryptArr
             m = re.compile('MarioCSdecrypt.dec\("(.*?)"\)').search(html)
             cryptArr = m.group(1)
-            print cryptArr
+            print (cryptArr)
             
             # Find the key
             headers = {'User-Agent':USER_AGENT, 'Referer':referURL, 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
@@ -458,7 +454,7 @@ class ColombiaTVCore():
 
             m = re.compile("'decode','slice','(\w+?)'\]").search(html)
             opensslkey = m.group(1)
-            print "opensslkey = " + opensslkey
+            print ("opensslkey = " + opensslkey)
 
             OpenSSL_AES = openssl_aes.AESCipher()
             streamUrl = OpenSSL_AES.decrypt(cryptArr, opensslkey)
@@ -471,8 +467,8 @@ class ColombiaTVCore():
             u = balancer + streamUrl + "|Referer=" + urllib.quote(referURL, safe='') + "&User-Agent=" + USER_AGENT + "&X-Requested-With=ShockwaveFlash/25.0.0.119"
             print ("Final URL: " + u)
             return u
-        except Exception, e:
-            print str(e)
+        except Exception as e:
+            print (str(e))
             pass
 
     #
@@ -552,7 +548,7 @@ class ColombiaTVCore():
     def getEb (self, channelId, referUrl):
         try:
             USER_AGENT = "THEKING"
-            print "URL: " + base64.b64decode(urllib.unquote(referUrl))
+            print ("URL: " + base64.b64decode(urllib.unquote(referUrl)))
             html = self.getRequest(base64.b64decode(urllib.unquote(referUrl)), "", USER_AGENT) 
             
             # Get the URL Path
@@ -744,11 +740,11 @@ class ColombiaTVCore():
         headers = {'User-Agent':USER_AGENT, 
                     'Referer': 'https://www.clarovideo.com', 
                     'Pragma': 'akamai-x-get-client-ip, akamai-x-cache-on, akamai-x-cache-remote-on, akamai-x-check-cacheable, akamai-x-get-cache-key, akamai-x-get-extracted-values, akamai-x-get-nonces, akamai-x-get-ssl-client-session-id, akamai-x-get-true-cache-key, akamai-x-serial-no, akamai-x-feo-trace, akamai-x-get-request-id' } 
-        request = urllib2.Request (base64.b64decode(urllib.unquote(url)), None, headers)
-        response = urllib2.urlopen(request)
+        request = urllib3.Request (base64.b64decode(urllib.unquote(url)), None, headers)
+        response = urllib3.urlopen(request)
         data = json.load(response)
         video_url = data['response']['media']['video_url']
-        print "video_url: " + video_url
+        print ("video_url: " + video_url)
 
         # Parse the final URL
         stream = '{0}|User-Agent={1}'
@@ -763,13 +759,13 @@ class ColombiaTVCore():
 
         # Get the device_id and token
         headers = {'User-Agent': USER_AGENT, 'Referer': 'https://www.clarovideo.com' } 
-        request = urllib2.Request (base64.b64decode(urllib.unquote(url_webapi)), None, headers)
-        response = urllib2.urlopen(request)
+        request = urllib3.Request (base64.b64decode(urllib.unquote(url_webapi)), None, headers)
+        response = urllib3.urlopen(request)
         data = json.load(response)
         device_id = data['entry']['device_id']
         token = json.loads(data['response']['media']['challenge'])['token']
-        print "device_id: " + device_id
-        print "token: " + token
+        print ("device_id: " + device_id)
+        print ("token: " + token)
 
         # Get the certificate
         server_certificate = self.getRequest("https://widevine-vod.clarovideo.net/licenser/getcertificate", "https://www.clarovideo.com", USER_AGENT)
@@ -911,7 +907,7 @@ class ColombiaTVCore():
         if (dataUnpack):
             unPacker = jsUnpack.jsUnpacker()
             unPack = unPacker.unpack(dataUnpack.group(1))
-            if self.enabledebug: print "unPack: " + unPack
+            if self.enabledebug: print ("unPack: " + unPack)
 
             # Get the Token URL 
             varNames = re.compile('\{url:.*?atob\((\w*?)\).*?\+.*?atob\((\w*?)\),dataType\s*:\s*[\'\"]json[\'\"]')
@@ -921,7 +917,7 @@ class ColombiaTVCore():
             part2Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[1])).findall(unPack)[0]
             part1 = base64.b64decode(part1Reversed)[8:]
             part2 = base64.b64decode(part2Reversed)
-            if self.enabledebug: print "part1 + part2: " + part1 + part2
+            if self.enabledebug: print ("part1 + part2: " + part1 + part2)
 
             # Get the real token
             tokenUrl = base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg==') + part1 + part2
@@ -936,19 +932,19 @@ class ColombiaTVCore():
                         'X-Requested-With': 'XMLHttpRequest',
                         'Cookie': 'volumeVar=100; _ga=GA1.2.820523732.1566237251; ChorreameLaJa=100'} 
             tokenJson = self.getRequestAdv(tokenUrl, headers, False)
-            if self.enabledebug: print "tokenJson: " + tokenJson
+            if self.enabledebug: print ("tokenJson: " + tokenJson)
             simpleTokenJson = json.loads(tokenJson)
 
             if (simpleTokenJson):
                 tokenHtml = simpleTokenJson[5][::-1]
-                if self.enabledebug: print "tokenHtml " + tokenHtml
+                if self.enabledebug: print ("tokenHtml " + tokenHtml)
 
             # Get the real CDN Url
             varCdn = re.compile('if\(isXMobile\)\{(\w*?)=.*?\};')
             vars = varCdn.findall(unPack)
             cdnReversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[0])).findall(unPack)[0]
             cdn = base64.b64decode(cdnReversed)
-            if self.enabledebug: print "cdn: " + cdn
+            if self.enabledebug: print ("cdn: " + cdn)
 
             # Parse the final URL
             stream = 'https:{0}{1}|Referer={2}&User-Agent={3}&Origin={4}&Connection=keep-alive&Accept=*/*'
@@ -989,7 +985,7 @@ class ColombiaTVCore():
         channelUrl = "http://premiumtvchannels.com/clappr/" + videoContentId + ".php"
         headers = {'User-Agent':USER_AGENT, 'Referer':urllib.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
         html = self.getRequestAdv(channelUrl, headers, False) 
-        print "html" + html 
+        print ("html" + html)
 
         m = re.compile('file: "(.*?)"').search(html)
         if (not m):

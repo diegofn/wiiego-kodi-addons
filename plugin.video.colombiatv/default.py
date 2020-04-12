@@ -22,34 +22,26 @@
 # */
 
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
-import os, urllib3, cookielib
+import os, urllib3
 import ssl
 import re
 
-# Set global values.
-version = "1.7.0"
-plugin   = 'ColombiaTV-' + version
-author = 'Wiiego'
-
 # XBMC Hooks
-settings = xbmcaddon.Addon(id='plugin.video.colombiatv')
-language = settings.getLocalizedString
-enabledebug = settings.getSetting('enabledebug')
-enabledeveloper = settings.getSetting('enabledeveloper')
-
-# Enable HTTP Cookies.
-cookie = cookielib.LWPCookieJar()
-cookie_handler = urllib2.HTTPCookieProcessor(cookie)
-opener = urllib2.build_opener(cookie_handler)
+addon = xbmcaddon.Addon()
+addonID = addon.getAddonInfo('id')
+plugin = addon.getAddonInfo('name')
+version = addon.getAddonInfo('version')
+icon = addon.getAddonInfo('icon')
+fanart = addon.getAddonInfo('fanart')
+language = addon.getLocalizedString
+enabledebug = addon.getSetting('enabledebug')
+enabledeveloper = addon.getSetting('enabledeveloper')
 
 # Plugin Main
 if (__name__ == "__main__" ):
     if enabledeveloper:
         print("ARGV Parameters: " + repr(sys.argv))
    
-    import CommonFunctions as common
-    common.plugin = plugin
-    common.version = version
     import ColombiaTVPluginSettings
     pluginsettings = ColombiaTVPluginSettings.ColombiaTVPluginSettings()
     import ColombiaTVCore

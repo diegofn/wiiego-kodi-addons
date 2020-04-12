@@ -18,8 +18,6 @@
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # *
 # */
-# *  based on https://gitorious.org/iptv-pl-dla-openpli/ urlresolver
-# */
 
 import sys
 import urllib3
@@ -32,7 +30,7 @@ class ColombiaTVNavigation():
         self.xbmcgui = sys.modules["__main__"].xbmcgui
         self.xbmcplugin = sys.modules["__main__"].xbmcplugin
 
-        self.settings = sys.modules["__main__"].settings
+        self.addon = sys.modules["__main__"].addon
         self.plugin = sys.modules["__main__"].plugin
         self.enabledebug = sys.modules["__main__"].enabledebug
         self.enabledeveloper = sys.modules["__main__"].enabledeveloper
@@ -129,7 +127,7 @@ class ColombiaTVNavigation():
         # Add TV Channel
         contextmenu = [(self.language(3001), "XBMC.RunPlugin(%s?path=refresh)" % (sys.argv[0], ))]
         image = item('image')
-        fanart = os.path.join(self.settings.getAddonInfo("path"), "fanart.jpg")
+        fanart = os.path.join(self.addon.getAddonInfo("path"), "fanart.jpg")
 
         #
         # Dont add the 0 channeld (update item) if the user has the latest version

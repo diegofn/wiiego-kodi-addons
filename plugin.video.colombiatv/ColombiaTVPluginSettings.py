@@ -18,20 +18,18 @@
 # * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 # *
 # */
-# *  based on https://gitorious.org/iptv-pl-dla-openpli/ urlresolver
-# */
 import sys
 
 class ColombiaTVPluginSettings():
 
     def __init__(self):
-        self.settings = sys.modules["__main__"].settings
+        self.addon = sys.modules["__main__"].addon
         self.enabledeveloper = sys.modules["__main__"].enabledeveloper
         self.enabledebug = sys.modules["__main__"].enabledebug
 
     def enabledebug(self):
-        return self.settings.getSetting("enabledebug") == "false"
+        return self.addon.getSetting("enabledebug") == "false"
 
     def enabledeveloper(self):
-        return self.settings.getSetting("enabledeveloper") == "false"
+        return self.addon.getSetting("enabledeveloper") == "false"
 

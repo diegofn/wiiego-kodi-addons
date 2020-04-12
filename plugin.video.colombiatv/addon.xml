@@ -9,6 +9,7 @@
     <import addon="script.module.requests" version="2.22.0"/>
     <import addon="script.module.urllib3" version="1.25.6"/>
     <import addon="script.module.simplejson" version="3.17.0"/>
+    <import addon="script.module.beautifulsoup4" version="4.6.3"/>
   </requires>
   <extension point="xbmc.python.pluginsource"
             library="default.py">
@@ -29,9 +30,9 @@
     <assets>
       <icon>icon.png</icon>
       <fanart>fanart.jpg</fanart>
-      <screenshot>resources/images/screenshot-01.jpg</screenshot>
-      <screenshot>resources/images/screenshot-02.jpg</screenshot>
-      <screenshot>resources/images/screenshot-03.jpg</screenshot>
+      <screenshot>resources/images/screenshot-01.png</screenshot>
+      <screenshot>resources/images/screenshot-02.png</screenshot>
+      <screenshot>resources/images/screenshot-03.png</screenshot>
     </assets>
   </extension>
 </addon>
