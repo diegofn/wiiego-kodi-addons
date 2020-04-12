@@ -2,7 +2,7 @@
 # *
 # * ColombiaTV: ColombiaTV add-on for Kodi.
 # *
-# * Copyleft 2013-2019 Wiiego
+# * Copyleft 2013-2020 Wiiego
 # *
 # * This program is free software: you can redistribute it and/or modify
 # * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,12 @@
 # */
 
 import xbmc, xbmcgui, xbmcplugin, xbmcaddon
-import os, urllib, urllib2, cookielib
+import os, urllib3, cookielib
 import ssl
 import re
 
 # Set global values.
-version = "1.6.5"
+version = "1.7.0"
 plugin   = 'ColombiaTV-' + version
 author = 'Wiiego'
 

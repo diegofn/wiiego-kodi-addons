@@ -1,3 +1,7 @@
+[B] Version 1.7.0 [/B]
+- Kodi Matrix support only
+- Python 3 migration
+
 [B] Version 1.6.5 [/B]
 - ColombiaPlay2 alpha 
 - Update tl support
