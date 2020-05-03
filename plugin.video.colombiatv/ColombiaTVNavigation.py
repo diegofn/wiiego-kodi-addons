@@ -123,7 +123,7 @@ class ColombiaTVNavigation():
         item = item_params.get
 
         # Add TV Channel
-        contextmenu = [(self.language(3001), "XBMC.RunPlugin(%s?path=refresh)" % (sys.argv[0], ))]
+        contextmenu = [(self.language(30200), "XBMC.RunPlugin(%s?path=refresh)" % (sys.argv[0], ))]
         image = item('image')
         fanart = os.path.join(self.addon.getAddonInfo("path"), "fanart.jpg")
 
@@ -136,23 +136,24 @@ class ColombiaTVNavigation():
             if re.search(self.addon.getAddonInfo('version'), item('title')):
                 print ("You have the latest version: " + self.addon.getAddonInfo('version'))
             else:
-                listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
-                listitem.setProperty("fanart_image", fanart)
-                listitem.setInfo('Video', {'Title': item('title')})
-                listitem.setProperty('IsPlayable', "false")
-                ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False)
+                listitem = self.xbmcgui.ListItem(item('title'))
+                listitem.setArt({'icon': image, 'fanart': fanart})
+                listitem.setInfo(type='video', infoLabels={'Title': item('title')})
+
+                ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=True)
 
         elif item('id') == '100':
-            print ("ColombiaRadio and ColombiaTV Main Menu")
-            listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
-            listitem.setProperty("fanart_image", fanart)
+            print ("Submenu option")
+            listitem = self.xbmcgui.ListItem(item('title'))
+            listitem.setArt({'icon': image, 'fanart': fanart})
             ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=True)
 
         else:
-            listitem = self.xbmcgui.ListItem(label=item('title'), label2='TV Show', iconImage=image, thumbnailImage=image)
+            listitem = self.xbmcgui.ListItem(label=item('title'), label2='TV Show')
+            listitem.setArt({'icon': image, 'fanart': fanart})
+            
             listitem.addContextMenuItems(items=contextmenu, replaceItems=True)
-            listitem.setProperty("fanart_image", fanart)
-
+            
             #
             # Get epg data
             #

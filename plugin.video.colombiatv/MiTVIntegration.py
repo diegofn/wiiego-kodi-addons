@@ -45,7 +45,7 @@ class MiTVIntegration():
         #
         http = urllib3.PoolManager(ca_certs=certifi.where())
         response = http.request('GET', self.url)
-                
+        
         self.epgChannels = simplejson.loads(response.data.decode('utf-8'))
 
         #
@@ -70,7 +70,7 @@ class MiTVIntegration():
         # Load the info in a JSON structure
         #
         http = urllib3.PoolManager(ca_certs=certifi.where())
-        response = http.request('GET', self.url)
+        response = http.request('GET', epg_url)
         
         self.epgGuide = simplejson.loads(response.data.decode('utf-8'))
 

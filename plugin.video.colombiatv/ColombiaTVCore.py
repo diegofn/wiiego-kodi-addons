@@ -25,6 +25,7 @@ import os
 import simplejson
 import urllib3
 import certifi
+import urllib.parse
 import subprocess
 import re
 import cgi
@@ -108,7 +109,7 @@ class ColombiaTVCore():
     # Return the Show List 
     #
     def getShowList(self, show):
-        show_url = "https://{0}{1}".format(DROPBOX_BASE_URL, base64.b64decode(urllib.unquote(show).decode('utf-8')))
+        show_url = "https://{0}{1}".format(DROPBOX_BASE_URL, base64.b64decode(urllib.parse.unquote(show)).decode('utf-8'))
         http = urllib3.PoolManager(ca_certs=certifi.where())
 
         response = http.request('GET', show_url)
@@ -122,7 +123,7 @@ class ColombiaTVCore():
     # Return the stations list 
     #
     def getStationList(self, show):
-        show_url = "https://{0}{1}".format(DROPBOX_BASE_URL, base64.b64decode(urllib.unquote(show).decode('utf-8')))
+        show_url = "https://{0}{1}".format(DROPBOX_BASE_URL, base64.b64decode(urllib.parse.unquote(show)).decode('utf-8'))
         http = urllib3.PoolManager(ca_certs=certifi.where())
 
         response = http.request('GET', show_url)
@@ -680,9 +681,10 @@ class ColombiaTVCore():
         streams = []
 
         # Get the streamlist
-        request = urllib3.Request(streamPath)
-        file = urllib3.urlopen(request)
-        for line in file:
+        http = urllib3.PoolManager(ca_certs=certifi.where())
+        response = http.request('GET', streamPath)
+                
+        for line in response.data.decode('utf-8').splitlines():
             print('StreamURL: %s' % line)
 
             # PLS file
@@ -701,8 +703,6 @@ class ColombiaTVCore():
             elif len(line.strip()) > 0 and not line.strip().startswith('#'):
                 streams.append(line.strip())
         
-        file.close()
-
         # Parse the final URL
         if (streams):
             u = streams[0]

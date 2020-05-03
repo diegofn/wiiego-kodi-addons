@@ -47,13 +47,12 @@ class ColombiaPlayNavigation():
             self.addListItem(element)
     
         self.xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True)
-        print ("Done")
 
     def addListItem(self, item_params={}):
         item = item_params.get
 
         # Add TV Channel
-        contextmenu = [(self.language(3001), "XBMC.RunPlugin(%s?path=refresh)" % (sys.argv[0], ))]
+        contextmenu = [(self.language(30200), "XBMC.RunPlugin(%s?path=refresh)" % (sys.argv[0], ))]
         image = item('image')
         fanart = os.path.join(self.addon.getAddonInfo("path"), "fanart.jpg")
 

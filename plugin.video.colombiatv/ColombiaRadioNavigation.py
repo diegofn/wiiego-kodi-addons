@@ -47,13 +47,12 @@ class ColombiaRadioNavigation():
             self.addListItem(element)
     
         self.xbmcplugin.endOfDirectory(handle=int(sys.argv[1]), succeeded=True)
-        print ("Done")
 
     def addListItem(self, item_params={}):
         item = item_params.get
 
         # Add TV Channel
-        contextmenu = [(self.language(3001), "XBMC.RunPlugin(%s?path=refresh)" % (sys.argv[0], ))]
+        contextmenu = [(self.language(30200), "XBMC.RunPlugin(%s?path=refresh)" % (sys.argv[0], ))]
         image = item('image')
         fanart = os.path.join(self.addon.getAddonInfo("path"), "fanart.jpg")
 
@@ -61,14 +60,15 @@ class ColombiaRadioNavigation():
         # The id 0 is the main show thread (full chapters list) 
         #
         if item('id') != '0':
-            listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
+            listitem = self.xbmcgui.ListItem(item('title'))
+            listitem.setArt({'icon': image, 'fanart': fanart})
             listitem.addContextMenuItems(items=contextmenu, replaceItems=True)
-            listitem.setProperty("fanart_image", fanart)
             listitem.setInfo('music', {'Title': item('title')})
             listitem.setProperty('IsPlayable', "true")
             ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False)
         else:
-            listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
-            listitem.setProperty("fanart_image", fanart)
+            listitem = self.xbmcgui.ListItem(item('title'))
+            listitem.setArt({'icon': image, 'fanart': fanart})
+
             ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=True)
                 
