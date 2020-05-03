@@ -1,0 +1,50 @@
+# Kodi Media Center language file
+# Addon Name: ColombiaTV
+# Addon id: plugin.video.colombiatv
+
+msgid ""
+msgstr ""
+"Project-Id-Version: XBMC-Addons\n"
+"Report-Msgid-Bugs-To: diegofn@xbmc.org\n"
+"POT-Creation-Date: 2016-11-03 00:21+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_US\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+
+msgctxt "Addon Summary"
+msgid "ColombiaTV add-on"
+msgstr "ColombiaTV add-on"
+
+msgctxt "Addon Description"
+msgid "ColombiaTV is the best addon to watch the main TV Channels and shows from Colombia"
+msgstr "ColombiaTV es el mejor addon para ver los principales canales y programas de Televisión de Colombia"
+
+msgctxt "Addon Disclaimer"
+msgid "This addon use public streaming links and does not violate copyright"
+msgstr "Este addon utiliza links de streaming púbicos y no viola los derechos de autor"
+
+
+msgctxt "#30000"
+msgid "Advanced"
+msgstr "Advanced"
+
+msgctxt "#30001"
+msgid "Enable debug"
+msgstr "Enable debug"
+
+msgctxt "#30002"
+msgid "Enable developer mode"
+msgstr "Enable developer mode"
+
+# empty strings from id 30007 to 30200
+
+msgctxt "#30200"
+msgid "Refresh"
+msgstr "Refresh"
+
+

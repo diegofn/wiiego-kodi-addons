@@ -17,13 +17,14 @@
   </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
-    <summary lang="en">ColombiaTV</summary>
+    <summary lang="en_GB">ColombiaTV</summary>
+    <summary lang="es_ES">ColombiaTV</summary>
     <license>GPL-2.0</license>
-    <description lang="en">ColombiaTV is the best addon to watch the main TV Channels and shows from Colombia</description>
-    <description lang="es">ColombiaTV es el mejor addon para ver los principales canales y programas de Televisión de Colombia</description>
-    <disclaimer lang="en">This addon use public streaming links and does not violate copyright</disclaimer>
-    <description lang="es">Este addon utiliza links de streaming púbicos y no viola los derechos de autor</description>
-
+    <description lang="en_GB">ColombiaTV is the best addon to watch the main TV Channels and shows from Colombia</description>
+    <description lang="es_ES">ColombiaTV es el mejor addon para ver los principales canales y programas de Televisión de Colombia</description>
+    <disclaimer lang="en_GB">This addon use public streaming links and does not violate copyright</disclaimer>
+    <description lang="es_ES">Este addon utiliza links de streaming púbicos y no viola los derechos de autor</description>
+    <language></language>
     <forum>https://github.com/diegofn/wiiego-kodi-addons/issues</forum>
     <website>https://github.com/diegofn/wiiego-kodi-addons</website>
     <source>https://github.com/diegofn/wiiego-kodi-addons</source>
