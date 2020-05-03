@@ -60,9 +60,9 @@ class ColombiaPlayNavigation():
         # The id 0 is the main show thread (full chapters list) 
         #
         if item('id') != '0':
-            listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
+            listitem = self.xbmcgui.ListItem(item('title'))
+            listitem.setArt({'icon': image, 'fanart': fanart})
             listitem.addContextMenuItems(items=contextmenu, replaceItems=True)
-            listitem.setProperty("fanart_image", fanart)
             listitem.setInfo('Video', 
                 {   'title': item('title'),
                     'mediatype': 'tvshow',
@@ -72,12 +72,13 @@ class ColombiaPlayNavigation():
             listitem.setProperty('IsPlayable', "true")
             ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=False)
         else:
-            listitem = self.xbmcgui.ListItem(item('title'), iconImage=image, thumbnailImage=image)
+            listitem = self.xbmcgui.ListItem(item('title'))
+            listitem.setArt({'icon': image, 'fanart': fanart})
             listitem.setInfo('Video', 
                 {   'Title': item('title'),
                     'mediatype': 'tvshow',  
                     'plot': '[B]' + item('title') + '[/B]',
                 })
-            listitem.setProperty("fanart_image", fanart)
+            
             ok = self.xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=item('url'), listitem=listitem, isFolder=True)
                 

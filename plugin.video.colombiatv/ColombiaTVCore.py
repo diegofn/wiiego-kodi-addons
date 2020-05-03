@@ -135,22 +135,16 @@ class ColombiaTVCore():
 
     #
     # URL Request
+    # Python3 migrated
     #    
     def getRequest (self, url, referUrl, userAgent, xRequestedWith=""):
-        UTF8 = 'utf-8'
         headers = {'User-Agent':userAgent, 'Referer':referUrl, 'X-Requested-With': xRequestedWith, 'Accept':"text/html", 'Accept-Encoding':'gzip,deflate,sdch', 'Accept-Language':'en-US,en;q=0.8'} 
-        request = urllib3.Request(url.encode(UTF8), None, headers)
-
+        
         try:
-            response = urllib3.urlopen(request)
+            http = urllib3.PoolManager(ca_certs=certifi.where())
+            response = http.request('GET', url, headers)
             
-            if response.info().getheader('Content-Encoding') == 'gzip':
-                print ("Content Encoding == gzip")
-                buf = io.StringIO( response.read() )
-                f = gzip.GzipFile(fileobj=buf)
-                link1 = f.read()
-            else:
-                link1=response.read()
+            link1 = response.data.decode('utf-8')
         except:
             link1 = ""
         
@@ -159,21 +153,15 @@ class ColombiaTVCore():
 
     #
     # URL Request
+    # Python3 migrated
     #    
     def getRequestAdv (self, url, headers, isReplace=True):
-        UTF8 = 'utf-8'
-        request = urllib3.Request(url.encode(UTF8), None, headers)
-
+        
         try:
-            response = urllib3.urlopen(request)
+            http = urllib3.PoolManager(ca_certs=certifi.where())
+            response = http.request('GET', url, headers)
             
-            if response.info().getheader('Content-Encoding') == 'gzip':
-                print ("Content Encoding == gzip")
-                buf = io.StringIO( response.read() )
-                f = gzip.GzipFile(fileobj=buf)
-                link1 = f.read()
-            else:
-                link1=response.read()
+            link1 = response.data.decode('utf-8')
         except:
             link1 = ""
             
@@ -187,7 +175,7 @@ class ColombiaTVCore():
     #
     def demunge(self, munge):
         try:
-            munge = urllib.unquote_plus(munge).decode(UTF8)
+            munge = urllib.parse.unquote_plus(munge).decode(UTF8)
         except:
             pass
         return munge
@@ -227,39 +215,6 @@ class ColombiaTVCore():
         except:
             pass
    
-    #  
-    # NowLive support
-    #
-    def getP2pcast (self, videoContentId):
-        #
-        # Global variables
-        #
-        USER_AGENT = "Mozilla/5.0 (X11 Linux i686 rv:41.0) Gecko/20100101 Firefox/41.0 Iceweasel/41.0.2"
-
-        try:
-            # Get the decodeURL
-            print ("VideoContent id: " + videoContentId)
-            html = self.getRequest("http://p2pcast.tech/stream.php?id=" + videoContentId, "http://p2pcast.tech/stream.php?id=" + videoContentId + "&osr=0&p2p=0&stretching=uniform", USER_AGENT)
-            m = re.compile('murl = "(.*?)"').search(html)
-            decodedURL = base64.b64decode(m.group(1))
-            print ("decodedURL: " + decodedURL)
-                        
-            # Get the token
-            html = self.getRequest("http://p2pcast.tech/getTok.php", "http://p2pcast.tech/stream.php?id=" + videoContentId, USER_AGENT, "XMLHttpRequest")
-            m = re.compile('"token":"(.*?)"').search(html)
-            token = m.group(1)
-            print ("token: " + token)
-
-            # Get the URL Enconded Link
-            urlEncodedLink = urllib3.quote_plus(decodedURL + token + "|Referer=http://cdn.p2pcast.tech/jwplayer.flash.swf&User-Agent=" + USER_AGENT)
-
-            # Parse the final URL
-            u = "plugin://plugin.video.f4mTester/?streamtype=HLS&amp;url=" + urlEncodedLink
-            print ("Final URL: " + u)
-            return u
-        except:
-            pass
-
     #
     # NowLive support
     #
@@ -272,77 +227,14 @@ class ColombiaTVCore():
         try:
             # Get the decodeURL
             print ("VideoContent id: " + videoContentId)
-            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-            html = self.getRequest("http://nowlive.pro/1/" + videoContentId + ".html?id=" + videoContentId + videoContentId, urllib.unquote(referUrl), USER_AGENT)
+            print ("URL: " + referUrl + " --> " + urllib.parse.unquote(referUrl))
+            html = self.getRequest("http://nowlive.pro/1/" + videoContentId + ".html?id=" + videoContentId + videoContentId, urllib.parse.unquote(referUrl), USER_AGENT)
             m = re.compile('application\/x-mpegurl.*\/\/(.*?)m3u8').search(html)
             decodedURL = m.group(1)
             print ("decodedURL: " + decodedURL)
                         
             # Parse the final URL
-            u = "http://" + decodedURL + "m3u8" + "|Referer=" + urllib.unquote(referUrl) + "&User-Agent=" + USER_AGENT
-            print ("Final URL: " + u)
-            return u
-        except:
-            pass
-
-    #
-    # Widestream support
-    #
-    def getWideStream (self, referUrl, videoContentId):
-        #
-        # Global variables
-        #
-        USER_AGENT = "Mozilla/5.0 (X11 Linux i686 rv:41.0) Gecko/20100101 Firefox/41.0 Iceweasel/41.0.2"
-
-        try:
-            # Get the decodeURL
-            print ("VideoContent id: " + videoContentId)
-            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-            html = self.getRequest("http://widestream.io/embed-" + videoContentId, urllib.unquote(referUrl), USER_AGENT)
-            m = re.compile('(http[^"]+\.m3u8[^"]*)').search(html)
-
-            # Parse the final URL
-            u = m.group(1) + '|Referer=' + referUrl + '&User-Agent=' + USER_AGENT + '&Host=ultra.widestream.io:8081'
-            print ("Final URL: " + u)
-            return u
-        except:
-            pass
-
-    #
-    # CastOn.tv support
-    #
-    def getCastOn (self, videoContentId):
-        #
-        # Global variables
-        #
-        USER_AGENT = "Mozilla/5.0 (X11 Linux i686 rv:41.0) Gecko/20100101 Firefox/41.0 Iceweasel/41.0.2"
-
-        try:
-            # Get the unWiser content
-            print ("VideoContent id: " + videoContentId)
-            html = self.getRequest("http://www.caston.tv/player.php?id=" + videoContentId, "http://www.caston.tv/player.php?id=" + videoContentId + "&width=680&height=390", USER_AGENT)
-            m = re.compile('unescape\(\'(.*)\'\)\);').search(html)
-            unWiser = jsUnwiser.JsUnwiser()
-            unWiserContent = unWiser.unwiseAll(urllib.unquote(m.group(1)))
-                        
-            # Get the decodedURL
-            m = re.compile('file:"(.*?)"').search(unWiserContent)
-            decodedURL = m.group(1)
-            print ("decodedURL: " + decodedURL)
-
-            # Get the token
-            html = self.getRequest("http://www.caston.tv/sssss.php", "http://www.caston.tv/player.php?id=" + videoContentId + "&width=680&height=390", USER_AGENT, "XMLHttpRequest")
-            m = re.compile('"(.*?)".*",(.*?)]').search(html)
-            token = m.group(1)
-            element = m.group(2)
-            print ("token: " + token)
-            print ("element: " + element)
-
-            # Get the URL Enconded Link
-            urlEncodedLink = urllib.quote_plus(decodedURL + token + "&e=" + element + "|Referer=http://www.caston.tv/player.php?id=" + videoContentId + "&width=680&height=390&User-Agent=" + USER_AGENT)
-
-            # Parse the final URL
-            u = "plugin://plugin.video.f4mTester/?streamtype=HLS&amp;url=" + urlEncodedLink
+            u = "http://" + decodedURL + "m3u8" + "|Referer=" + urllib.parse.unquote(referUrl) + "&User-Agent=" + USER_AGENT
             print ("Final URL: " + u)
             return u
         except:
@@ -427,47 +319,6 @@ class ColombiaTVCore():
             pass
 
     #
-    # lw.ml support
-    #
-    def getLw (self, videoContentId):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3171.0 Safari/537.36"
-
-        try:
-            # Get the stream IP Address http://tv.jaffmisshwedd.com/channels/win.html
-        
-            print ("VideoContent id: " + videoContentId)
-            referURL = "http://tv.jaffmisshwedd.com/channels/" + videoContentId + ".html"
-            html = self.getRequest(referURL, "http://embed.latino-webtv.com/", USER_AGENT)
-
-            # Find the cryptArr
-            m = re.compile('MarioCSdecrypt.dec\("(.*?)"\)').search(html)
-            cryptArr = m.group(1)
-            print (cryptArr)
-            
-            # Find the key
-            headers = {'User-Agent':USER_AGENT, 'Referer':referURL, 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
-            html = self.getRequestAdv("http://tv.jaffmisshwedd.com/config-player.js", headers)
-
-            m = re.compile("'decode','slice','(\w+?)'\]").search(html)
-            opensslkey = m.group(1)
-            print ("opensslkey = " + opensslkey)
-
-            OpenSSL_AES = openssl_aes.AESCipher()
-            streamUrl = OpenSSL_AES.decrypt(cryptArr, opensslkey)
-
-            # Get the balancer server
-            headers = {'User-Agent':USER_AGENT, 'Referer':referURL, 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
-            balancer = self.getRequestAdv("http://mariocs.com:2082/loadbalance", headers)
-            
-            # Parse the final URL
-            u = balancer + streamUrl + "|Referer=" + urllib.quote(referURL, safe='') + "&User-Agent=" + USER_AGENT + "&X-Requested-With=ShockwaveFlash/25.0.0.119"
-            print ("Final URL: " + u)
-            return u
-        except Exception as e:
-            print (str(e))
-            pass
-
-    #
     # RCN HD App support
     # http://app.canalrcn.tech/js/indexAndroid5mas.js http://app.canalrcn.tech
     #
@@ -480,43 +331,19 @@ class ColombiaTVCore():
 
         try:
             # Get the first stream IP Address
-            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
+            print ("URL: " + referUrl + " --> " + urllib.parse.unquote(referUrl))
             print ("VideoContent id: " + videoContentId)
-            html = self.getRequest("https://player.limpi.tv/embed.js", urllib.unquote(referUrl), USER_AGENT)
+            html = self.getRequest("https://player.limpi.tv/embed.js", urllib.parse.unquote(referUrl), USER_AGENT)
 
             # Get the second stream IP address
             m = re.compile("src=\"(.*?)\'").search(html)
             secondReferUrl = m.group(1)
-            html = self.getRequest(secondReferUrl + videoContentId, urllib.unquote(referUrl), USER_AGENT)
+            html = self.getRequest(secondReferUrl + videoContentId, urllib.parse.unquote(referUrl), USER_AGENT)
             m = re.compile("source: \"(.*?)\"").search(html)
             streamUrl = m.group(1)
                                                             
             # Parse the final URL
-            u = streamUrl + "|Referer=" + urllib.quote(secondReferUrl + videoContentId, safe='') + "&User-Agent=" + USER_AGENT 
-            print ("Final URL: " + u)
-            return u
-        except:
-            pass
-
-    #
-    # Pxstream.tv support
-    #
-    def getPxstream (self, referUrl, videoContentId):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3046.0 Safari/537.36"
-
-        try:
-            # Get the stream IP Address
-            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-            print ("VideoContent id: " + videoContentId)
-            html = self.getRequest("http://pxstream.tv/embedrouter.php?file=" + videoContentId + "&width=680&height=380&jwplayer=flash", urllib.unquote(referUrl), USER_AGENT)
-
-            # Find and decode the URL
-            m = re.compile("source: '(.*?)'").search(html)
-            streamUrl = m.group(1)
-            print ("streamUrl: " + streamUrl)
-                                    
-            # Parse the final URL
-            u = streamUrl + "|Referer=" + urllib.quote("http://pxstream.tv/embedrouter.php?file=" + videoContentId + "&width=680&height=380&jwplayer=seven", safe='') + "&User-Agent=" + USER_AGENT 
+            u = streamUrl + "|Referer=" + urllib.parse.quote(secondReferUrl + videoContentId, safe='') + "&User-Agent=" + USER_AGENT 
             print ("Final URL: " + u)
             return u
         except:
@@ -539,38 +366,14 @@ class ColombiaTVCore():
             pass
 
     #
-    # eb support
-    #
-    def getEb (self, channelId, referUrl):
-        try:
-            USER_AGENT = "THEKING"
-            print ("URL: " + base64.b64decode(urllib.unquote(referUrl)))
-            html = self.getRequest(base64.b64decode(urllib.unquote(referUrl)), "", USER_AGENT) 
-            
-            # Get the URL Path
-            m = re.compile ("([^:]*)canal=" + channelId + "(.*?)<\/link>").search(html)
-            if m:
-                streamPath = "http:" + m.group(1) + "canal=" + channelId + m.group(2)
-                streamPath = streamPath.replace('&amp;', '&')
-            else:
-                print ("Last parse error")
-
-            # Parse the final URL
-            u = streamPath
-            print ("Final URL: " + u)
-            return u
-        except:
-            pass
-
-    #
     # Random support
     #
     def getRandom (self, host, requestUrl, refererUrl=""):
         if host == "ssh101":
             try:
                 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
-                print ("URL: " + requestUrl + " --> " + urllib.unquote(requestUrl))
-                html = self.getRequest(urllib.unquote(requestUrl), "", USER_AGENT) 
+                print ("URL: " + requestUrl + " --> " + urllib.parse.unquote(requestUrl))
+                html = self.getRequest(urllib.parse.unquote(requestUrl), "", USER_AGENT) 
 
                 # Get the URL Path
                 m = re.compile ("'file': '(.*?)',").search(html)
@@ -589,8 +392,8 @@ class ColombiaTVCore():
         elif host == "janjua":
             try:
                 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
-                print ("URL: " + requestUrl + " --> " + urllib.unquote(requestUrl))
-                html = self.getRequest(urllib.unquote(requestUrl), "", USER_AGENT) 
+                print ("URL: " + requestUrl + " --> " + urllib.parse.unquote(requestUrl))
+                html = self.getRequest(urllib.parse.unquote(requestUrl), "", USER_AGENT) 
 
                 # Get the URL Path
                 m = re.compile ("channel='(.*?)',").search(html)
@@ -609,8 +412,8 @@ class ColombiaTVCore():
         elif host == "vk":
             try:
                 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
-                print ("URL: " + requestUrl + " --> " + urllib.unquote(requestUrl))
-                html = self.getRequest(urllib.unquote(requestUrl), "", USER_AGENT) 
+                print ("URL: " + requestUrl + " --> " + urllib.parse.unquote(requestUrl))
+                html = self.getRequest(urllib.parse.unquote(requestUrl), "", USER_AGENT) 
 
                 # Get the URL Path
                 m = re.compile ('file:\s+"(.*?)"').search(html)
@@ -629,9 +432,9 @@ class ColombiaTVCore():
         elif host == "vergol":
             try:
                 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.13; rv:58.0) Gecko/20100101 Firefox/58.0"
-                print ("URL: " + requestUrl + " --> " + urllib.unquote(requestUrl))
-                print ("Referer URL: " + refererUrl + " --> " + urllib.unquote(refererUrl))
-                html = self.getRequest(urllib.unquote(requestUrl), urllib.unquote(refererUrl), USER_AGENT) 
+                print ("URL: " + requestUrl + " --> " + urllib.parse.unquote(requestUrl))
+                print ("Referer URL: " + refererUrl + " --> " + urllib.parse.unquote(refererUrl))
+                html = self.getRequest(urllib.parse.unquote(requestUrl), urllib.parse.unquote(refererUrl), USER_AGENT) 
                 
                 # Get the URL Path
                 m = re.compile ("source:\s+'(.*?)'").search(html)
@@ -641,40 +444,15 @@ class ColombiaTVCore():
                     print ("parse error")
 
                 # Parse the final URL
-                u = streamPath + "|Referer=" + urllib.unquote(requestUrl) + "&User-Agent=" + USER_AGENT
+                u = streamPath + "|Referer=" + urllib.parse.unquote(requestUrl) + "&User-Agent=" + USER_AGENT
                 print ("Final URL: " + u)
                 return u
             except:
                 pass
         
     #
-    # Bro.adca.st support
-    #
-    def getBroadcastSite (self, channelId, referUrl):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
-        channelUrl = "http://bro.adca.st/stream.php?id=" + channelId + "&p=1&c=0&stretching=uniform&old=0"
-        html = self.getRequest(channelUrl, urllib.unquote(referUrl), USER_AGENT) 
-
-        # Get the URL
-        m = re.compile ('tambor = "(.*?)"').search(html)
-        streamPath = m.group(1)
-        
-        # Get the tokenpage
-        m = re.compile ('firme = "(.*?)"').search(html)
-        tokenpage = m.group(1)
-        
-        # Get the token
-        html = self.getRequest("http://bro.adca.st/" + tokenpage, channelUrl, USER_AGENT, "XMLHttpRequest") 
-        m = re.compile (':"(.*?)"').search(html)
-        token = m.group(1)
-
-        # Parse the final URL
-        u = streamPath + token + '|Referer=' + urllib.quote(channelUrl, safe='') + '&User-Agent=' + USER_AGENT + "&Origin=http://bro.adca.st"
-        print ("Final URL: " + u)
-        return u
-        
-    #
     # Radiotime.com support
+    # Python3 migrated
     #
     def getRadiotime (self, station):
         streamPath = "http://opml.radiotime.com/Tune.ashx?formats=aac,html,mp3,ogg,qt,real,flash,wma,wmpro,wmvideo,wmvoice&partnerId=RadioTime&id=" + station
@@ -716,14 +494,14 @@ class ColombiaTVCore():
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
         referUrl = "http://gamovideo.com"
         channelUrl = "http://gamovideo.com/embed-" + vid + "-600x400.html"
-        html = self.getRequest(channelUrl, urllib.unquote(referUrl), USER_AGENT) 
+        html = self.getRequest(channelUrl, urllib.parse.unquote(referUrl), USER_AGENT) 
 
         # Get the URL
         m = re.compile ('file: "(h.*?)"').search(html)
         streamPath = m.group(1)
 
         # Parse the final URL
-        u = streamPath + '|Referer=' + urllib.quote(channelUrl, safe='') + '&User-Agent=' + USER_AGENT
+        u = streamPath + '|Referer=' + urllib.parse.quote(channelUrl, safe='') + '&User-Agent=' + USER_AGENT
         print ("Final URL: " + u)
         return u
 
@@ -735,7 +513,7 @@ class ColombiaTVCore():
         headers = {'User-Agent':USER_AGENT, 
                     'Referer': 'https://www.clarovideo.com', 
                     'Pragma': 'akamai-x-get-client-ip, akamai-x-cache-on, akamai-x-cache-remote-on, akamai-x-check-cacheable, akamai-x-get-cache-key, akamai-x-get-extracted-values, akamai-x-get-nonces, akamai-x-get-ssl-client-session-id, akamai-x-get-true-cache-key, akamai-x-serial-no, akamai-x-feo-trace, akamai-x-get-request-id' } 
-        request = urllib3.Request (base64.b64decode(urllib.unquote(url)), None, headers)
+        request = urllib3.Request (base64.b64decode(urllib.parse.unquote(url)), None, headers)
         response = urllib3.urlopen(request)
         data = json.load(response)
         video_url = data['response']['media']['video_url']
@@ -754,7 +532,7 @@ class ColombiaTVCore():
 
         # Get the device_id and token
         headers = {'User-Agent': USER_AGENT, 'Referer': 'https://www.clarovideo.com' } 
-        request = urllib3.Request (base64.b64decode(urllib.unquote(url_webapi)), None, headers)
+        request = urllib3.Request (base64.b64decode(urllib.parse.unquote(url_webapi)), None, headers)
         response = urllib3.urlopen(request)
         data = json.load(response)
         device_id = data['entry']['device_id']
@@ -766,7 +544,7 @@ class ColombiaTVCore():
         server_certificate = self.getRequest("https://widevine-vod.clarovideo.net/licenser/getcertificate", "https://www.clarovideo.com", USER_AGENT)
         
         # Create the listitem
-        list_item = self.xbmcgui.ListItem(path=url + '|Referer=' + urllib.unquote("https://www.clarovideo.com") + '&User-Agent=' + USER_AGENT)
+        list_item = self.xbmcgui.ListItem(path=url + '|Referer=' + urllib.parse.unquote("https://www.clarovideo.com") + '&User-Agent=' + USER_AGENT)
         list_item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
         list_item.setProperty('inputstream.adaptive.license_key', 'https://widevine-claroglobal-vod.clarovideo.net/licenser/getlicense|Content-Type=|{"token":"' + token + '","device_id":"' + device_id + '","widevineBody":"b{SSM}"}|')
         list_item.setProperty('inputstream.adaptive.server_certificate', server_certificate);
@@ -809,16 +587,17 @@ class ColombiaTVCore():
 
     #
     # Okru support
+    # Python3 migrated
     #
     def getOkru (self, vid):
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
         channelUrl = "https://ok.ru/video/" + vid
-        html = self.getRequest(channelUrl, "", USER_AGENT) 
+        html = self.getRequest(channelUrl, "", USER_AGENT)
 
         #
         # Unscape HTML
         #
-        html = BeautifulSoup(html, convertEntities=BeautifulSoup.HTML_ENTITIES)
+        html = BeautifulSoup(html, 'html.parser')
         unscapeHtml = str(html).replace("\\", "")
 
         # Get the URL
@@ -845,8 +624,8 @@ class ColombiaTVCore():
         try:
             # Get the decodeURL
             print ("VideoContent id: " + videoContentId)
-            print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-            html = self.getRequest("http://kastream.biz/embed.php?file=" + videoContentId, urllib.unquote(referUrl), USER_AGENT)
+            print ("URL: " + referUrl + " --> " + urllib.parse.unquote(referUrl))
+            html = self.getRequest("http://kastream.biz/embed.php?file=" + videoContentId, urllib.parse.unquote(referUrl), USER_AGENT)
             m = re.compile('source.*?:.*?"(.*?)"').search(html)
 
             # Parse the final URL
@@ -867,8 +646,8 @@ class ColombiaTVCore():
 
         # Get the decodeURL
         print ("VideoContent id: " + videoContentId)
-        print ("URL: " + referUrl + " --> " + urllib.unquote(referUrl))
-        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
+        print ("URL: " + referUrl + " --> " + urllib.parse.unquote(referUrl))
+        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.parse.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
         html = self.getRequestAdv("https://whostreams.net/embed/" + videoContentId, headers, False)
         
         #
@@ -885,7 +664,7 @@ class ColombiaTVCore():
             #
             wsUrl = re.compile('src:"(.*?)"').search(unPack)
             if (wsUrl):
-                u = wsUrl.group(1) + '|Referer=' + urllib.unquote(referUrl) + '&User-Agent=' + USER_AGENT
+                u = wsUrl.group(1) + '|Referer=' + urllib.parse.unquote(referUrl) + '&User-Agent=' + USER_AGENT
                 print ("Final URL: " + u)
                 return u 
 
@@ -895,7 +674,7 @@ class ColombiaTVCore():
     def getTlTv (self, channelId, referUrl):
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.5 Safari/537.36"
         channelUrl = base64.b64decode("aHR0cHM6Ly90ZWxlcml1bS50di9lbWJlZC8=") + channelId + ".html"
-        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
+        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.parse.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
         html = self.getRequestAdv(channelUrl, headers, False) 
 
         dataUnpack = re.compile('(eval\(function\(p,a,c,k,e,d\).*)').search(html)
@@ -943,7 +722,7 @@ class ColombiaTVCore():
 
             # Parse the final URL
             stream = 'https:{0}{1}|Referer={2}&User-Agent={3}&Origin={4}&Connection=keep-alive&Accept=*/*'
-            u = stream.format(cdn, tokenHtml, urllib.quote(channelUrl, safe=''), USER_AGENT, base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg=='))
+            u = stream.format(cdn, tokenHtml, urllib.parse.quote(channelUrl, safe=''), USER_AGENT, base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg=='))
             return u
 
     #
@@ -952,7 +731,7 @@ class ColombiaTVCore():
     def getWstream(self, videoContentId, referUrl):
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3730.0 Safari/537.36"
         channelUrl = "https://wstream.to/embed/" + videoContentId
-        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
+        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.parse.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
         html = self.getRequestAdv(channelUrl, headers, False) 
 
         dataUnpack = re.compile('(eval\(function\(p,a,c,k,e,d\).*)').search(html)
@@ -968,7 +747,7 @@ class ColombiaTVCore():
 
             # Parse the final URL
             stream = '{0}|Referer={1}&User-Agent={2}'
-            u = stream.format(streamUrl, urllib.quote(channelUrl, safe=''), USER_AGENT)
+            u = stream.format(streamUrl, urllib.parse.quote(channelUrl, safe=''), USER_AGENT)
             return u
 
 
@@ -978,7 +757,7 @@ class ColombiaTVCore():
     def getPremiumtv(self, videoContentId, referUrl):
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3730.0 Safari/537.36"
         channelUrl = "http://premiumtvchannels.com/clappr/" + videoContentId + ".php"
-        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
+        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.parse.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
         html = self.getRequestAdv(channelUrl, headers, False) 
         print ("html" + html)
 
@@ -991,7 +770,7 @@ class ColombiaTVCore():
             
             # Parse the final URL
             stream = '{0}|Referer={1}&User-Agent={2}'
-            u = stream.format(streamUrl, urllib.quote(channelUrl, safe=''), USER_AGENT)
+            u = stream.format(streamUrl, urllib.parse.quote(channelUrl, safe=''), USER_AGENT)
             return u
     
     
