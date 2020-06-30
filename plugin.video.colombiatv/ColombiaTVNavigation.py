@@ -111,7 +111,7 @@ class ColombiaTVNavigation():
         elif mode == 'streamango':  
             stream_url = self.core.getStreamango( params('vid') )
         elif mode == 'okru':  
-            stream_url = self.core.getOkru( params('vid') )
+            stream_url = self.core.getOkru( params('vid'), params('live') )
 
         if (stream_listitem == None):
             self.xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, self.xbmcgui.ListItem(path=stream_url))  

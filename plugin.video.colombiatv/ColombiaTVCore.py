@@ -589,26 +589,43 @@ class ColombiaTVCore():
     # Okru support
     # Python3 migrated
     #
-    def getOkru (self, vid):
+    def getOkru (self, vid, isLive):
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
-        channelUrl = "https://ok.ru/video/" + vid
-        html = self.getRequest(channelUrl, "", USER_AGENT)
+        if not isLive:
+            channelUrl = "https://ok.ru/video/" + vid
+            html = self.getRequest(channelUrl, "", USER_AGENT)
 
-        #
-        # Unscape HTML
-        #
-        html = BeautifulSoup(html, 'html.parser')
-        unscapeHtml = str(html).replace("\\", "")
+            #
+            # Unscape HTML
+            #
+            html = BeautifulSoup(html, 'html.parser')
+            unscapeHtml = str(html).replace("\\", "")
 
-        # Get the URL
-        m = re.findall (r'\{"name":"([^"]+)","url":"([^"]+)"', unscapeHtml)
-        if m:
-            for m_element in m:
-                if m_element[0] == "sd": #hd
-                    u = m_element[1].replace("%3B", ";").replace("u0026", "&")
-                elif m_element[0] == "low": 
-                    u = m_element[1].replace("%3B", ";").replace("u0026", "&")
-                
+            # Get the URL
+            m = re.findall (r'\{"name":"([^"]+)","url":"([^"]+)"', unscapeHtml)
+            if m:
+                for m_element in m:
+                    if m_element[0] == "sd": #hd
+                        u = m_element[1].replace("%3B", ";").replace("u0026", "&")
+                    elif m_element[0] == "low": 
+                        u = m_element[1].replace("%3B", ";").replace("u0026", "&")
+            
+        else:
+            channelUrl = "https://ok.ru/live/" + vid
+            html = self.getRequest(channelUrl, "", USER_AGENT)
+
+            #
+            # Unscape HTML
+            #
+            html = BeautifulSoup(html, 'html.parser')
+            unscapeHtml = str(html).replace("\\", "")
+            print (unscapeHtml)
+
+            # Get the URL
+            m = re.findall (r'"hlsMasterPlaylistUrl":"([^"]+)"', unscapeHtml)
+            if m:
+                u = m[0].replace("%3B", ";").replace("u0026", "&")
+
         print ("Final URL: " + u)
         return u
 
