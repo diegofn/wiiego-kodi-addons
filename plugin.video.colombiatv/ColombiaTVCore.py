@@ -465,7 +465,7 @@ class ColombiaTVCore():
         for line in response.data.decode('utf-8').splitlines():
             print('StreamURL: %s' % line)
 
-            # PLS file
+            # PLS file
             m = re.compile ("\.pls").search(line)
             if m:
                 requestPls = urllib3.Request(line)
@@ -689,10 +689,47 @@ class ColombiaTVCore():
     # tl.tv support
     #
     def getTlTv (self, channelId, referUrl):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.5 Safari/537.36"
-        channelUrl = base64.b64decode("aHR0cHM6Ly90ZWxlcml1bS50di9lbWJlZC8=") + channelId + ".html"
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4210.0 Safari/537.36 Edg/86.0.594.1"
+        channelUrl = base64.b64decode("aHR0cHM6Ly90ZWxlcml1bS50di9lbWJlZC8=").decode('utf-8') + channelId + ".html"
         headers = {'User-Agent':USER_AGENT, 'Referer':urllib.parse.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
         html = self.getRequestAdv(channelUrl, headers, False) 
+        
+        # Get the Token URL 
+        varNames = re.compile('url:.*?atob\((\w*?)\).*?\+.*?atob\((\w*?)\),')
+        
+        vars = varNames.findall(html)
+        if (vars):
+            part1Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[0][0])).findall(html)
+            part2Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[0][1])).findall(html)
+            print ("part1Reversed: {0}".format(part1Reversed))
+            print ("part2Reversed: {0}".format(part2Reversed))
+            part1 = base64.b64decode(part1Reversed[0]).decode('utf-8')[13:]
+            part2 = base64.b64decode(part2Reversed[0]).decode('utf-8')
+            if self.enabledebug: print ("part1 + part2: " + part1 + part2)
+
+            # Get the real token
+            tokenUrl = base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg==').decode('utf-8') + part1 + part2
+            if self.enabledebug: print ("Token URL " + tokenUrl)
+        
+            headers = { 
+                        'Connection': 'keep-alive', 
+                        'sec-ch-ua': base64.b64decode("IkNocm9taXVtIjt2PSI4NiIsICJcIk5vdFxcQTtCcmFuZCI7dj0iOTkiLCAiR29vZ2xlIENocm9tZSI7dj0iODYi").decode('utf-8'),
+                        'Accept': 'application/json, text/javascript, */*; q=0.01',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'sec-ch-ua-mobile': '?0',
+                        'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4234.0 Safari/537.36",
+                        'Sec-Fetch-Site': 'same-origin',
+                        'Sec-Fetch-Mode': 'cors',
+                        'Sec-Fetch-Dest': 'empty',
+                        
+                        'Referer': 'https://telerium.tv/embed/65588.html',
+                        'Accept-Language': 'en-US,en;q=0.9,es-CO;q=0.8,es;q=0.7',
+                        'Cookie': 'elVolumen=100; __ga=100'
+                    }
+                        
+            tokenJson = self.getRequestAdv(tokenUrl, headers, False)
+            if self.enabledebug: print ("tokenJson: " + tokenJson)
+            simpleTokenJson = json.loads(tokenJson)
 
         dataUnpack = re.compile('(eval\(function\(p,a,c,k,e,d\).*)').search(html)
         if (dataUnpack):
@@ -706,22 +743,27 @@ class ColombiaTVCore():
             vars = varNames.findall(unPack)[0]
             part1Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[0])).findall(unPack)[0]
             part2Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[1])).findall(unPack)[0]
-            part1 = base64.b64decode(part1Reversed)[8:]
-            part2 = base64.b64decode(part2Reversed)
+            part1 = base64.b64decode(part1Reversed).decode('utf-8')[13:]
+            part2 = base64.b64decode(part2Reversed).decode('utf-8')
             if self.enabledebug: print ("part1 + part2: " + part1 + part2)
 
             # Get the real token
-            tokenUrl = base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg==') + part1 + part2
-            headers = { 'Accept':'application/json, text/javascript, */*; q=0.01', 
-                        'Accept-Encoding': 'gzip, deflate, br',
-                        'Accept-Language':'en-US,en;q=0.9,es-CO;q=0.8,es;q=0.7',
+            tokenUrl = base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg==').decode('utf-8') + part1 + part2
+            if self.enabledebug: print ("Token URL " + tokenUrl)
+            
+            headers = { 
                         'Connection':'keep-alive',
-                        'User-Agent':USER_AGENT, 
-                        'Referer':channelUrl,  
-                        'Sec-Fetch-Mode':'cors',  
-                        'Sec-Fetch-Site':'same-origin',  
+                        'Accept':'application/json, text/javascript, */*; q=0.01', 
+                        'Accept-Language':'en-US,en;q=0.9',
+                        'Cookie': '__ga=100; _ga=GA1.2.964202277.1597020697; _gid=GA1.2.1406109300.1597020697; _gat_gtag_UA_148620610_1=1',
                         'X-Requested-With': 'XMLHttpRequest',
-                        'Cookie': 'volumeVar=100; _ga=GA1.2.820523732.1566237251; ChorreameLaJa=100'} 
+                        'User-Agent':USER_AGENT, 
+                        'Sec-Fetch-Site': 'same-origin',
+                        'Sec-Fetch-Mode': 'cors',
+                        'Sec-Fetch-Dest': 'empty',
+                        'Referer':channelUrl 
+                    }
+                       
             tokenJson = self.getRequestAdv(tokenUrl, headers, False)
             if self.enabledebug: print ("tokenJson: " + tokenJson)
             simpleTokenJson = json.loads(tokenJson)
