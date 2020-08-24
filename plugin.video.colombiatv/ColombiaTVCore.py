@@ -158,7 +158,9 @@ class ColombiaTVCore():
     def getRequestAdv (self, url, headers, isReplace=True):
         
         try:
-            http = urllib3.PoolManager(ca_certs=certifi.where())
+            http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',
+                                        ca_certs=certifi.where(),
+                                        retries=10)
             response = http.request('GET', url, headers)
             
             link1 = response.data.decode('utf-8')
@@ -809,6 +811,43 @@ class ColombiaTVCore():
             u = stream.format(streamUrl, urllib.parse.quote(channelUrl, safe=''), USER_AGENT)
             return u
 
+    #
+    # streamcdn support
+    #
+    def getStreamcdn(self, videoContentId, referUrl):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4242.0 Safari/537.36"
+        channelUrl = "https://streamcdn.to/e/" + videoContentId
+        headers = {
+            'Host': 'streamcdn.to',
+            'Accept-Encoding': 'deflate, gzip',
+            'authority': 'streamcdn.to',
+            'upgrade-insecure-requests': 1,
+            'user-agent': USER_AGENT, 
+            'accept':"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9", 
+            'sec-fetch-site': 'cross-site',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-dest': 'iframe',
+            'referer': urllib.parse.unquote(referUrl),
+            'accept-language':'en-US,en;q=0.9,es-CO;q=0.8,es;q=0.7'
+        } 
+        html = self.getRequestAdv(channelUrl, headers, False) 
+        print ("html" + html)
+
+        dataUnpack = re.compile('(eval\(function\(p,a,c,k,e,d\).*)').search(html)
+        if (dataUnpack):
+            unPacker = jsUnpack.jsUnpacker()
+            unPack = unPacker.unpack(dataUnpack.group(1))
+
+            # Get the URL
+            m = re.compile('src:"(.+?)"').search(unPack)
+            streamUrl = ""
+            if (m):
+                streamUrl = m.group(1)
+
+            # Parse the final URL
+            stream = '{0}|Referer={1}&User-Agent={2}'
+            u = stream.format(streamUrl, urllib.parse.quote(channelUrl, safe=''), USER_AGENT)
+            return u
 
     #
     # premiumtvchannels.tv support
