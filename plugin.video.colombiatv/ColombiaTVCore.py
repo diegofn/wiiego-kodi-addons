@@ -39,6 +39,9 @@ import jsUnpack
 import hqqresolver
 import xbmc
 
+import requests
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+
 from pyaes import openssl_aes
 from bs4 import BeautifulSoup
 
@@ -793,9 +796,11 @@ class ColombiaTVCore():
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3730.0 Safari/537.36"
         channelUrl = "https://wstream.to/embed/" + videoContentId
         headers = {'User-Agent':USER_AGENT, 'Referer':urllib.parse.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
-        html = self.getRequestAdv(channelUrl, headers, False) 
 
-        dataUnpack = re.compile('(eval\(function\(p,a,c,k,e,d\).*)').search(html)
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        html = requests.get(channelUrl, headers=headers)
+
+        dataUnpack = re.compile('(eval\(function\(p,a,c,k,e,d\).*)').search(html.text)
         if (dataUnpack):
             unPacker = jsUnpack.jsUnpacker()
             unPack = unPacker.unpack(dataUnpack.group(1))
@@ -812,31 +817,31 @@ class ColombiaTVCore():
             return u
 
     #
-    # streamcdn support
+    # getXyzembed379 support
     #
-    def getStreamcdn(self, videoContentId, referUrl):
+    def getXyzembed379(self, videoContentId, referUrl):
         USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4242.0 Safari/537.36"
-        channelUrl = "https://streamcdn.to/e/" + videoContentId
+        channelUrl = "https://xyzembed379.net/embed/" + videoContentId
         headers = {
-            'Host': 'streamcdn.to',
-            'Accept-Encoding': 'deflate, gzip',
-            'authority': 'streamcdn.to',
-            'upgrade-insecure-requests': 1,
+            'authority': 'xyzembed379.net',
+            'upgrade-insecure-requests': '1',
             'user-agent': USER_AGENT, 
-            'accept':"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9", 
             'sec-fetch-site': 'cross-site',
             'sec-fetch-mode': 'navigate',
             'sec-fetch-dest': 'iframe',
+            'accept':"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9", 
             'referer': urllib.parse.unquote(referUrl),
             'accept-language':'en-US,en;q=0.9,es-CO;q=0.8,es;q=0.7'
         } 
-        html = self.getRequestAdv(channelUrl, headers, False) 
-        print ("html" + html)
 
-        dataUnpack = re.compile('(eval\(function\(p,a,c,k,e,d\).*)').search(html)
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        html = requests.get(channelUrl, headers=headers)
+        
+        dataUnpack = re.compile('(eval\(function\(p,a,c,k,e,d\).*)').search(html.text)
         if (dataUnpack):
             unPacker = jsUnpack.jsUnpacker()
             unPack = unPacker.unpack(dataUnpack.group(1))
+            print ("unpack" + unPack)
 
             # Get the URL
             m = re.compile('src:"(.+?)"').search(unPack)
