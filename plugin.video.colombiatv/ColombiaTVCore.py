@@ -33,6 +33,7 @@ import gzip
 import json
 import base64
 import io
+from datetime import datetime, timedelta
 
 import jsUnwiser
 import jsUnpack
@@ -694,100 +695,48 @@ class ColombiaTVCore():
     # tl.tv support
     #
     def getTlTv (self, channelId, referUrl):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4210.0 Safari/537.36 Edg/86.0.594.1"
-        channelUrl = base64.b64decode("aHR0cHM6Ly90ZWxlcml1bS50di9lbWJlZC8=").decode('utf-8') + channelId + ".html"
-        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.parse.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
-        html = self.getRequestAdv(channelUrl, headers, False) 
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4289.0 Safari/537.36"
+        channelUrl = base64.b64decode("aHR0cHM6Ly90ZWxlcml1bS50dg==").decode('utf-8') + "/embed/" + channelId + ".html"
+        headers = {
+            'User-Agent':USER_AGENT, 
+            'Referer':urllib.parse.unquote(channelUrl), 
+            'Accept':"application/json, text/javascript, */*; q=0.01", 
+            'Accept-Language':'pl,en-US;q=0.7,en;q=0.3',
+            'X-Requested-With':'XMLHttpRequest'
+        } 
         
+        cookies = {'elVolumen': '100',
+               '__ga':'100'}
+
+        # Create URL channel
+        datenow = datetime.utcnow().replace(second=0, microsecond=0)
+        datenow = datenow + timedelta(days=1)
+        epoch = datetime(1970, 1, 1)
+        timer = (datenow - epoch).total_seconds()
+        datetoken = int(timer) * 1000
+        jsonUrl = base64.b64decode("aHR0cHM6Ly90ZWxlcml1bS50dg==").decode('utf-8') + "/streams/" + channelId + "/" + str(datetoken) + ".json"
+        if self.enabledebug: print ("jsonUrl: " + jsonUrl)
+
         # Get the Token URL 
-        varNames = re.compile('url:.*?atob\((\w*?)\).*?\+.*?atob\((\w*?)\),')
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        html = requests.get(jsonUrl, headers=headers, cookies=cookies, verify=False).content
+        if self.enabledebug: print ("html: " + html.decode('utf-8'))
+        tokens = json.loads(html)
+        cdn = tokens['url']
+        nexturl = base64.b64decode("aHR0cHM6Ly90ZWxlcml1bS50dg==").decode('utf-8') + tokens['tokenurl']
+        if self.enabledebug: print ("nexturl: " + nexturl)
         
-        vars = varNames.findall(html)
-        if (vars):
-            part1Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[0][0])).findall(html)
-            part2Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[0][1])).findall(html)
-            print ("part1Reversed: {0}".format(part1Reversed))
-            print ("part2Reversed: {0}".format(part2Reversed))
-            part1 = base64.b64decode(part1Reversed[0]).decode('utf-8')[13:]
-            part2 = base64.b64decode(part2Reversed[0]).decode('utf-8')
-            if self.enabledebug: print ("part1 + part2: " + part1 + part2)
-
-            # Get the real token
-            tokenUrl = base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg==').decode('utf-8') + part1 + part2
-            if self.enabledebug: print ("Token URL " + tokenUrl)
+        # Get the final Token
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        html = requests.get(nexturl, headers=headers, cookies=cookies, verify=False).content
+        tokens = json.loads(html)
+        tokenHtml = tokens[10][::-1]
+        if self.enabledebug: print ("tokenHtml: " + tokenHtml)
         
-            headers = { 
-                        'Connection': 'keep-alive', 
-                        'sec-ch-ua': base64.b64decode("IkNocm9taXVtIjt2PSI4NiIsICJcIk5vdFxcQTtCcmFuZCI7dj0iOTkiLCAiR29vZ2xlIENocm9tZSI7dj0iODYi").decode('utf-8'),
-                        'Accept': 'application/json, text/javascript, */*; q=0.01',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'sec-ch-ua-mobile': '?0',
-                        'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4234.0 Safari/537.36",
-                        'Sec-Fetch-Site': 'same-origin',
-                        'Sec-Fetch-Mode': 'cors',
-                        'Sec-Fetch-Dest': 'empty',
-                        
-                        'Referer': 'https://telerium.tv/embed/65588.html',
-                        'Accept-Language': 'en-US,en;q=0.9,es-CO;q=0.8,es;q=0.7',
-                        'Cookie': 'elVolumen=100; __ga=100'
-                    }
-                        
-            tokenJson = self.getRequestAdv(tokenUrl, headers, False)
-            if self.enabledebug: print ("tokenJson: " + tokenJson)
-            simpleTokenJson = json.loads(tokenJson)
-
-        dataUnpack = re.compile('(eval\(function\(p,a,c,k,e,d\).*)').search(html)
-        if (dataUnpack):
-            unPacker = jsUnpack.jsUnpacker()
-            unPack = unPacker.unpack(dataUnpack.group(1))
-            if self.enabledebug: print ("unPack: " + unPack)
-
-            # Get the Token URL 
-            varNames = re.compile('\{url:.*?atob\((\w*?)\).*?\+.*?atob\((\w*?)\),dataType\s*:\s*[\'\"]json[\'\"]')
-            
-            vars = varNames.findall(unPack)[0]
-            part1Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[0])).findall(unPack)[0]
-            part2Reversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[1])).findall(unPack)[0]
-            part1 = base64.b64decode(part1Reversed).decode('utf-8')[13:]
-            part2 = base64.b64decode(part2Reversed).decode('utf-8')
-            if self.enabledebug: print ("part1 + part2: " + part1 + part2)
-
-            # Get the real token
-            tokenUrl = base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg==').decode('utf-8') + part1 + part2
-            if self.enabledebug: print ("Token URL " + tokenUrl)
-            
-            headers = { 
-                        'Connection':'keep-alive',
-                        'Accept':'application/json, text/javascript, */*; q=0.01', 
-                        'Accept-Language':'en-US,en;q=0.9',
-                        'Cookie': '__ga=100; _ga=GA1.2.964202277.1597020697; _gid=GA1.2.1406109300.1597020697; _gat_gtag_UA_148620610_1=1',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'User-Agent':USER_AGENT, 
-                        'Sec-Fetch-Site': 'same-origin',
-                        'Sec-Fetch-Mode': 'cors',
-                        'Sec-Fetch-Dest': 'empty',
-                        'Referer':channelUrl 
-                    }
-                       
-            tokenJson = self.getRequestAdv(tokenUrl, headers, False)
-            if self.enabledebug: print ("tokenJson: " + tokenJson)
-            simpleTokenJson = json.loads(tokenJson)
-
-            if (simpleTokenJson):
-                tokenHtml = simpleTokenJson[5][::-1]
-                if self.enabledebug: print ("tokenHtml " + tokenHtml)
-
-            # Get the real CDN Url
-            varCdn = re.compile('if\(isXMobile\)\{(\w*?)=.*?\};')
-            vars = varCdn.findall(unPack)
-            cdnReversed = re.compile('{0}\s*=\s*[\'\"](.+?)[\'\"];'.format(vars[0])).findall(unPack)[0]
-            cdn = base64.b64decode(cdnReversed)
-            if self.enabledebug: print ("cdn: " + cdn)
-
-            # Parse the final URL
-            stream = 'https:{0}{1}|Referer={2}&User-Agent={3}&Origin={4}&Connection=keep-alive&Accept=*/*'
-            u = stream.format(cdn, tokenHtml, urllib.parse.quote(channelUrl, safe=''), USER_AGENT, base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg=='))
-            return u
+        # Parse the final URL
+        stream = 'https:{0}{1}|Referer={2}&User-Agent={3}&Origin={4}&Sec-Fetch-Mode=cors'
+        u = stream.format(cdn, tokenHtml, urllib.parse.quote(channelUrl, safe=''), USER_AGENT, base64.b64decode('aHR0cHM6Ly90ZWxlcml1bS50dg=='))
+        return u
 
     #
     # wstream.to support
@@ -804,9 +753,10 @@ class ColombiaTVCore():
         if (dataUnpack):
             unPacker = jsUnpack.jsUnpacker()
             unPack = unPacker.unpack(dataUnpack.group(1))
+            print ("unPack: " + unPack)
 
             # Get the URL
-            m = re.compile('src:"(.+?)"').search(unPack)
+            m = re.compile('source:"(.+?)"').search(unPack)
             streamUrl = ""
             if (m):
                 streamUrl = m.group(1)
@@ -844,7 +794,7 @@ class ColombiaTVCore():
             print ("unpack" + unPack)
 
             # Get the URL
-            m = re.compile('src:"(.+?)"').search(unPack)
+            m = re.compile('source:"(.+?)"').search(unPack)
             streamUrl = ""
             if (m):
                 streamUrl = m.group(1)
