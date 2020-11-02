@@ -515,13 +515,19 @@ class ColombiaTVCore():
     # HLS CV support
     #
     def getCVHLS (self, url):
-        USER_AGENT = "AppleCoreMedia/1.0.0.15E302 (iPhone; U; CPU OS 11_3_1 like Mac OS X; en_us)"
+        USER_AGENT = "com.dla.ClaroVideo/1 CFNetwork/1197 Darwin/20.0.0"
+
         headers = {'User-Agent':USER_AGENT, 
                     'Referer': 'https://www.clarovideo.com', 
                     'Pragma': 'akamai-x-get-client-ip, akamai-x-cache-on, akamai-x-cache-remote-on, akamai-x-check-cacheable, akamai-x-get-cache-key, akamai-x-get-extracted-values, akamai-x-get-nonces, akamai-x-get-ssl-client-session-id, akamai-x-get-true-cache-key, akamai-x-serial-no, akamai-x-feo-trace, akamai-x-get-request-id' } 
-        request = urllib3.Request (base64.b64decode(urllib.parse.unquote(url)), None, headers)
-        response = urllib3.urlopen(request)
-        data = json.load(response)
+        
+        media_url = base64.b64decode(urllib.parse.unquote(url)).decode('utf-8')
+        print ("media_url: " + media_url)
+
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        html = requests.get(media_url, headers=headers).content
+
+        data = json.loads(html)
         video_url = data['response']['media']['video_url']
         print ("video_url: " + video_url)
 
