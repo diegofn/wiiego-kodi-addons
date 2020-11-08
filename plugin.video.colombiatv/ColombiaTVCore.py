@@ -514,7 +514,7 @@ class ColombiaTVCore():
     #
     # HLS CV support
     #
-    def getCVHLS (self, url):
+    def getCVHLS (self, url, user_token):
         USER_AGENT = "com.dla.ClaroVideo/1 CFNetwork/1197 Darwin/20.0.0"
 
         headers = {'User-Agent':USER_AGENT, 
@@ -525,7 +525,11 @@ class ColombiaTVCore():
         print ("media_url: " + media_url)
 
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
-        html = requests.get(media_url, headers=headers).content
+        if (not user_token):
+            html = requests.get(media_url, headers=headers).content
+        else:
+            data = {"payway_token": "", "user_token": user_token} 
+            html = requests.post(media_url, headers=headers, data=data).content
 
         data = json.loads(html)
         video_url = data['response']['media']['video_url']
