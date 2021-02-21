@@ -7,7 +7,7 @@ Wiiego's Kodi Addons is a Multimedia Collection for Kodi to listen music, see vi
 
 You can download the Kodi repository from: https://github.com/diegofn/wiiego-kodi-addons/raw/master/repo/repository.wiiego/repository.wiiego-1.0.2.zip 
 
-A video tutorial to install in Kodi is available here: https://www.youtube.com/watch?v=XQ6XoJ5i_jM  
+A video tutorial to install in Kodi is available here: https://www.youtube.com/watch?v=XQ6XoJ5i_jM
 
 # Project resources
 

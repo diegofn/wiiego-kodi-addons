@@ -2,18 +2,15 @@
 <addons>
 <addon id="plugin.video.colombiatv"
        name="ColombiaTV"
-       version="1.6.5"
+       version="1.7.0"
        provider-name="Wiiego">
   <requires>
-    <import addon="xbmc.python" version="2.1.0" />
-    <import addon="script.module.simplejson" />
-    <import addon="script.common.plugin.cache" version="2.5.1" />
-    <import addon="script.module.parsedom" version="2.5.1" />
-    <import addon="script.module.simple.downloader" version="0.9.4" />
-    <import addon="script.module.beautifulsoup" version="3.2.1"/>
-    <import addon="script.module.requests" />
-    <import addon="script.module.httplib2" />
-    <import addon="script.module.urlresolver" optional="true"/>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.future" version="0.17.1"/>
+    <import addon="script.module.requests" version="2.22.0"/>
+    <import addon="script.module.urllib3" version="1.25.6"/>
+    <import addon="script.module.simplejson" version="3.17.0"/>
+    <import addon="script.module.beautifulsoup4" version="4.6.3"/>
   </requires>
   <extension point="xbmc.python.pluginsource"
             library="default.py">
@@ -21,9 +18,24 @@
   </extension>
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
-    <summary lang="en">ColombiaTV</summary>
-    <description lang="en">ColombiaTV is the best addon to watch the main TV Channels and shows from Colombia</description>
-    <description lang="es">ColombiaTV es el mejor addon para ver los principales canales y programas de Televisión de Colombia</description>
+    <summary lang="en_GB">ColombiaTV</summary>
+    <summary lang="es_ES">ColombiaTV</summary>
+    <license>GPL-2.0</license>
+    <description lang="en_GB">ColombiaTV is the best addon to watch the main TV Channels and shows from Colombia</description>
+    <description lang="es_ES">ColombiaTV es el mejor addon para ver los principales canales y programas de Televisión de Colombia</description>
+    <disclaimer lang="en_GB">This addon use public streaming links and does not violate copyright</disclaimer>
+    <description lang="es_ES">Este addon utiliza links de streaming púbicos y no viola los derechos de autor</description>
+    <language></language>
+    <forum>https://github.com/diegofn/wiiego-kodi-addons/issues</forum>
+    <website>https://github.com/diegofn/wiiego-kodi-addons</website>
+    <source>https://github.com/diegofn/wiiego-kodi-addons</source>
+    <assets>
+      <icon>icon.png</icon>
+      <fanart>fanart.jpg</fanart>
+      <screenshot>resources/images/screenshot-01.png</screenshot>
+      <screenshot>resources/images/screenshot-02.png</screenshot>
+      <screenshot>resources/images/screenshot-03.png</screenshot>
+    </assets>
   </extension>
 </addon>
 
