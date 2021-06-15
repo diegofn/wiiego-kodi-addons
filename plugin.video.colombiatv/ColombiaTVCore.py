@@ -376,25 +376,32 @@ class ColombiaTVCore():
     #
     def getRandom (self, host, requestUrl, refererUrl=""):
         if host == "ssh101":
-            try:
-                USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
-                print ("URL: " + requestUrl + " --> " + urllib.parse.unquote(requestUrl))
-                html = self.getRequest(urllib.parse.unquote(requestUrl), "", USER_AGENT) 
+            USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4466.0 Safari/537.36"
+            
+            headers = {
+                'authority': 'ssh101.com',
+                'upgrade-insecure-requests': '1',
+                'user-agent': USER_AGENT, 
+                'accept': "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9", 
+                'referer': urllib.parse.unquote(refererUrl),
+                'accept-language': 'en-US,en;q=0.9,es-CO;q=0.8,es;q=0.7'
+            } 
+            channelUrl = base64.b64decode(urllib.parse.unquote(requestUrl)).decode('utf-8')
+            requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+            html = requests.get(channelUrl, headers=headers).text
+            
+            # Get the URL Path
+            m = re.compile ("source src=\"(.*?)\"").search(html)
+            if m:
+                streamPath = m.group(1)
+            else:
+                print ("parse error")
 
-                # Get the URL Path
-                m = re.compile ("'file': '(.*?)',").search(html)
-                if m:
-                    streamPath = m.group(1)
-                else:
-                    print ("parse error")
-
-                # Parse the final URL
-                u = streamPath
-                print ("Final URL: " + u)
-                return u
-            except:
-                pass
-
+            # Parse the final URL
+            u = streamPath + "|Referer=" + urllib.parse.quote(channelUrl, safe='') + "&User-Agent=" + USER_AGENT 
+            print ("Final URL: " + u)
+            return u
+            
         elif host == "janjua":
             try:
                 USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.2989.0 Safari/537.36"
@@ -805,6 +812,44 @@ class ColombiaTVCore():
 
             # Get the URL
             m = re.compile('source:"(.+?)"').search(unPack)
+            streamUrl = ""
+            if (m):
+                streamUrl = m.group(1)
+
+            # Parse the final URL
+            stream = '{0}|Referer={1}&User-Agent={2}'
+            u = stream.format(streamUrl, urllib.parse.quote(channelUrl, safe=''), USER_AGENT)
+            return u
+
+    #
+    # wigistream.to support
+    #
+    def getWigistream(self, videoContentId, referUrl):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4242.0 Safari/537.36"
+        channelUrl = "https://wigistream.to/embed/" + videoContentId
+        headers = {
+            'authority': 'wigistream.to',
+            'upgrade-insecure-requests': '1',
+            'user-agent': USER_AGENT, 
+            'sec-fetch-site': 'cross-site',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-dest': 'iframe',
+            'accept':"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9", 
+            'referer': urllib.parse.unquote(referUrl),
+            'accept-language':'en-US,en;q=0.9,es-CO;q=0.8,es;q=0.7'
+        } 
+
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        html = requests.get(channelUrl, headers=headers)
+        
+        dataUnpack = re.compile('(eval\(function\(p,a,c,k,e,d\).*)').search(html.text)
+        if (dataUnpack):
+            unPacker = jsUnpack.jsUnpacker()
+            unPack = unPacker.unpack(dataUnpack.group(1))
+            print ("unpack" + unPack)
+
+            # Get the URL
+            m = re.compile('var src="(.+?)"').search(unPack)
             streamUrl = ""
             if (m):
                 streamUrl = m.group(1)

@@ -96,6 +96,8 @@ class ColombiaTVNavigation():
             stream_url = self.core.getWstream( params('channelid'), params('url') )
         elif mode == 'xyzembed379':
             stream_url = self.core.getXyzembed379( params('channelid'), params('url') )
+        elif mode == 'wigistream':
+            stream_url = self.core.getWigistream( params('channelid'), params('url') )
         elif mode == 'ptv':
             stream_url = self.core.getPremiumtv( params('channelid'), params('url') )
         elif mode == 'cvhls':  
