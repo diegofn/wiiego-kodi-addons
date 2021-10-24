@@ -1,3 +1,15 @@
+[B] Version 1.7.2 [/B]
+- Pkcast123
+- Update support
+
+[B] Version 1.7.1 [/B]
+- New ssh101 support
+- New wigistream support
+
+[B] Version 1.7.0 [/B]
+- Kodi Matrix support only
+- Python 3 migration
+
 [B] Version 1.6.5 [/B]
 - ColombiaPlay2 alpha 
 - Update tl support

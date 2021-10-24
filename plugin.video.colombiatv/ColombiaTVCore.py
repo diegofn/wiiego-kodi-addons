@@ -550,29 +550,38 @@ class ColombiaTVCore():
     #
     # MPD hide support
     #
-    def getCVMPD (self, url, url_webapi):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3730.0 Safari/537.36"
+    def getCVMPD (self, url):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4680.2 Safari/537.36"
 
         # Get the device_id and token
+        media_url = "https://mfwkweb-api.clarovideo.net/services/player/getmedia?api_version=v5.92&authpn=html5player&authpt=ad5565dfgsftr&format=json&region=colombia&device_id=beac6d8fdd97a5e184ace84f9988a0fc&device_category=web&device_model=html5&device_type=html5&device_so=Chrome&device_manufacturer=windows&HKS=(6af6dfd46e777a2ab797e40b007f9e75)&stream_type=dashwv&group_id=888842&preview=0&css=0&device_name=Chrome&crDomain=https://www.clarovideo.com"
         headers = {'User-Agent': USER_AGENT, 'Referer': 'https://www.clarovideo.com' } 
-        request = urllib3.Request (base64.b64decode(urllib.parse.unquote(url_webapi)), None, headers)
-        response = urllib3.urlopen(request)
-        data = json.load(response)
-        device_id = data['entry']['device_id']
+
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        html = requests.post(media_url, headers=headers).content
+        data = json.loads(html)
+        device_id = "beac6d8fdd97a5e184ace84f9988a0fc"
         token = json.loads(data['response']['media']['challenge'])['token']
+        material_id = json.loads(data['response']['media']['challenge'])['material_id']
         print ("device_id: " + device_id)
         print ("token: " + token)
+        print ("material_id: " + token)
 
         # Get the certificate
         server_certificate = self.getRequest("https://widevine-vod.clarovideo.net/licenser/getcertificate", "https://www.clarovideo.com", USER_AGENT)
         
+        # Get the mpd URL 
+        media_url = base64.b64decode(urllib.parse.unquote(url)).decode('utf-8')
+        print ("media_url: " + media_url)
+
         # Create the listitem
-        list_item = self.xbmcgui.ListItem(path=url + '|Referer=' + urllib.parse.unquote("https://www.clarovideo.com") + '&User-Agent=' + USER_AGENT)
-        list_item.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
-        list_item.setProperty('inputstream.adaptive.license_key', 'https://widevine-claroglobal-vod.clarovideo.net/licenser/getlicense|Content-Type=|{"token":"' + token + '","device_id":"' + device_id + '","widevineBody":"b{SSM}"}|')
+        list_item = self.xbmcgui.ListItem(path=media_url + '|User-Agent=' + USER_AGENT)
+        list_item.setProperty('inputstream.adaptive.license_type', 'com.microsoft.playready')
+        #list_item.setProperty('inputstream.adaptive.license_key', 'https://widevine-claroglobal-vod.clarovideo.net/licenser/getlicense|User-Agent=' + USER_AGENT + '|{"token":"24c735c1f0aa11d9f8fc56dd86c3fcb1","device_id":"beac6d8fdd97a5e184ace84f9988a0fc","widevineBody":"b{SSM}"}|')
+        list_item.setProperty('inputstream.adaptive.license_key', 'https://widevine-claroglobal-vod.clarovideo.net/licenser/getlicense|Content-Type=&User-Agent=' + USER_AGENT + '|{"token":"' + token + '","device_id":"' + device_id + '","material_id":"' + material_id + '","widevineBody":"b{SSM}"}|')
         list_item.setProperty('inputstream.adaptive.server_certificate', server_certificate);
         list_item.setProperty('inputstream.adaptive.manifest_type', 'mpd')
-        list_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
+        list_item.setProperty('inputstream', 'inputstream.adaptive')
         list_item.setMimeType('application/dash+xml')
         list_item.setContentLookup(False)
 
@@ -825,10 +834,11 @@ class ColombiaTVCore():
     # wigistream.to support
     #
     def getWigistream(self, videoContentId, referUrl):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4242.0 Safari/537.36"
-        channelUrl = "https://wigistream.to/embed/" + videoContentId
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4680.2 Safari/537.36"
+        channelUrl = "https://ragnarp.net/embed/" + videoContentId
+
         headers = {
-            'authority': 'wigistream.to',
+            'authority': 'ragnarp.net',
             'upgrade-insecure-requests': '1',
             'user-agent': USER_AGENT, 
             'sec-fetch-site': 'cross-site',
@@ -841,7 +851,7 @@ class ColombiaTVCore():
 
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
         html = requests.get(channelUrl, headers=headers)
-        
+
         dataUnpack = re.compile('(eval\(function\(p,a,c,k,e,d\).*)').search(html.text)
         if (dataUnpack):
             unPacker = jsUnpack.jsUnpacker()
@@ -859,26 +869,39 @@ class ColombiaTVCore():
             u = stream.format(streamUrl, urllib.parse.quote(channelUrl, safe=''), USER_AGENT)
             return u
 
-    #
-    # premiumtvchannels.tv support
-    #
-    def getPremiumtv(self, videoContentId, referUrl):
-        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3730.0 Safari/537.36"
-        channelUrl = "http://premiumtvchannels.com/clappr/" + videoContentId + ".php"
-        headers = {'User-Agent':USER_AGENT, 'Referer':urllib.parse.unquote(referUrl), 'Accept':"*/*", 'Accept-Encoding':'deflate', 'Accept-Language':'Accept-Language: en-US,en;q=0.9,es;q=0.8,zh-CN;q=0.7,zh;q=0.6,gl;q=ru;q=0.4'} 
-        html = self.getRequestAdv(channelUrl, headers, False) 
-        print ("html" + html)
 
-        m = re.compile('file: "(.*?)"').search(html)
-        if (not m):
-            m = re.compile('source: "(.*?)"').search(html)
+    #
+    # pkcast123.me support
+    #
+    def getPkcast123(self, videoContentId, referUrl):
+        USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4680.2 Safari/537.36"
+        channelUrl = "https://www.pkcast123.me/footy.php?player=desktop&live=" + videoContentId + "&vw=541&vh=400"
 
+        headers = {
+            'authority': 'https://www.pkcast123.me',
+            'upgrade-insecure-requests': '1',
+            'user-agent': USER_AGENT, 
+            'sec-fetch-site': 'cross-site',
+            'sec-fetch-mode': 'navigate',
+            'sec-fetch-dest': 'iframe',
+            'accept':"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9", 
+            'referer': urllib.parse.unquote(referUrl),
+            'accept-language':'en-US,en;q=0.9,es-CO;q=0.8,es;q=0.7'
+        } 
+
+        requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+        html = requests.get(channelUrl, headers=headers)
+
+        # Get the URL
+        m = re.compile('\"h\",\"t\",\"t\",\"p(.*)]').search(html.text)
+        streamUrl = ""
         if (m):
+            print ("m.group(1)>>" + m.group(1))
             streamUrl = m.group(1)
-            
-            # Parse the final URL
-            stream = '{0}|Referer={1}&User-Agent={2}'
-            u = stream.format(streamUrl, urllib.parse.quote(channelUrl, safe=''), USER_AGENT)
-            return u
-    
-    
+            streamUrl = "http" + streamUrl.replace('","',"").replace('\\', '')
+            print (streamUrl)
+
+        # Parse the final URL
+        stream = '{0}|Referer={1}&User-Agent={2}'
+        u = stream.format(streamUrl, urllib.parse.quote(channelUrl, safe=''), USER_AGENT)
+        return u

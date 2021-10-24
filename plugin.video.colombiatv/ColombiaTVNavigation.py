@@ -98,12 +98,14 @@ class ColombiaTVNavigation():
             stream_url = self.core.getXyzembed379( params('channelid'), params('url') )
         elif mode == 'wigistream':
             stream_url = self.core.getWigistream( params('channelid'), params('url') )
+        elif mode == 'pkcast123':
+            stream_url = self.core.getPkcast123( params('channelid'), params('url') )
         elif mode == 'ptv':
             stream_url = self.core.getPremiumtv( params('channelid'), params('url') )
         elif mode == 'cvhls':  
             stream_url = self.core.getCVHLS( params('url'), params('user_token') )
         elif mode == 'cvmpd':  
-            stream_listitem = self.core.getCVMPD( params('url'), params('url_webapi') )
+            stream_listitem = self.core.getCVMPD( params('url') )
         
         #
         # Videohosters
